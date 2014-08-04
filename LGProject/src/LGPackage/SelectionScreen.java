@@ -9,9 +9,12 @@ package LGPackage;
 
 
 
+import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.*;
+import static javax.swing.SwingConstants.VERTICAL;
 
 
 /**
@@ -27,37 +30,42 @@ public class SelectionScreen extends JFrame{
     public static int slidex;
     public static int slidey;
     
-            
+    
     public SelectionScreen (int h, int w){
     
      Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
      JFrame f=new JFrame("Movement & Target");
-              
+     Container contentPane = f.getContentPane();
+     //contentPane.setLayout(null);
+
      System.out.println( "heigth " + h + " and w " + w  );
      
-     if (h <=4 && w <=4){
+   /*  if (h <=4 && w <=4){
          fwidth = (Maxwidth*2)/3;
          fheight = (Maxheight*2)/3;
          
          f.setSize (fwidth ,fheight);
      }
      
-     else{ 
+     else{ */
          
          f.setSize (Maxwidth, Maxheight);
          fwidth = Maxwidth;
          fheight = Maxheight;
-     }
+     //}
      
 
-     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-     f.setLocation(dim.width/2-f.getSize().width/2, dim.height/2-f.getSize().height/2);
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setLocation(dim.width/2-f.getSize().width/2, dim.height/2-f.getSize().height/2);
      
-         
-     f.add(new BoardGUI(fheight, fwidth, h, w));
-     f.setVisible(true);
-  System.out.println("f");
+    BoardGUI board = new BoardGUI(fheight, fwidth, h, w);
+
+    f.add(board);
+
+    f.setVisible(true);
+    System.out.println("f");
      
+    
     }
     
 }

@@ -6,6 +6,7 @@
 
 package LGPackage;
 import java.awt.*;
+import java.awt.BorderLayout;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,8 +15,10 @@ import static java.lang.Math.abs;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import sun.java2d.Surface;
+
 
 /**
  *
@@ -32,7 +35,7 @@ private final int squareswidth;
 public static int squaresize;
 public final int panelwidth ;
 public final int panelheight;
-
+private final int sizepanel2;
 private int horizontalgap;
 private int verticalgap;
 
@@ -51,6 +54,18 @@ private TexturePaint lighttp;
         squareswidth  = sw; 
         panelwidth = (3*framewidth)/5;
         panelheight = frameheight-70; 
+        sizepanel2= framewidth-panelwidth;
+        JPanel tfPanel = new JPanel ();
+        tfPanel.setBackground(Color.RED);
+        tfPanel.add(new JButton ("hello"));
+        tfPanel.add(new JButton ("hello2"));
+        this.setLayout(new BorderLayout(panelwidth, 0));
+        
+       // tfPanel.setPreferredSize(new Dimension(sizepanel2, panelheight));
+        System.out.println("sizepanel2 " + sizepanel2);
+        this.add(tfPanel, BorderLayout.EAST);
+        
+    
     }
     
     private void loadImages() {
@@ -85,6 +100,7 @@ private TexturePaint lighttp;
                     squaresize = panelwidth/squareswidth;
         }
        
+        System.out.println("frame width and height" + frameheight  + " and " + framewidth);
         System.out.println("width and height" + panelheight  + " and " + panelwidth);
         
        horizontalgap = abs(panelwidth - (squaresize* squareswidth))/2;
@@ -127,7 +143,7 @@ private TexturePaint lighttp;
                         verticalgap + squaresize*y, squaresize, squaresize);  
             }          
            else{
-                g2d.setPaint(lighttp);;
+                g2d.setPaint(lighttp);
                 g2d.fillRect((horizontalgap+squaresize*x),
                         verticalgap + squaresize*y, squaresize, squaresize);                     
             } 
@@ -150,4 +166,6 @@ private TexturePaint lighttp;
               
     }
 }
+
+
 

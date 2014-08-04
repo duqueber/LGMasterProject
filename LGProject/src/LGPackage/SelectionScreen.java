@@ -40,19 +40,19 @@ public class SelectionScreen extends JFrame{
 
      System.out.println( "heigth " + h + " and w " + w  );
      
-   /*  if (h <=4 && w <=4){
+     if (h <=4 && w <=4){
          fwidth = (Maxwidth*2)/3;
          fheight = (Maxheight*2)/3;
          
          f.setSize (fwidth ,fheight);
      }
      
-     else{ */
+     else{ 
          
          f.setSize (Maxwidth, Maxheight);
          fwidth = Maxwidth;
          fheight = Maxheight;
-     //}
+    }
      
 
     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

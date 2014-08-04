@@ -15,6 +15,9 @@ import static java.lang.Math.abs;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import sun.java2d.Surface;
@@ -56,14 +59,19 @@ private TexturePaint lighttp;
         panelheight = frameheight-70; 
         sizepanel2= framewidth-panelwidth;
         JPanel tfPanel = new JPanel ();
-        tfPanel.setBackground(Color.RED);
+
+        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setPreferredSize(new Dimension(panelwidth, panelheight));
+        emptyPanel.setBackground(new Color(0,0,0,0));
+
+ 
         tfPanel.add(new JButton ("hello"));
         tfPanel.add(new JButton ("hello2"));
-        this.setLayout(new BorderLayout(panelwidth, 0));
-        
-       // tfPanel.setPreferredSize(new Dimension(sizepanel2, panelheight));
+
         System.out.println("sizepanel2 " + sizepanel2);
-        this.add(tfPanel, BorderLayout.EAST);
+        this.add(emptyPanel);
+        this.add(tfPanel);
         
     
     }

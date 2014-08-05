@@ -20,6 +20,8 @@ import javax.swing.BoxLayout;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.border.Border;
 import sun.java2d.Surface;
 
 
@@ -50,7 +52,6 @@ private TexturePaint lighttp;
     
     public BoardGUI( int fh, int fw, int sh, int sw) {   
 
-      //  panel = new JPanel();
         frameheight = fh;
         framewidth = fw;
         squaresheight = sh;
@@ -58,21 +59,32 @@ private TexturePaint lighttp;
         panelwidth = (3*framewidth)/5;
         panelheight = frameheight-70; 
         sizepanel2= framewidth-panelwidth;
-        JPanel tfPanel = new JPanel ();
 
-        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setSize(panelwidth,panelheight);
+        setLocation(0,0);
+        setBackground(Color.WHITE);
+        /* this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setPreferredSize(new Dimension(panelwidth, panelheight));
-        emptyPanel.setBackground(new Color(0,0,0,0));
+        emptyPanel.setPreferredSize(new Dimension(panelwidth, frameheight));
+        emptyPanel.setMaximumSize(new Dimension(panelwidth, frameheight));
+        emptyPanel.setMinimumSize(new Dimension(panelwidth, frameheight));
+        emptyPanel.setBackground(new Color(0,0,0,65));
+  
 
- 
-        tfPanel.add(new JButton ("hello"));
-        tfPanel.add(new JButton ("hello2"));
-
-        System.out.println("sizepanel2 " + sizepanel2);
-        this.add(emptyPanel);
-        this.add(tfPanel);
+        JPanel RightPanel = new JPanel ();
         
+
+
+        RightPanel.add(new JButton ("hello"));
+        RightPanel.add(new JButton ("hello2"));
+        RightPanel.setBackground (new Color(0,0,0,145));
+        
+  
+                
+        this.add(emptyPanel);
+        this.add(RightPanel);
+
+*/
     
     }
     

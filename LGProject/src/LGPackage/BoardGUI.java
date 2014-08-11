@@ -6,7 +6,7 @@
 
 package LGPackage;
 import java.awt.*;
-import java.awt.BorderLayout;
+
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,8 +15,8 @@ import static java.lang.Math.abs;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+
+
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -57,12 +57,12 @@ private TexturePaint lighttp;
         squaresheight = sh;
         squareswidth  = sw; 
         panelwidth = (3*framewidth)/5;
-        panelheight = frameheight-70; 
+        panelheight = frameheight-80; 
         sizepanel2= framewidth-panelwidth;
 
         setSize(panelwidth,panelheight);
-        setLocation(0,0);
-        setBackground(Color.WHITE);
+        setLocation(0,20);
+        setBackground(Color.WHITE);//fix 30 30
         /* this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         JPanel emptyPanel = new JPanel();
         emptyPanel.setPreferredSize(new Dimension(panelwidth, frameheight));
@@ -125,7 +125,7 @@ private TexturePaint lighttp;
         
        horizontalgap = abs(panelwidth - (squaresize* squareswidth))/2;
        
-       verticalgap = abs(panelheight - (squaresize* squaresheight))/2+20;
+       verticalgap = abs(panelheight - (squaresize* squaresheight))/2;
        
        darktp = new TexturePaint(dark, new Rectangle(0, 0, squaresize, squaresize));
        lighttp = new TexturePaint(light, new Rectangle(0, 0, squaresize, squaresize));

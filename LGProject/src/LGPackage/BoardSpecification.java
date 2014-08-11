@@ -1,3 +1,5 @@
+package LGPackage;
+
 
 import LGPackage.Board;
 import LGPackage.BoardGUI;
@@ -19,8 +21,9 @@ import javax.swing.*;
         
 public class BoardSpecification extends javax.swing.JFrame {
 
-    public static int Userheight;
-    public static int Userwidth;
+    public static int UserY;
+    public static int UserX;
+    public static int UserZ;
     /**
      * Creates new form BoardSpecification
      */
@@ -39,22 +42,24 @@ public class BoardSpecification extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        ComboWidth = new javax.swing.JComboBox();
-        ComboHeight = new javax.swing.JComboBox();
+        ComboX = new javax.swing.JComboBox();
+        ComboY = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         ContinueButton = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        ComboZ = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Board Specifications");
 
-        ComboWidth.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
+        ComboX.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
 
-        ComboHeight.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
+        ComboY.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
 
-        jLabel1.setText("Width");
+        jLabel1.setText("X");
 
-        jLabel2.setText("Height");
+        jLabel2.setText("Y");
 
         ContinueButton.setText("Continue");
         ContinueButton.addActionListener(new java.awt.event.ActionListener() {
@@ -63,22 +68,27 @@ public class BoardSpecification extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setText("Z");
+
+        ComboZ.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addComponent(ComboWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(ComboHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(183, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(99, 99, 99)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ComboX, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(25, 25, 25)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ComboY, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(32, 32, 32)
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ComboZ, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(ContinueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(32, 32, 32))
         );
@@ -87,11 +97,13 @@ public class BoardSpecification extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(67, 67, 67)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jLabel1)
-                    .addComponent(ComboWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ComboY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ComboX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(ComboHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                    .addComponent(jLabel1)
+                    .addComponent(ComboZ, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
                 .addComponent(ContinueButton)
                 .addGap(24, 24, 24))
         );
@@ -104,16 +116,18 @@ public class BoardSpecification extends javax.swing.JFrame {
         // "Continues" gets height and width entered by the user. 
         // It tests that at least one of the specifications is not 0
         
-        String h = (String)ComboHeight.getSelectedItem();
-        String w = (String)ComboWidth.getSelectedItem();
+        String yString = (String)ComboY.getSelectedItem();
+        String xString = (String)ComboX.getSelectedItem();
+        String zString = (String)ComboZ.getSelectedItem();
         
-        Userheight = Integer.parseInt(h);
-        Userwidth =  Integer.parseInt(w);
-        Board board = new Board (Userheight, Userwidth);
+        UserY = Integer.parseInt(yString);
+        UserX =  Integer.parseInt(xString);
+        UserZ = Integer.parseInt(zString);
+        Board board = new Board (UserY, UserX, UserZ);
         
         this.setVisible(false);
         
-        SelectionScreen f=new SelectionScreen(Userheight, Userwidth);            
+        SelectionScreen f=new SelectionScreen(UserY, UserX);            
         
     }//GEN-LAST:event_ContinueButtonActionPerformed
 
@@ -153,10 +167,12 @@ public class BoardSpecification extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox ComboHeight;
-    private javax.swing.JComboBox ComboWidth;
+    private javax.swing.JComboBox ComboX;
+    private javax.swing.JComboBox ComboY;
+    private javax.swing.JComboBox ComboZ;
     private javax.swing.JButton ContinueButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

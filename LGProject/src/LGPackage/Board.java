@@ -12,26 +12,31 @@ package LGPackage;
  */
 public class Board {
     
-    private static int height;
-    private static int width;
- 
+    private static int Yaxis;
+    private static int Xaxis;
+    private static int Zaxis;
     
     public Board(){};
-    public Board (int h, int w){
-        this.height = h;
-        this.width = w;
+    public Board (int x, int y, int z){
+        this.Yaxis = y;
+        this.Xaxis = x;
+        this.Zaxis =z;
         //this.squaresize =
         
-        System.out.println("The height chosen by user is " + height + " and the "
-                + "width is " + width);
+        System.out.println("The Y chosen by user is " + Yaxis + " and the "
+                + "width is " + Xaxis + " and the Z is " + Zaxis);
     }
     
-    public final int getUserHeight(){
-        return height;
+    public final int getUserY(){
+        return Yaxis;
     }
     
-    public final int getUserWidth(){
-        return width;
+    public final int getUserX(){
+        return Xaxis;
     }
 
+    public final int getUserZ(){
+        return Zaxis;
+    }
+    
 }

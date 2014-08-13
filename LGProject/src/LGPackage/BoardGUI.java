@@ -6,86 +6,68 @@
 
 package LGPackage;
 import java.awt.*;
-
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import static java.lang.Math.abs;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-
-
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.border.Border;
 import sun.java2d.Surface;
-
-
-/**
- *
- * @author nati
- */
-
 
 public class BoardGUI extends JPanel {
  
-private final int frameheight;
-private final int framewidth;
+//private final int frameheight;
+//private final int framewidth;
 private final int squaresheight;
 private final int squareswidth;
-public static int squaresize;
-public final int panelwidth ;
-public final int panelheight;
-private final int sizepanel2;
-private int horizontalgap;
-private int verticalgap;
+public  static int squaresize;
+//public int panelwidth ;
+//public int panelheight;
+
+//private final int horizontalgap;
+//private final int verticalgap;
+//private final int location_x;
+//private final int location_y;
 
 private BufferedImage dark;
 private BufferedImage light;
 private TexturePaint darktp;
 private TexturePaint lighttp;
 
-    
-    public BoardGUI( int fh, int fw, int sh, int sw) {   
+/*
+Graphics bufferGraphics;
+// The image that will contain everything that has been drawn on
+// bufferGraphics.
+Image offscreen;
+// To get the width and height of the applet.
+Dimension dim;*/
 
-        frameheight = fh;
-        framewidth = fw;
-        squaresheight = sh;
-        squareswidth  = sw; 
-        panelwidth = (3*framewidth)/5;
+    public BoardGUI( int sh, int sw) {   
+
+       squaresheight = 20;
+       squareswidth  = 20; 
+             
+       /* panelwidth = (3*framewidth)/5;
         panelheight = frameheight-80; 
-        sizepanel2= framewidth-panelwidth;
-
-        setSize(panelwidth,panelheight);
-        setLocation(0,20);
-        setBackground(Color.WHITE);//fix 30 30
-        /* this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setPreferredSize(new Dimension(panelwidth, frameheight));
-        emptyPanel.setMaximumSize(new Dimension(panelwidth, frameheight));
-        emptyPanel.setMinimumSize(new Dimension(panelwidth, frameheight));
-        emptyPanel.setBackground(new Color(0,0,0,65));
-  
-
-        JPanel RightPanel = new JPanel ();
+        calculate_squaresize();
         
-
-
-        RightPanel.add(new JButton ("hello"));
-        RightPanel.add(new JButton ("hello2"));
-        RightPanel.setBackground (new Color(0,0,0,145));
+        //recalculates size of panes so it is divisible by the number of squares
+        horizontalgap =(abs(panelwidth - (squaresize* squareswidth))/2) ;
+       
+        verticalgap = (abs(frameheight - (squaresize* squaresheight))/2);
+        int panelwidth_init = panelwidth;
         
-  
-                
-        this.add(emptyPanel);
-        this.add(RightPanel);
+        int panelheight_init = panelheight;
+        panelwidth = (squareswidth * squaresize)+2*horizontalgap;
+        panelheight = (squaresheight * squaresize)+2*verticalgap;
 
-*/
-    
+      */  
+          int size = 721;
+          squaresize = (size-1)/20;
+
+        setPreferredSize( new Dimension (size+40, size+40));
+        
     }
     
     private void loadImages() {
@@ -102,11 +84,9 @@ private TexturePaint lighttp;
         }
     }
 
-    private void doDrawing(Graphics g) {
-
-        Graphics2D g2d = (Graphics2D) g;
-        //this.setBounds (20,20,panelwidth, panelheight);
-        if (squaresheight > squareswidth){
+    /*private void calculate_squaresize(){
+    
+    if (squaresheight > squareswidth){
             if (panelheight < panelwidth)
                     squaresize = panelheight/squaresheight;
             else
@@ -119,20 +99,15 @@ private TexturePaint lighttp;
             else
                     squaresize = panelwidth/squareswidth;
         }
-       
-        System.out.println("frame width and height" + frameheight  + " and " + framewidth);
-        System.out.println("width and height" + panelheight  + " and " + panelwidth);
         
-       horizontalgap = abs(panelwidth - (squaresize* squareswidth))/2;
-       
-       verticalgap = abs(panelheight - (squaresize* squaresheight))/2;
-       
+    }*/
+
+    private void doDrawing(Graphics g) {
+
+       Graphics2D g2d = (Graphics2D) g;
+  
        darktp = new TexturePaint(dark, new Rectangle(0, 0, squaresize, squaresize));
        lighttp = new TexturePaint(light, new Rectangle(0, 0, squaresize, squaresize));
-       
-       System.out.println("squaresize " + squaresize);
-       
-       System.out.println("vertical and horizontal " + verticalgap + " and " + horizontalgap);
        
        for (int y = 0; y< squaresheight; y++)        
        {
@@ -140,15 +115,14 @@ private TexturePaint lighttp;
            
            if (y%2==0){
                 g2d.setPaint(darktp);
-                g2d.fillRect(horizontalgap +squaresize*x, 
-                        verticalgap + squaresize*y, squaresize, squaresize);  
+                g2d.fillRect(squaresize*x+20, 
+                        squaresize*y+20, squaresize, squaresize);  
             }
            
            else{
                 g2d.setPaint(darktp);
-                g2d.fillRect((horizontalgap+squaresize*x),
-                        verticalgap + squaresize*y, squaresize, squaresize);      
-                
+                g2d.fillRect((squaresize*x+20),
+                        squaresize*y+20, squaresize, squaresize);                    
             } 
           }    
         }  
@@ -159,31 +133,36 @@ private TexturePaint lighttp;
            
            if (y%2==1){
                 g2d.setPaint(lighttp);
-                g2d.fillRect(horizontalgap +squaresize*x, 
-                        verticalgap + squaresize*y, squaresize, squaresize);  
+                g2d.fillRect(squaresize*x+20, 
+                        squaresize*y+20, squaresize, squaresize);  
             }          
            else{
                 g2d.setPaint(lighttp);
-                g2d.fillRect((horizontalgap+squaresize*x),
-                        verticalgap + squaresize*y, squaresize, squaresize);                     
+                g2d.fillRect((squaresize*x)+20,
+                         squaresize*y+20, squaresize, squaresize);                     
             } 
           }    
         }   
     }
     
     
+/*@Override
+    public void paint (Graphics g){
+        
+        offscreen = createImage(getWidth(), getHeight());
+        bufferGraphics = offscreen.getGraphics();
+        paintComponent (bufferGraphics);
+       
+        
+        g.drawImage(offscreen, 0,0, this);
+    }*/
+    
 @Override
      public void paintComponent(Graphics g) {
               
         super.paintComponent(g);
-       // int panelwidth = (3*framewidth)/5;
-        //int panelheight = frameheight-70;
-        
-
         loadImages(); 
-        doDrawing(g); // draws board  
-
-              
+        doDrawing(g); // draws board       
     }
 }
 

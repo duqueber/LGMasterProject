@@ -1,16 +1,6 @@
 package LGPackage;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
-
-
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -19,31 +9,32 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
-import static javax.swing.SwingConstants.VERTICAL;
 
-
-/**
- *
- * @author nati
- */
 public class SelectionScreen extends JFrame{
     
-    public static final int Maxwidth = Toolkit.getDefaultToolkit().getScreenSize().width - 40;
-    public static final int Maxheight = Toolkit.getDefaultToolkit().getScreenSize().height -40;
-    public static int fwidth;
-    public static int fheight;
-
-    
+   // public static final int Maxwidth = Toolkit.getDefaultToolkit().getScreenSize().width - 40;
+   // public static final int Maxheight = Toolkit.getDefaultToolkit().getScreenSize().height -40;
+   //public static int fwidth;
+   // public static int fheight;
+    public static JPanel RPanel;
+    public JPanel border;
+     BoardGUI board;
+     int h;
+     int w;
     
     public SelectionScreen (int h, int w){
-    
-     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-     JFrame f=new JFrame("Movement & Target");
-     f.setLayout(null);
+    super ("Location");
      
-     System.out.println( "heigth " + h + " and w " + w  );
-     
+     this.h =h;
+     this.w=w;
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
+     System.out.println( "screen heigth " + dim.height  );
+     /*
      if (h <=4 && w <=4){
          fwidth = (Maxwidth*2)/3;
          fheight = (Maxheight*2)/3;
@@ -58,46 +49,56 @@ public class SelectionScreen extends JFrame{
          fheight = Maxheight;
     }
      
+    */
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+    setLayout(new BorderLayout());
+    Container c = getContentPane();
 
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    f.setLocation(dim.width/2-f.getSize().width/2, dim.height/2-f.getSize().height/2);
+    createBoard();
+    c.add(board, BorderLayout.WEST);
+    
+  /*  final int widthofRPanel = this.getWidth() - (board.getWidth()) -10 ;
+    final int locAfterBoard = board.getWidth()+10;
+    final int heightofRPanel = this.getHeight()-1;
+    System.out.println("w of Rpanels, loc after Board, height of panel" + widthofRPanel + ", " 
+    + locAfterBoard + " and " + heightofRPanel);*/
+    c.add(RightPanel ( ), BorderLayout.CENTER);
 
-    BoardGUI board = new BoardGUI(fheight, fwidth, h, w);
-    
+    setResizable(false);
+    pack();
+    setLocationRelativeTo(null);
+    setVisible(true);
 
-    f.getContentPane().add(board);
-    
-    final int widthofRPanel = fwidth - (board.panelwidth+40) ;
-    final int locAfterBoard = board.panelwidth+10;
-    final int heightofRPanel = board.panelheight;
-    
-
-    f.getContentPane().add(RightPanel ( widthofRPanel, locAfterBoard, heightofRPanel));
-    f.setVisible(true);
-    
-    System.out.println("f");
-     
-    
     }
     
+    private void createBoard(){
+    border = new JPanel();
+    board = new BoardGUI(h,w);
+    border.add(board);
+  }
+
+    private JPanel RightPanel (){
     
-    private JPanel RightPanel (int widthofRPanel, int locAfterBoard, int heightofRPanel){
-    
-        JPanel RPanel = new JPanel ();
-        RPanel.setSize(widthofRPanel, heightofRPanel);
-        RPanel.setLocation(locAfterBoard, 20);
-        RPanel.setBackground(Color.BLUE);
+        RPanel = new JPanel ();
+       // RPanel.setSize(widthofRPanel, heightofRPanel);
+       // RPanel.setLocation(locAfterBoard, 1);
+      //  RPanel.setLayout(null);
+      //  RPanel.setBackground(Color.BLUE);
        // RPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
         RPanel.setLayout(new GridBagLayout());
+
+        RPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         GridBagConstraints c = new GridBagConstraints();
         c.weighty = 0.2; 
         c.weightx = 0.2;
-        
+
         JLabel Team = new JLabel ("Team");
         c.gridx = 0;
         c.gridy =0;
-
-        RPanel.add (Team, c);
+     
+        RPanel.add (Team);
         
         JComboBox TeamNumber = new JComboBox();
         TeamNumber.setModel(new DefaultComboBoxModel(new String[] {"1", "2"}));
@@ -106,8 +107,8 @@ public class SelectionScreen extends JFrame{
        
         RPanel.add(TeamNumber,c);
 
-     //   c.insets = new Insets(0,10,0,0);  //top padding
-     //   c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0,10,0,0);  //top padding
+        c.fill = GridBagConstraints.HORIZONTAL;
         
 
         JButton Jeep = new JButton("Jeep");
@@ -129,7 +130,11 @@ public class SelectionScreen extends JFrame{
 
         Jeep.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                JeepButtonActionPerformed(evt);
+                try {
+                    JeepButtonActionPerformed(evt);
+                } catch (IOException ex) {
+                    Logger.getLogger(SelectionScreen.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
                 });
         
@@ -159,18 +164,29 @@ public class SelectionScreen extends JFrame{
         for (int i = 0; i < listOfQty.length; i++){
             c.gridx = 1;
             c.gridy = i+1;
-         //   RPanel.add(listOfQty[i],c);
+            RPanel.add(listOfQty[i],c);
         }
         
+        pack();
         return RPanel;
     } 
     
-      private void JeepButtonActionPerformed(java.awt.event.ActionEvent evt) {
+      private void JeepButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
           
-        PieceSpecificationGUI p = new PieceSpecificationGUI();
+        PieceSpecificationGUI p = new PieceSpecificationGUI(this);
           
       
   } 
+
+          public static void main(String args[]) {
+    /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new SelectionScreen(0,0).setVisible(true);
+            }
+        });
+    }
     
 }
 

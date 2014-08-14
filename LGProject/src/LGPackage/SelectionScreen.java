@@ -25,7 +25,16 @@ public class SelectionScreen extends JFrame{
      BoardGUI board;
      int h;
      int w;
-    
+     
+  SpinnerNumberModel modelJeep;
+  SpinnerNumberModel modelTank;
+  SpinnerNumberModel modelJet;
+  SpinnerNumberModel modelHelicopter;
+  SpinnerNumberModel modelObstacle;
+  SpinnerNumberModel modelCustomQty;
+  
+  JSpinner JeepQty; 
+  
     public SelectionScreen (int h, int w){
     super ("Location");
      
@@ -67,7 +76,7 @@ public class SelectionScreen extends JFrame{
 
     setResizable(false);
     pack();
-    setLocationRelativeTo(null);
+    //setLocationRelativeTo(null);
     setVisible(true);
 
     }
@@ -98,7 +107,7 @@ public class SelectionScreen extends JFrame{
         c.gridx = 0;
         c.gridy =0;
      
-        RPanel.add (Team);
+        RPanel.add (Team,c);
         
         JComboBox TeamNumber = new JComboBox();
         TeamNumber.setModel(new DefaultComboBoxModel(new String[] {"1", "2"}));
@@ -143,23 +152,23 @@ public class SelectionScreen extends JFrame{
         Integer max = 10;
         Integer step = 1;
         
-        SpinnerNumberModel model0 = new SpinnerNumberModel(value, min, max, step);
-        SpinnerNumberModel model1 = new SpinnerNumberModel(value, min, max, step);
-        SpinnerNumberModel model2 = new SpinnerNumberModel(value, min, max, step);
-        SpinnerNumberModel model3 = new SpinnerNumberModel(value, min, max, step);
-        SpinnerNumberModel model4 = new SpinnerNumberModel(value, min, max, step);
-        SpinnerNumberModel model5 = new SpinnerNumberModel(value, min, max, step);
+        modelJeep = new SpinnerNumberModel(value, min, max, step);
+        modelTank = new SpinnerNumberModel(value, min, max, step);
+        modelJet = new SpinnerNumberModel(value, min, max, step);
+        modelHelicopter = new SpinnerNumberModel(value, min, max, step);
+        modelCustomQty = new SpinnerNumberModel(value, min, max, step);
+        modelObstacle = new SpinnerNumberModel(value, min, max, step);
       
-        JSpinner JeepQty = new JSpinner(model0);
-        JSpinner TankQty = new JSpinner(model1);
-        JSpinner JetQty = new JSpinner(model2);
-        JSpinner HelicopterQty = new JSpinner(model3);
-        JSpinner CustomQty = new JSpinner(model4);
-        JSpinner ObstaclesQty = new JSpinner(model5);
-        JSpinner l = new JSpinner(model0);
+        JeepQty = new JSpinner(modelJeep);
+        JSpinner TankQty = new JSpinner(modelTank);
+        JSpinner JetQty = new JSpinner(modelJet);
+        JSpinner HelicopterQty = new JSpinner(modelHelicopter);
+        JSpinner CustomQty = new JSpinner(modelCustomQty);
+        JSpinner ObstaclesQty = new JSpinner(modelObstacle);
+        //JSpinner l = new JSpinner(model);
     
         JSpinner[] listOfQty = new JSpinner[]{JeepQty, TankQty, JetQty,
-        HelicopterQty, CustomQty, ObstaclesQty, l };
+        HelicopterQty, CustomQty, ObstaclesQty };
         
         for (int i = 0; i < listOfQty.length; i++){
             c.gridx = 1;
@@ -170,6 +179,11 @@ public class SelectionScreen extends JFrame{
         pack();
         return RPanel;
     } 
+    
+    public final int getJeepQty (){
+            
+        return modelJeep.getNumber().intValue();
+    }
     
       private void JeepButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
           

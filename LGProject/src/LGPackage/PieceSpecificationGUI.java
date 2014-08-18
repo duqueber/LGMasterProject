@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -32,6 +34,7 @@ public class PieceSpecificationGUI extends JFrame {
   {
     super ("pieces"); 
     this.s = s;
+    locateJeepActive = true;
     int dimw = Toolkit.getDefaultToolkit().getScreenSize().width;       
 
     Container c = getContentPane();
@@ -65,9 +68,11 @@ public class PieceSpecificationGUI extends JFrame {
     
   } 
 
-    public class LocationPanel implements ItemListener{
+    public static class LocationPanel implements ItemListener{
 
         JPanel CardPanel;
+        public static java.util.List<LocationPanelStruct>  lpsArray = Collections.synchronizedList(new ArrayList<LocationPanelStruct> ()); 
+        private static int currentCard = 1;
 
         public void setLocationPanel( Container l){
 
@@ -98,12 +103,18 @@ public class PieceSpecificationGUI extends JFrame {
             JLabel y = new JLabel ("y");
             JLabel z = new JLabel ("z");
 
+            LocationPanelStruct lps = new LocationPanelStruct();
+            
             xyzPanel.add(x);
+            xyzPanel.add (lps.xloc);
             xyzPanel.add(y);
+            xyzPanel.add (lps.yloc);
             xyzPanel.add(z);
+            xyzPanel.add (lps.zloc);
 
             for (int i=0; i < xyz.length; i++){ 
                 xyz[i] = xyzPanel;
+                lpsArray.add(lps);
             }
 
 
@@ -111,9 +122,10 @@ public class PieceSpecificationGUI extends JFrame {
             CardPanel= new JPanel(new CardLayout());
 
             for (int i = 0; i< s.getJeepQty(); i++){
-                    CardPanel.add(xyz[0], list [0]);
+                    CardPanel.add(xyz[i], list [i]);
             }
 
+          
           l.add (CardPanel, BorderLayout.LINE_START);
           l.add (ComboPanel, BorderLayout.CENTER);
 
@@ -122,10 +134,46 @@ public class PieceSpecificationGUI extends JFrame {
         @Override
         public void itemStateChanged(ItemEvent evt) {
             CardLayout cl = (CardLayout)(CardPanel.getLayout());
-        cl.show(CardPanel, (String)evt.getItem());
+            String item = ((String)evt.getItem());
+        cl.show(CardPanel, item);
+        currentCard = Integer.parseInt(item);       
     }
 
-      }// END LocationPanel Class
+        public class LocationPanelStruct {
+            
+            JTextPane xloc, yloc, zloc;
+            LocationPanelStruct (){
+                xloc = new JTextPane();
+                yloc = new JTextPane();
+                zloc = new JTextPane();
+                xloc.setEditable(false);
+                yloc.setEditable(false);
+                zloc.setEditable(false);
+            }
+           
+            
+        }// Endo of LocationPanelStruct
+    
+      public static void setCurrentXPanelText (String xtext){
+          
+          lpsArray.get(currentCard-1).xloc.setText(xtext); 
+        //  for (int i = 0 ; lpsArray.size()< i; i++){
+         // System.out.println("Lps array is index " + (i-1) + "lps.x, y" + lpsArray.get(i-1).xloc.getText() );
+          
+         // }
+       }
+      
+      public static void setCurrentYPanelText (String ytext){
+          
+          lpsArray.get(currentCard-1).yloc.setText(ytext); 
+      }
+      
+      public static void setCurrentZPanelText (String ztext){
+          
+          lpsArray.get(currentCard-1).xloc.setText(ztext); 
+      }     
+    
+     }// END LocationPanel Class
 
 
     public class LocationButtonPanel{
@@ -170,4 +218,7 @@ public class PieceSpecificationGUI extends JFrame {
       new PieceSpecificationGUI (s);
   }
 
-}
+  
+  
+}//End PieceSpecificationGUI Class
+

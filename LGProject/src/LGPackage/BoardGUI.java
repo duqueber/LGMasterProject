@@ -55,12 +55,13 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
     BufferedImage image;
     
     
-    private int x = -10;
-    private int y = -10;
+    private int xMouse =-10;
+    private int yMouse= -10;
+
     private static int ovalsize;
     public static Boolean pieceset;
-    java.util.List JeepCoor = Collections.synchronizedList(new ArrayList());
-      
+    java.util.List<CoordStruct> JeepCoor = Collections.synchronizedList(new ArrayList<CoordStruct> ());
+     
     public BoardGUI( int sh, int sw)  {  
     
        /* panelwidth = (3*framewidth)/5;
@@ -95,9 +96,9 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
        drawingPane.setPreferredSize( new Dimension (size+40, size+40));   
        add (drawingPane, BorderLayout.CENTER);    
        
-      CoordStruct hi =new CoordStruct(10,20,30); 
-      JeepCoor.add(0, hi );
-      System.out.println("coor "+ hi.xcoor + " " + hi.ycoor + " " + hi.zcoor);
+     // CoordStruct hi =new CoordStruct(10,20,30); 
+      //JeepCoor.add( hi );
+      //System.out.println("coor "+ hi.xcoor + " " + hi.ycoor + " " + hi.zcoor);
     }
        
     private void loadImages() {
@@ -158,19 +159,33 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
     @Override
     public void mouseReleased(MouseEvent e)
     {
-        if ((x> borderGap && x  < borderGap + squareswidth * squaresize) 
-                    && y > borderGap && y < borderGap + squaresheight * squaresize){
-            int squarex = (e.getX()-borderGap)/squaresize;
-            int squarey = (e.getY()-borderGap)/squaresize;
-            x = borderGap + (squarex*squaresize)+2+ (ovalsize/2);
-            y = borderGap + (squarey*squaresize)+2+ (ovalsize/2);
-            drawingPane.repaint();
+        xMouse = e.getX();
+        yMouse= e.getY();
+        int squarex, squarey;
+        
+        //Make sure that mouse was clicked in board
+        if ((xMouse> borderGap && xMouse < borderGap + squareswidth * squaresize) 
+                    && yMouse > borderGap && yMouse < borderGap + squaresheight * squaresize){
+            if (PieceSpecificationGUI.locateJeepActive== false){
+                squarex = (xMouse-borderGap)/squaresize;
+                squarey = (yMouse-borderGap)/squaresize;
+                xMouse = borderGap + (squarex*squaresize)+2+ (ovalsize/2);
+                yMouse= borderGap + (squarey*squaresize)+2+ (ovalsize/2);
 
-            System.out.println("x is " + x + " and " + " y is " + y);
-            pieceset = true;
-            PieceSpecificationGUI.Locate.setEnabled(true);
-            PieceSpecificationGUI.locateJeepActive = true;
-            PieceSpecificationGUI.Locate.setText("Locate in Board");
+                JeepCoor.add (new CoordStruct (xMouse, yMouse,0));
+
+                drawingPane.repaint();
+
+                pieceset = true;
+                PieceSpecificationGUI.LocationPanel.setCurrentXPanelText(Integer.toString (squarex));
+                PieceSpecificationGUI.LocationPanel.setCurrentYPanelText(Integer.toString (squarey));
+
+                PieceSpecificationGUI.Locate.setEnabled(true);
+                PieceSpecificationGUI.locateJeepActive = true;
+                PieceSpecificationGUI.Locate.setText("Locate in Board");
+
+            } 
+           
         }
     }
 
@@ -188,12 +203,13 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
     @Override
     public void mouseMoved(MouseEvent e) { 
        
-        x= e.getX();
-        y = e.getY();
+   
+        xMouse= e.getX();
+        yMouse = e.getY();
         
         if (pieceset == false && PieceSpecificationGUI.locateJeepActive == false){
-            if ((x-ovalsize/2 > borderGap && x+ovalsize/2  < borderGap + squareswidth * squaresize) 
-                    && y-ovalsize/2 > borderGap && y+ovalsize/2 < borderGap + squaresheight * squaresize){
+            if ((xMouse-ovalsize/2 > borderGap && xMouse+ovalsize/2  < borderGap + squareswidth * squaresize) 
+                    && yMouse-ovalsize/2 > borderGap && yMouse+ovalsize/2 < borderGap + squaresheight * squaresize){
                     drawingPane.repaint();
 
             }
@@ -201,7 +217,7 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
     }
     
     private class CoordStruct {
-        int xcoor, ycoor, zcoor;
+        public int xcoor, ycoor, zcoor;
         
         CoordStruct (int x, int y, int z){
             xcoor = x;
@@ -224,11 +240,15 @@ public class BoardGUI extends JPanel implements MouseListener, MouseMotionListen
             
             // Draw oval when x and y are positive, User needs to click
             
-            if (x>=0 && y>=0){
+            for (CoordStruct oval: JeepCoor){
+                g.setColor (Color.RED);             
+                g.fillOval(oval.xcoor-ovalsize/2, oval.ycoor-ovalsize/2, ovalsize, ovalsize);    
+            }
+            
+            if (xMouse>=0 && yMouse>=0){
                 g.setColor(Color.RED);
-                g.fillOval (x-ovalsize/2, y-ovalsize/2, ovalsize,ovalsize);
-            //g2d.fillOval(borderGap + (x*squaresize)+2,borderGap + (y*squaresize)+2 , 
-              //     ovalsize, ovalsize);
+                g.fillOval (xMouse-ovalsize/2, yMouse-ovalsize/2, ovalsize,ovalsize);
+
         }
           
          //   doDrawing(g); // draws board       

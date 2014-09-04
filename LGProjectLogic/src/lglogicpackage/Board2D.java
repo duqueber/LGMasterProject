@@ -25,7 +25,8 @@ public class Board2D {
         
         board = new String [columns][rows];
         
-        for (int i = rows-1; i >=0; i-- ){
+        //test
+        /*for (int i = rows-1; i >=0; i-- ){
             for (int j = 0; j < columns; j++){
                 
                 board[j][i]= "No piece";
@@ -33,20 +34,21 @@ public class Board2D {
             }    
         
         System.out.println(' ');
-        }    
-        
+        } */   
+        //test
         for (int i= 0; i< players.length; i++){
             addPiece (players[i]);        
         }
         
         //test
-        for (int i = rows-1; i >=0; i-- ){
+        /*for (int i = rows-1; i >=0; i-- ){
             for (int j = 0; j < columns; j++){                
                 System.out.print ( board[j][i] + "- "+ j +" "+i + "");
             }    
         
         System.out.println(' ');
-        }  
+        } */ 
+        //test
     }    
     
     private void addPiece (PiecesLogic piece){
@@ -85,17 +87,18 @@ public class Board2D {
         Board2D hi = new Board2D(8,8, pieces);
 
         
-        System.out.println ("B=Bomber to W- target" );
+       /* System.out.println ("B=Bomber to W- target" );
         ShortestTrajectory st = new ShortestTrajectory(hi,pieces[2], new Coordinates (7,0));
-        
-        System.out.println ("W-Bomber to B-target" );
+        st.GenerateShortestTrajectory();
+        */
+       /* System.out.println ("W-Bomber to B-target" );
         ShortestTrajectory st2 = new ShortestTrajectory(hi,pieces[3], new Coordinates (2,7));
 
         System.out.println ("B-Fighter to W-Bomber" );
         ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (2,5));
-        
+        */
         System.out.println ("W-Fighter to B-Bomber" );
         ShortestTrajectory st4 = new ShortestTrajectory(hi,pieces[1], new Coordinates (7,4));
-        
+        st4.GenerateShortestTrajectory();
     }        
 }

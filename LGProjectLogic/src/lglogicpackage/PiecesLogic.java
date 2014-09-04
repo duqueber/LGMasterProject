@@ -17,7 +17,8 @@ public abstract class PiecesLogic {
     // A piece has a name, team (1 is white, 2 is black), movement, position
     public final String NAME;
     public int positionX, positionY; 
-    private final int TEAM, DIRECTION /* North is 1, South is -1*/; 
+    private final int TEAM;
+    private int DIRECTION /* North is 1, South is -1*/; 
                
     public PiecesLogic ( String n, int posX, int posY, int team){
         NAME = n;
@@ -37,6 +38,10 @@ public abstract class PiecesLogic {
     
     public int getDirection () {
         return DIRECTION;
+    }
+    
+    public void setDirection (int dir){
+        DIRECTION = dir;
     }
     public abstract Coordinates[] PossibleMoves (int posX, int posY);
     

@@ -17,6 +17,7 @@ public class BomberLogic extends PiecesLogic {
     public BomberLogic(String n, int posX, int posY, int team, int northSouth) {
         super(n, posX, posY, team, northSouth);
     }
+    
 
     @Override
     public Coordinates[] PossibleMoves(int posX, int posY) {

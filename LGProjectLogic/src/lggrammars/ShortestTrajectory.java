@@ -28,16 +28,16 @@ public class ShortestTrajectory {
     private final Board2D board;
     private final PiecesLogic pieceStart;
     private final Coordinates posTarget;
-    private Coordinates[] ShortestPath;
+    private ArrayList<ArrayList<Node<Coordinates>>> ShortestPaths;
     
     private final int rows, columns; 
     private final int [][] sumBoard, STPieceBegin, STPosEnd; 
     private final int l; 
     private Coordinates currentX, currentY;
     private int currentl;
-    private Vector sumArray;
+    private ArrayList sumArray;
     private Tree tree;
-    private Stack doMoves;
+    private Stack<Node<Coordinates>> doMoves;
     
     public ShortestTrajectory (Board2D board, PiecesLogic pieceBegin, Coordinates posEnd) {
         
@@ -47,6 +47,7 @@ public class ShortestTrajectory {
         rows = board.rows;
         columns=board.columns;
         doMoves = new Stack ();
+        ShortestPaths = new ArrayList<>();
         
         sumBoard = new int [columns][rows];
         STPieceBegin = new int [columns][rows];
@@ -89,9 +90,23 @@ public class ShortestTrajectory {
         Node<Coordinates> root = new Node (new Coordinates (pieceStart.positionX, pieceStart.positionY));
         tree.setRoot(root);
             
-        Gt_Q2(root,posTarget, l);
-        
-       
+        Gt_Q2(root, l);
+        tree.printTreeRelations();
+        List<Node<Coordinates>> leaves = tree.getLeaves();
+        for (Node<Coordinates> leave:leaves ){
+            ArrayList<Node<Coordinates>> path = new ArrayList<>() ;
+            tree.pathToRoot (leave, path);
+            ShortestPaths.add(path);
+        }
+        //test
+        for (ArrayList<Node<Coordinates>> ShortestPath: ShortestPaths){
+            System.out.println("Path: ");
+            for (Node<Coordinates> p : ShortestPath)
+                System.out.println("" + p.getData().x + ", " + p.getData().y );
+        System.out.println ("/");
+        }
+        //test
+    //NEED to print paths    
     }
     
     private void Gt_Q1 (){
@@ -100,21 +115,22 @@ public class ShortestTrajectory {
         currentl =l;
     }
     
-    private void Gt_Q2( Node<Coordinates> begin, Coordinates target, int lparam){
-
-        
-        //while (lparam >= 1){
+    private void Gt_Q2( Node<Coordinates> begin, int lparam){
+   
+        if (lparam == 0)
+            return;
+            
+        else {
           int templ = l-lparam+1;  
-          setMoves (begin, templ);  
-        //}
-    
-        
+          setMoves (begin, templ, lparam);
+
+        }            
     }
     
-    private void setMoves (Node<Coordinates> begin, int templ){
+    private void setMoves (Node<Coordinates> begin, int templ, int lparam){
         
-        Vector intersection= new Vector();
-        Vector STOne = new Vector();
+        ArrayList intersection= new ArrayList();
+        ArrayList STOne = new ArrayList();
         List children = new ArrayList ();
 
         Coordinates [] STOneMoves = pieceStart.PossibleMoves(begin.getData().x,
@@ -139,30 +155,35 @@ public class ShortestTrajectory {
             Coordinates intElem = (Coordinates) intersectionElement;
         
             if (STPieceBegin [intElem.x][intElem.y] == templ){
-                doMoves.add (intElem);
-                children.add(new Node<Coordinates> (intElem));
+                Node<Coordinates> newMove = new Node<> (intElem); 
+                newMove.setFather(begin);
+                if (lparam == 1)
+                    tree.addLeaf(newMove);
+                doMoves.add (newMove);
+                children.add(newMove);
                 begin.setChildren(children);
+                Gt_Q2(doMoves.pop(), lparam-1);
             }    
         }
-        
-        
+   
         //test
         for (Object elem: doMoves){
-            Coordinates cd = (Coordinates)elem;
-            cd.PrintCoor();
-        }    
-    //test
-        
+            Node<Coordinates> cd = (Node<Coordinates>)elem;
+            cd.getData().PrintCoor();
+        }
+        System.out.println("////"); 
+       //HERE Start creating the tree, pop from stack until l is 0begin.getChildren();
+       //test
     }
     private void setSum (){
         
-        sumArray = new Vector();
+        sumArray = new ArrayList();
         for (int i = rows-1; i >=0; i-- ){
             for (int j = 0; j < columns; j++){
                 
                 if (STPieceBegin[j][i]+ STPosEnd[j][i] == l){
                     sumBoard [j][i] = l;
-                    sumArray.addElement(new Coordinates (j,i));
+                    sumArray.add(new Coordinates (j,i));
                 }    
             }
         }               
@@ -190,7 +211,7 @@ public class ShortestTrajectory {
         
 
         while (!nextMoves.isEmpty()){
-            int i =0;
+            int i;
             Coordinates Coors = (Coordinates)nextMoves.poll();
             Coordinates [] tempNextMoves = pieceStart.PossibleMoves(Coors.x, Coors.y);
             

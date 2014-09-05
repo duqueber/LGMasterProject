@@ -17,7 +17,8 @@ public class Node<T> {
     
     public T data;
     public List<Node<T>> children;
-    
+    public Node<T> father;
+        
     public Node(){
         super();
     }
@@ -41,5 +42,15 @@ public class Node<T> {
         this.children = children;
     }
     
+    public void setFather (Node<T> dad){
+        this.father = dad;
+    }
     
+    public boolean hasChildren (){
+        if (this.children== null)
+            return false;
+        return true;
+    }
+    
+
 }

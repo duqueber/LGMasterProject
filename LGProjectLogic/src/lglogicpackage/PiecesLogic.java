@@ -40,6 +40,14 @@ public abstract class PiecesLogic {
         return DIRECTION;
     }
     
+    public Coordinates getCoordinates (){
+        return new Coordinates (this.positionX, this.positionY); 
+    }
+    
+    public int getTeam (){
+        return TEAM;    
+    }
+    
     public void setDirection (int dir){
         DIRECTION = dir;
     }

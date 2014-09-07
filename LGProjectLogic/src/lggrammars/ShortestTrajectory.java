@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
-import java.util.Vector;
 import lglogicpackage.Board2D;
 import lglogicpackage.PiecesLogic;
 import supportpackage.Coordinates;
@@ -26,18 +25,16 @@ import supportpackage.Tree;
 public class ShortestTrajectory {
     
     private final Board2D board;
-    private final PiecesLogic pieceStart;
-    private final Coordinates posTarget;
-    private ArrayList<ArrayList<Node<Coordinates>>> ShortestPaths;
+    private  final PiecesLogic pieceStart;
+    private  final Coordinates posTarget;
+    private  ArrayList<ArrayList<Node<Coordinates>>> ShortestPaths;
     
-    private final int rows, columns; 
+    private  final int rows, columns; 
     private final int [][] sumBoard, STPieceBegin, STPosEnd; 
-    private final int l; 
-    private Coordinates currentX, currentY;
-    private int currentl;
-    private ArrayList sumArray;
+    protected  final int l; 
+    private  ArrayList sumArray;
     private Tree tree;
-    private Stack<Node<Coordinates>> doMoves;
+    private  Stack<Node<Coordinates>> doMoves;
     
     public ShortestTrajectory (Board2D board, PiecesLogic pieceBegin, Coordinates posEnd) {
         
@@ -80,12 +77,9 @@ public class ShortestTrajectory {
     
     public void GenerateShortestTrajectory (){
         
-        if (l > 0){
-            Gt_Q1();           
-        } 
-        else
+        if (l <= 0)
             return;
-        
+
         tree= new Tree ();
         Node<Coordinates> root = new Node (new Coordinates (pieceStart.positionX, pieceStart.positionY));
         tree.setRoot(root);
@@ -93,9 +87,9 @@ public class ShortestTrajectory {
         Gt_Q2(root, l);
         tree.printTreeRelations();
         List<Node<Coordinates>> leaves = tree.getLeaves();
-        for (Node<Coordinates> leave:leaves ){
+        for (Node<Coordinates> leaf:leaves ){
             ArrayList<Node<Coordinates>> path = new ArrayList<>() ;
-            tree.pathToRoot (leave, path);
+            tree.pathToRoot (leaf, path);
             ShortestPaths.add(path);
         }
         //test
@@ -107,12 +101,6 @@ public class ShortestTrajectory {
         }
         //test
     //NEED to print paths    
-    }
-    
-    private void Gt_Q1 (){
-        currentX= new Coordinates (pieceStart.positionX, pieceStart.positionY);
-        currentY = posTarget;
-        currentl =l;
     }
     
     private void Gt_Q2( Node<Coordinates> begin, int lparam){
@@ -172,7 +160,6 @@ public class ShortestTrajectory {
             cd.getData().PrintCoor();
         }
         System.out.println("////"); 
-       //HERE Start creating the tree, pop from stack until l is 0begin.getChildren();
        //test
     }
     private void setSum (){
@@ -234,5 +221,8 @@ public class ShortestTrajectory {
         }
     }//END of setCompleteST    
     
+    public int Map (){
+        return l;
+    }
     
 }

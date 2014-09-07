@@ -90,17 +90,17 @@ public class Board2D {
        /* System.out.println ("B=Bomber to W- target" );
         ShortestTrajectory st = new ShortestTrajectory(hi,pieces[2], new Coordinates (7,0));
         st.GenerateShortestTrajectory();
-        */
+        
         System.out.println ("W-Bomber to B-target" );
-        ShortestTrajectory st2 = new ShortestTrajectory(hi,pieces[3], new Coordinates (2,7));
+        ShortestTrajectory st2 = new ShortestTrajectory(hi,pieces[3], new Coordinates (1,6));
         st2.GenerateShortestTrajectory();
         
         System.out.println ("B-Fighter to W-Bomber" );
-        ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (2,5));
-        st3.GenerateShortestTrajectory();
-        /*
+        ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (2,6));
+        st3.GenerateShortestTrajectory();*/
+        
         System.out.println ("W-Fighter to B-Bomber" );
-        ShortestTrajectory st4 = new ShortestTrajectory(hi,pieces[1], new Coordinates (7,4));
-        st4.GenerateShortestTrajectory();*/
+        ShortestTrajectory st4 = new ShortestTrajectory(hi,pieces[1], new Coordinates (2,7));
+        st4.GenerateShortestTrajectory();
     }        
 }

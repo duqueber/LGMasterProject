@@ -29,6 +29,16 @@ public class Coordinates {
         this.y=y;
     }
     
+    public int getInteger (int columns){
+        return this.x + (this.y * columns);
+    }
+    
+    public static Coordinates getCoordinates(int value, int rows){
+        return new Coordinates (value%rows,value/rows ) ;
+    }
+            
+            
+            
     public boolean equals (Coordinates c){
         if (this.x == c.x && this.y == c.y)
             return true;

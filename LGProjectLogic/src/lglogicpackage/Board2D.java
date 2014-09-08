@@ -1,6 +1,7 @@
 package lglogicpackage;
 
 import lggrammars.ShortestTrajectory;
+import lggrammars.Zones;
 import supportpackage.Coordinates;
 
 /*
@@ -15,15 +16,16 @@ import supportpackage.Coordinates;
  */
 public class Board2D {
     
-    public String [][] board;
+    public PiecesLogic [][] board;
     public int columns, rows;
+    
     
     public Board2D (int rows, int columns, PiecesLogic [] players ){
         
         this.columns = columns;
         this.rows = rows;
         
-        board = new String [columns][rows];
+        board = new PiecesLogic [columns][rows];
         
         //test
         /*for (int i = rows-1; i >=0; i-- ){
@@ -51,10 +53,11 @@ public class Board2D {
         //test
     }    
     
+    
     private void addPiece (PiecesLogic piece){
         
         try{
-            board[piece.positionX][piece.positionY] = piece.NAME;
+            board[piece.positionX][piece.positionY] = piece;
 
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
@@ -65,13 +68,20 @@ public class Board2D {
     
     private void removePiece (PiecesLogic piece){
         try{
-            board[piece.positionX][piece.positionY] = "No piece";
+            board[piece.positionX][piece.positionY] = null;
 
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
                         + " be removed: "+  e.getMessage());
 
          }
+    }
+    
+    public PiecesLogic getPiece (Coordinates c){
+        if (board [c.x][c.y] == null )
+            return null;
+        else 
+            return board [c.x][c.y]; 
     }
     
     public static void main(String args[]) {
@@ -88,19 +98,22 @@ public class Board2D {
 
         
        /* System.out.println ("B=Bomber to W- target" );
-        ShortestTrajectory st = new ShortestTrajectory(hi,pieces[2], new Coordinates (7,0));
-        st.GenerateShortestTrajectory();
+        
+        Zones z = new Zones (hi, pieces[2],pieces[5]);
+        z.GenerateZones();
         
         System.out.println ("W-Bomber to B-target" );
         ShortestTrajectory st2 = new ShortestTrajectory(hi,pieces[3], new Coordinates (1,6));
         st2.GenerateShortestTrajectory();
-        
+        */
         System.out.println ("B-Fighter to W-Bomber" );
-        ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (2,6));
-        st3.GenerateShortestTrajectory();*/
-        
+        ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (7,7));
+        st3.GenerateShortestTrajectory();
+        Zones st = new Zones(hi,pieces[0], pieces[1]);
+        st.GenerateZones();
+        /*
         System.out.println ("W-Fighter to B-Bomber" );
         ShortestTrajectory st4 = new ShortestTrajectory(hi,pieces[1], new Coordinates (2,7));
-        st4.GenerateShortestTrajectory();
+        st4.GenerateShortestTrajectory();*/
     }        
 }

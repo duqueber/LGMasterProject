@@ -85,7 +85,7 @@ public class ShortestTrajectory {
         tree.setRoot(root);
             
         Gt_Q2(root, l);
-        tree.printTreeRelations();
+        //tree.printTreeRelations();
         List<Node<Coordinates>> leaves = tree.getLeaves();
         for (Node<Coordinates> leaf:leaves ){
             ArrayList<Node<Coordinates>> path = new ArrayList<>() ;
@@ -97,7 +97,7 @@ public class ShortestTrajectory {
             System.out.println("Path: ");
             for (Node<Coordinates> p : ShortestPath)
                 System.out.println("" + p.getData().x + ", " + p.getData().y );
-        System.out.println ("/");
+        System.out.println ("");
         }
         //test
     //NEED to print paths    
@@ -159,7 +159,6 @@ public class ShortestTrajectory {
             Node<Coordinates> cd = (Node<Coordinates>)elem;
             cd.getData().PrintCoor();
         }
-        System.out.println("////"); 
        //test
     }
     private void setSum (){
@@ -222,7 +221,11 @@ public class ShortestTrajectory {
     }//END of setCompleteST    
     
     public int Map (){
-        return l;
+        return this.l;
+    }
+    
+    public ArrayList<ArrayList<Node<Coordinates>>> getShortestTrajectories (){
+        return this.ShortestPaths;
     }
     
 }

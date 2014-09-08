@@ -18,7 +18,7 @@ public class Tree<T> {
     
     private Node<T> root;
     private Stack  s = new Stack ();
-    private List<Node<Coordinates>> leaves = new ArrayList();
+    private List<Node<T>> leaves = new ArrayList();
     
     public Tree(){
         super();
@@ -28,16 +28,14 @@ public class Tree<T> {
         this.root = r;
     }
     
-    public void addLeaf (Node<Coordinates> l){
+    public void addLeaf (Node<T> l){
         this.leaves.add(l);
     }
-    
-    public List<Node<Coordinates>> getLeaves ()
+        
+    public List<Node<T>> getLeaves ()
     {
         if (leaves == null)
-           return new ArrayList<Node<Coordinates>>();
-        for (Node<Coordinates> leave: leaves)
-            System.out.println ("leaf: " + leave.getData().x + ", " + leave.getData().y); 
+           return new ArrayList<Node<T>>(); 
         return this.leaves;
     }
     
@@ -67,6 +65,27 @@ public class Tree<T> {
                     s.add(child);
                 }
             }
+        }
+    }//End PrintTreeRelations
+    
+    public class TreeNode extends Tree<Coordinates>{
+        
+        private List<Node<Coordinates>> leavesCoor = new ArrayList();
+    
+        
+        @Override
+        public void addLeaf (Node<Coordinates> n){
+        this.leavesCoor.add(n);
+        }
+        
+        @Override
+        public List<Node<Coordinates>> getLeaves ()
+        {
+            if (leaves == null)
+                return new ArrayList<Node<Coordinates>>();
+            for (Node<Coordinates> leaveCoor: leavesCoor)
+                System.out.println ("leaf: " + leaveCoor.getData().x + ", " + leaveCoor.getData().y); 
+            return this.leavesCoor;
         }
     }
     

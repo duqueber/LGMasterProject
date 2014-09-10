@@ -8,6 +8,7 @@ package supportpackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import lggrammars.Zones;
 
 /**
  *
@@ -50,6 +51,12 @@ public class Node<T> {
         if (this.children== null)
             return false;
         return true;
+    }
+
+    public void addFirstChild(Node<T> child) {
+        List<Node<T>> c = new ArrayList<>();
+        c.add(child);
+        this.setChildren(c);
     }
     
 

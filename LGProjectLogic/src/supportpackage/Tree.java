@@ -28,6 +28,10 @@ public class Tree<T> {
         this.root = r;
     }
     
+    public Node<T> getRoot (){
+        return this.root;
+    }
+    
     public void addLeaf (Node<T> l){
         this.leaves.add(l);
     }

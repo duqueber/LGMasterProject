@@ -94,9 +94,9 @@ public class ShortestTrajectory {
         }
         //test
         for (ArrayList<Node<Coordinates>> ShortestPath: ShortestPaths){
-            System.out.println("Path: ");
+            System.out.print("Path: ");
             for (Node<Coordinates> p : ShortestPath)
-                System.out.println("" + p.getData().x + ", " + p.getData().y );
+                System.out.print("" + p.getData().x + ", " + p.getData().y + " / ");
         System.out.println ("");
         }
         //test
@@ -181,7 +181,7 @@ public class ShortestTrajectory {
         Coordinates [] initMoves = pieceStart.PossibleMoves(startPos.x,
                 startPos.y);
         
-        if (initMoves.length != 0){
+        if (initMoves!= null){
             
             for (Coordinates initMove : initMoves) {
                 if (initMove.x < columns && initMove.y < rows && initMove.x >-1 

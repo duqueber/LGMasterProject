@@ -6,6 +6,9 @@
 
 package supportpackage;
 
+import java.util.ArrayList;
+import lggrammars.Zones;
+
 /**
  *
  * @author nati
@@ -25,5 +28,13 @@ public class Print {
         
         }    
     }
-
+    
+    public static void PrintArray ( ArrayList<Node<Coordinates>> a){
+        
+        System.out.print ("List: ");
+        for (Node<Coordinates> aObj : a){
+            System.out.print (""  + aObj.getData().x + ", " + aObj.getData().y + " / ");
+        }
+        System.out.println("");
+    }
 }

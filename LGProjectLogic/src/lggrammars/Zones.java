@@ -107,26 +107,17 @@ public class Zones  {
   
             Q_3 (treez.getRoot()); 
         }
-
     }
     
     private void Q_3 ( Node<Zones.Trajectory> t){
-        if (this.uParam.xInt != this.sizeOfBoard-1 ||this.uParam.yInt != this.sizeOfBoard-1 ){
+        if (this.uParam.xInt == this.sizeOfBoard-1 && this.uParam.yInt == this.sizeOfBoard-1 )
+             Q_5(t);
+        
+        else {
             u temp = f (this.uParam);
             this.uParam = temp;
             Q_4(t);
-        }
-        else 
-            Q_5();
-        //test
-        
-        List<Node<Trajectory>> nodes = t.getChildren();
-        for (Node<Trajectory> node : nodes){
-            Print.PrintArray(node.getData().shortestPath);
-        }
-        
-        //test
-
+        }           
     }
      
     private void Q_4 (Node<Zones.Trajectory> t){
@@ -167,7 +158,16 @@ public class Zones  {
             Q_3(t);
     }
     
-    private void Q_5(){}
+    private void Q_5(Node<Zones.Trajectory> t){
+        
+        System.out.println ("hello");
+        //test        
+        List<Node<Trajectory>> nodes = t.getChildren();
+        for (Node<Trajectory> node : nodes){
+            Print.PrintArray(node.getData().shortestPath);
+        }
+        //test
+    }
     
     private boolean CheckOverlap (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2)
     {
@@ -185,12 +185,13 @@ public class Zones  {
 
                 mainNextIt = mainIt = path2.iterator();
                 mainNextIt.next();
-                Node<Coordinates> it = negIt.next();
-                Node<Coordinates> itNext = negNextIt.next();
+                Coordinates it = negIt.next().getData();
+                Coordinates itNext = negNextIt.next().getData();
                 
                 while (mainNextIt.hasNext()){
-
-                    if (it == mainIt.next() && itNext == mainNextIt.next())
+                    Coordinates itMain = mainIt.next().getData();
+                    Coordinates itMainNext = mainNextIt.next().getData();
+                    if (it.equals(itMain) && itNext.equals(itMainNext))
                         return true;
                 }
             }
@@ -201,10 +202,6 @@ public class Zones  {
             
             
     private u f (u oldU){
-        //test
-        int check = this.time.getIntValue(oldU.yInt+1);
-        int check2 = this.v.getIntValue(oldU.yInt+1);
-        //test
         
         if ((oldU.xInt != this.sizeOfBoard-1 && oldU.lu>0) ||
                 (oldU.yInt == this.sizeOfBoard -1 && oldU.lu <= 0))

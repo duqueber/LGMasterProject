@@ -88,7 +88,7 @@ public class Board2D {
         
         PiecesLogic[] pieces = new PiecesLogic[6];
         pieces[0]= new FighterLogic ( "B-Fighter", 0, 5, 2);
-        pieces[1]= new FighterLogic ("W-Fighter", 7, 7,1);
+        pieces[1]= new FighterLogic ("W-Fighter", 5, 5,1);
         pieces[2]= new BomberLogic ("B-Bomber", 7, 4, 2, -1);
         pieces[3] = new BomberLogic ("W-Bomber", 2, 5, 1, 1);
         pieces[4] = new TargetLogic ("B-Target", 2, 7, 2);
@@ -103,7 +103,7 @@ public class Board2D {
         z.GenerateZones();
         
        */System.out.println ("W-Bomber to B-target" );
-        Zones st2 = new Zones (hi,pieces[3], pieces[4]);
+        Zones st2 = new Zones (hi,pieces[2], pieces[5]);
         st2.GenerateZones();
         
         /*System.out.println ("B-Fighter to W-Bomber" );

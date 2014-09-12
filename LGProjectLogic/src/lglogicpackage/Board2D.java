@@ -87,11 +87,11 @@ public class Board2D {
     public static void main(String args[]) {
         
         PiecesLogic[] pieces = new PiecesLogic[6];
-        pieces[0]= new FighterLogic ( "B-Fighter", 0, 5, 2);
-        pieces[1]= new FighterLogic ("W-Fighter", 5, 5,1);
+        pieces[0]= new FighterLogic ( "B-Fighter", 4, 2, 2);
+        pieces[1]= new FighterLogic ("W-Fighter", 5, 3,1);
         pieces[2]= new BomberLogic ("B-Bomber", 7, 4, 2, -1);
         pieces[3] = new BomberLogic ("W-Bomber", 2, 5, 1, 1);
-        pieces[4] = new TargetLogic ("B-Target", 2, 7, 2);
+        pieces[4] = new TargetLogic ("B-Target", 7, 0, 2);
         pieces[5] = new TargetLogic ("W-Target", 7, 0, 1);        
         
         Board2D hi = new Board2D(8,8, pieces);

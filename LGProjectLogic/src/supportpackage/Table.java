@@ -30,6 +30,12 @@ public class Table {
         }
         
     }
+    
+    public Table ( Table t){
+        this.columns = t.columns;
+        this.rows = t.rows;
+        this.boardInt = t.boardInt;
+    }
 
     public void changeValue (Coordinates c, int value){
         

@@ -92,7 +92,7 @@ public class ShortestTrajectory {
             tree.pathToRoot (leaf, path);
             ShortestPaths.add(path);
         }
-        //test
+        /*//test
         for (ArrayList<Node<Coordinates>> ShortestPath: ShortestPaths){
             System.out.print("Path: ");
             for (Node<Coordinates> p : ShortestPath)
@@ -100,7 +100,7 @@ public class ShortestTrajectory {
         System.out.println ("");
         }
         //test
-    //NEED to print paths    
+    //NEED to print paths    */
     }
     
     private void Gt_Q2( Node<Coordinates> begin, int lparam){

@@ -35,6 +35,5 @@ public class Print {
         for (Node<Coordinates> aObj : a){
             System.out.print (""  + aObj.getData().x + ", " + aObj.getData().y + " / ");
         }
-        System.out.println("");
     }
 }

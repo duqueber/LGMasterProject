@@ -24,9 +24,8 @@ import supportpackage.Tree;
 public class Zones  {
 
     private final Board2D board;
-    private  final PiecesLogic pieceStart;
+    private PiecesLogic pieceStart;
     private  ArrayList<ArrayList<Node<Coordinates>>> mainPaths;
-    private  ArrayList<ArrayList<Node<Coordinates>>> negPaths;
     
     private  final int rows, columns; 
     private  final int lInitial;
@@ -93,7 +92,7 @@ public class Zones  {
         for (Tree <Zones.Trajectory> treez : zonesTrees ){
             this.uParam = new u (0,0,0);
             this.w = new Table (rows, columns, 0);
-            this.v = w;
+            this.v = new Table (rows, columns, 0);
             setDistance (treez.getRoot().getData().shortestPath);
             this.time = this.distance;
             
@@ -110,14 +109,23 @@ public class Zones  {
     }
     
     private void Q_3 ( Node<Zones.Trajectory> t){
-        if (this.uParam.xInt == this.sizeOfBoard-1 && this.uParam.yInt == this.sizeOfBoard-1 )
-             Q_5(t);
-        
-        else {
+        while (this.uParam.xInt != this.sizeOfBoard-1 || this.uParam.yInt != this.sizeOfBoard-1 )
+        {
             u temp = f (this.uParam);
             this.uParam = temp;
             Q_4(t);
-        }           
+        }   
+        
+        System.out.println ("hello");
+        //test        
+        List<Node<Trajectory>> nodes = t.getChildren();
+        for (Node<Trajectory> node : nodes){
+            node.getData().printTrajectory();
+        } 
+        SetNextTime (t);
+        
+        if (!tableEqualToZero (this.w))
+             Q_5(t);
     }
      
     private void Q_4 (Node<Zones.Trajectory> t){
@@ -134,12 +142,11 @@ public class Zones  {
                     (against && mapXtoY <=uParam.lu))){  
                 
                 negTrajectories.GenerateShortestTrajectory();
-                this.negPaths = negTrajectories.getShortestTrajectories();
+                ArrayList<ArrayList<Node<Coordinates>>> negPaths = negTrajectories.getShortestTrajectories();
                 ArrayList<Node<Coordinates>> mainPath = t.getData().shortestPath;
                 
                 for (ArrayList<Node<Coordinates>> negPath: negPaths ){
-                    
-                    if (!CheckOverlap(negPath, mainPath)){
+                    if (!ShareCoordinates(negPath, mainPath)){
                         Trajectory newNegT = new Trajectory (p.NAME, negPath, 
                                 this.time.getIntValue(uParam.yInt));
                         Node<Trajectory> child = new Node<> (newNegT);
@@ -148,27 +155,49 @@ public class Zones  {
                         else 
                             t.addFirstChild (child);
                     }
-
                 }   
-            Q_3(t);    
             }
-            else Q_3(t);  
         }
-        else
-            Q_3(t);
+
     }
     
     private void Q_5(Node<Zones.Trajectory> t){
-        
-        System.out.println ("hello");
-        //test        
+
         List<Node<Trajectory>> nodes = t.getChildren();
-        for (Node<Trajectory> node : nodes){
-            Print.PrintArray(node.getData().shortestPath);
-        }
-        //test
+        for (Node<Zones.Trajectory> n : nodes){
+                this.pieceStart= this.board.getPiece(n.getData().shortestPath.get(0).data);
+                this.time = new Table (this.nextTime);
+                u uTemp = new u (0,0,0);
+                this.uParam = uTemp;
+                SetWwithNext(this.nextTime);
+                this.v = new Table (this.w);
+                this.w = new Table(this.rows, this.columns, 0); 
+                Q_3(n);
+         }
+        
     }
     
+    private boolean tableEqualToZero (Table t){
+        for (int i =0; i < t.columns*t.rows; i++){
+            if (t.getIntValue(i) != 0)
+                return false;
+        }
+        return true;
+    }
+    
+    private boolean ShareCoordinates (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2){
+    
+       Node<Coordinates> tempRemove = path1.remove (path1.size()-1);
+        
+        for (Node<Coordinates> coor: path1){
+            for (Node<Coordinates> mainCoor: path2)
+                if (coor.getData().equals(mainCoor.getData()))
+                        return true;
+        }
+        path1.add(tempRemove);
+        return false;
+    }
+
     private boolean CheckOverlap (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2)
     {
         Iterator <Node<Coordinates>> negIt, negNextIt, mainIt, mainNextIt;
@@ -224,6 +253,43 @@ public class Zones  {
         }
     }
     
+    private void SetNextTime (Node<Zones.Trajectory> t){
+    // Alpha;
+        List<Node<Trajectory>> nodes = t.getChildren();
+        
+        for (Node<Trajectory> node : nodes){
+            ArrayList<Node<Coordinates>> shortestP = node.getData().shortestPath;
+            Coordinates lastElem = shortestP.get(shortestP.size()-1).getData();
+            int timeValue = this.time.getIntValue(lastElem.getInteger(this.columns));
+            int k = timeValue - (shortestP.size()-1) + 1;
+            
+            for (int i = 1; i< shortestP.size()-1; i++ ){
+                    Coordinates c = shortestP.get(i).getData();
+                    if (this.nextTime.getIntValue(c.getInteger(this.columns)) < k || 
+                            this.nextTime.getIntValue(c.getInteger(this.columns)) == 2* this.sizeOfBoard){
+                        this.nextTime.changeValue(c,k); 
+                        this.w.changeValue(c, 1);
+                    }    
+            }               
+        }    
+        
+        //test
+        System.out.println ("Next time");
+        this.nextTime.PrintBoardInt();
+        
+        System.out.println ("w");
+        this.w.PrintBoardInt();
+        //test
+    }
+    
+    private void SetWwithNext (Table ntTbl){
+        this.w = new Table (this.rows, this.columns, 0);
+        for (int i = 0 ; i < this.sizeOfBoard; i++)
+            if (ntTbl.getIntValue (i) != 2*this.sizeOfBoard)
+                this.w.changeValue(Coordinates.getCoordinates(i, this.rows), ntTbl.getIntValue (i)); 
+        
+    }
+    
     private Boolean On (PiecesLogic piece, Coordinates c){
         if (piece.getCoordinates().equals(c) )
             return true;
@@ -265,6 +331,12 @@ public class Zones  {
             this.pieceName = pieceName;
             this.shortestPath = shortestPath;
             this.lt = lt;
+        }
+        
+        void printTrajectory (){   
+            System.out.print ("Trajectory: " + pieceName + ", " );
+            Print.PrintArray(shortestPath);
+            System.out.println (", " + lt);
         }
     }
     

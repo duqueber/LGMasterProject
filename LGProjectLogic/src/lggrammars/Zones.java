@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import lglogicpackage.Board2D;
+import lglogicpackage.BomberLogic;
 import lglogicpackage.PiecesLogic;
 import supportpackage.Coordinates;
 import supportpackage.Node;
@@ -96,16 +97,19 @@ public class Zones  {
             setDistance (treez.getRoot().getData().shortestPath);
             this.time = this.distance;
             
-            //test
+           /* //test
             System.out.println("Distance and vq2 and time" );
             this.distance.PrintBoardInt();
             this.v.PrintBoardInt();    
             this.distance.PrintBoardInt();
             
-            //test   
+            //test */  
   
             Q_3 (treez.getRoot()); 
         }
+        System.out.println ("q2");
+        zonesTrajectories.printTreeRelations();
+        
     }
     
     private void Q_3 ( Node<Zones.Trajectory> t){
@@ -115,16 +119,8 @@ public class Zones  {
             this.uParam = temp;
             Q_4(t);
         }   
-        
-        System.out.println ("hello");
-        //test        
-        List<Node<Trajectory>> nodes = t.getChildren();
-        for (Node<Trajectory> node : nodes){
-            node.getData().printTrajectory();
-        } 
-        SetNextTime (t);
-        
-        if (!tableEqualToZero (this.w))
+
+
              Q_5(t);
     }
      
@@ -146,7 +142,8 @@ public class Zones  {
                 ArrayList<Node<Coordinates>> mainPath = t.getData().shortestPath;
                 
                 for (ArrayList<Node<Coordinates>> negPath: negPaths ){
-                    if (!ShareCoordinates(negPath, mainPath)){
+                    Node<Coordinates> last = negPath.get(negPath.size()-1);
+                    if (!ShareCoordinates(negPath, mainPath) && ContainsNode(last, mainPath)){
                         Trajectory newNegT = new Trajectory (p.NAME, negPath, 
                                 this.time.getIntValue(uParam.yInt));
                         Node<Trajectory> child = new Node<> (newNegT);
@@ -154,6 +151,8 @@ public class Zones  {
                             t.getChildren().add(child);
                         else 
                             t.addFirstChild (child);
+                        if (p.NAME == "B-Fighter" || p.NAME == "W-Fighter")
+                           CheckAttack (child);
                     }
                 }   
             }
@@ -165,16 +164,18 @@ public class Zones  {
 
         List<Node<Trajectory>> nodes = t.getChildren();
         for (Node<Zones.Trajectory> n : nodes){
+            SetNextTime (n);
+            if (!tableEqualToZero (this.w)){
                 this.pieceStart= this.board.getPiece(n.getData().shortestPath.get(0).data);
                 this.time = new Table (this.nextTime);
                 u uTemp = new u (0,0,0);
                 this.uParam = uTemp;
-                SetWwithNext(this.nextTime);
+                this.nextTime = new Table (this.rows, this.columns, 2 * this.sizeOfBoard);
                 this.v = new Table (this.w);
                 this.w = new Table(this.rows, this.columns, 0); 
                 Q_3(n);
-         }
-        
+            }    
+        }
     }
     
     private boolean tableEqualToZero (Table t){
@@ -183,6 +184,47 @@ public class Zones  {
                 return false;
         }
         return true;
+    }
+    
+    private boolean CheckAttack (Node<Trajectory> n){
+        
+        PiecesLogic bomber;
+        Trajectory t;
+        if (n.getData().pieceName.equals("B-Fighter"))
+            bomber = new BomberLogic (this.board.getPieceFromName("W-Bomber"));
+        else 
+            bomber = new BomberLogic (this.board.getPieceFromName("B-Bomber"));
+                
+        Coordinates [] bMoves = bomber.AttackMoves(bomber.positionX, bomber.positionY);
+        
+        ArrayList<Node<Coordinates>> sp = n.getData().shortestPath;
+
+        for (Coordinates bMove: bMoves)
+            for (Node<Coordinates> s : sp)
+                if (bMove.equals(s.getData())){   
+                    t= new Trajectory (bomber.NAME, CreateAttackPath (bomber.getCoordinates(),
+                            s.getData()), 1);
+                    Node<Trajectory> tNode = new Node<> (t);
+                    if (n.hasChildren())
+                        n.getChildren().add(tNode);
+                        else 
+                        n.addFirstChild (tNode);
+                    return true;
+                }
+                    
+        return false;    
+    }
+    
+    private ArrayList <Node<Coordinates>>  CreateAttackPath (Coordinates a, Coordinates b){
+        
+        Node<Coordinates> start, finish;
+        ArrayList <Node<Coordinates>> attack = new ArrayList<>();
+        start= new Node <> (a);
+        finish = new Node<> (b);
+        attack.add(start);
+        attack.add(finish);
+        return attack;
+        
     }
     
     private boolean ShareCoordinates (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2){
@@ -196,6 +238,17 @@ public class Zones  {
         }
         path1.add(tempRemove);
         return false;
+    }
+    
+    // this function helps identifies parents of trajectories created based on the nextTime of 
+    // all negation trajectories
+    private boolean ContainsNode (Node<Coordinates> coor, ArrayList<Node<Coordinates>> path2){
+        
+        for (Node<Coordinates> path : path2){
+            if (path.getData().equals(coor.getData()))
+                return true;
+        }
+            return false;
     }
 
     private boolean CheckOverlap (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2)
@@ -228,8 +281,7 @@ public class Zones  {
         }
         return false;
     }
-            
-            
+       
     private u f (u oldU){
         
         if ((oldU.xInt != this.sizeOfBoard-1 && oldU.lu>0) ||
@@ -253,33 +305,32 @@ public class Zones  {
         }
     }
     
-    private void SetNextTime (Node<Zones.Trajectory> t){
+    private void SetNextTime (Node<Zones.Trajectory> node){
     // Alpha;
-        List<Node<Trajectory>> nodes = t.getChildren();
-        
-        for (Node<Trajectory> node : nodes){
-            ArrayList<Node<Coordinates>> shortestP = node.getData().shortestPath;
-            Coordinates lastElem = shortestP.get(shortestP.size()-1).getData();
-            int timeValue = this.time.getIntValue(lastElem.getInteger(this.columns));
-            int k = timeValue - (shortestP.size()-1) + 1;
+
+        ArrayList<Node<Coordinates>> shortestP = node.getData().shortestPath;
+        Coordinates lastElem = shortestP.get(shortestP.size()-1).getData();
+        int timeValue = node.getData().lt;
+                //this.time.getIntValue(lastElem.getInteger(this.columns));
+        int k = timeValue - (shortestP.size()-1) + 1;
+
+        for (int i = 1; i< shortestP.size()-1; i++ ){
+                Coordinates c = shortestP.get(i).getData();
+                if (this.nextTime.getIntValue(c.getInteger(this.columns)) < k || 
+                        this.nextTime.getIntValue(c.getInteger(this.columns)) == 2* this.sizeOfBoard){
+                    this.nextTime.changeValue(c,k); 
+                    this.w.changeValue(c, 1);
+                }    
+        }               
             
-            for (int i = 1; i< shortestP.size()-1; i++ ){
-                    Coordinates c = shortestP.get(i).getData();
-                    if (this.nextTime.getIntValue(c.getInteger(this.columns)) < k || 
-                            this.nextTime.getIntValue(c.getInteger(this.columns)) == 2* this.sizeOfBoard){
-                        this.nextTime.changeValue(c,k); 
-                        this.w.changeValue(c, 1);
-                    }    
-            }               
-        }    
         
-        //test
+        /*//test
         System.out.println ("Next time");
         this.nextTime.PrintBoardInt();
         
         System.out.println ("w");
         this.w.PrintBoardInt();
-        //test
+        //test*/
     }
     
     private void SetWwithNext (Table ntTbl){
@@ -322,22 +373,22 @@ public class Zones  {
         }
     }
     
-    private class Trajectory{
+    public class Trajectory{
         String pieceName;
         ArrayList<Node<Coordinates>> shortestPath;
         int lt;
         
-        Trajectory (String pieceName, ArrayList<Node<Coordinates>> shortestPath, int lt){
+        public Trajectory (String pieceName, ArrayList<Node<Coordinates>> shortestPath, int lt){
             this.pieceName = pieceName;
             this.shortestPath = shortestPath;
             this.lt = lt;
         }
         
-        void printTrajectory (){   
+        public void printTrajectory (){   
             System.out.print ("Trajectory: " + pieceName + ", " );
             Print.PrintArray(shortestPath);
             System.out.println (", " + lt);
         }
-    }
+    }// END Trajectory
     
 }

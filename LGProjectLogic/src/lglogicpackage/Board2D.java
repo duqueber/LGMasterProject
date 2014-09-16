@@ -18,13 +18,13 @@ public class Board2D {
     
     public PiecesLogic [][] board;
     public int columns, rows;
-    
+    private final PiecesLogic [] pieces;
     
     public Board2D (int rows, int columns, PiecesLogic [] players ){
         
         this.columns = columns;
         this.rows = rows;
-        
+        this.pieces = players;
         board = new PiecesLogic [columns][rows];
         
         //test
@@ -84,14 +84,23 @@ public class Board2D {
             return board [c.x][c.y]; 
     }
     
+    public PiecesLogic getPieceFromName (String Name){
+        for (PiecesLogic p : this.pieces ){
+            if (p.NAME == Name)
+                return p;
+        }    
+        return null;
+        
+    }
+    
     public static void main(String args[]) {
         
         PiecesLogic[] pieces = new PiecesLogic[6];
-        pieces[0]= new FighterLogic ( "B-Fighter", 4, 2, 2);
-        pieces[1]= new FighterLogic ("W-Fighter", 5, 3,1);
+        pieces[0]= new FighterLogic ( "B-Fighter", 0, 5, 2);
+        pieces[1]= new FighterLogic ("W-Fighter", 7, 7, 1);
         pieces[2]= new BomberLogic ("B-Bomber", 7, 4, 2, -1);
         pieces[3] = new BomberLogic ("W-Bomber", 2, 5, 1, 1);
-        pieces[4] = new TargetLogic ("B-Target", 7, 0, 2);
+        pieces[4] = new TargetLogic ("B-Target", 2, 7, 2);
         pieces[5] = new TargetLogic ("W-Target", 7, 0, 1);        
         
         Board2D hi = new Board2D(8,8, pieces);
@@ -103,7 +112,7 @@ public class Board2D {
         z.GenerateZones();
         
        */System.out.println ("W-Bomber to B-target" );
-        Zones st2 = new Zones (hi,pieces[2], pieces[5]);
+        Zones st2 = new Zones (hi,pieces[3], pieces[4]);
         st2.GenerateZones();
         
         /*System.out.println ("B-Fighter to W-Bomber" );

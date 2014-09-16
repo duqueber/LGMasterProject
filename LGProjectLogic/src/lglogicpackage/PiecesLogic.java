@@ -36,6 +36,14 @@ public abstract class PiecesLogic {
         DIRECTION = northSouth;
     }
     
+    public PiecesLogic (PiecesLogic c){
+        this.NAME = c.NAME;
+        this.DIRECTION = c.DIRECTION;
+        this.TEAM = c.TEAM;
+        this.positionX = c.positionX;
+        this.positionY = c.positionY;
+    }
+    
     public int getDirection () {
         return DIRECTION;
     }

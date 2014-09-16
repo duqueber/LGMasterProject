@@ -9,6 +9,7 @@ package supportpackage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import lggrammars.Zones;
 
 /**
  *
@@ -58,14 +59,15 @@ public class Tree<T> {
             
         while (!s.empty()){
             
-            Node<Coordinates> check = (Node<Coordinates>)s.pop();
+            Node<Zones.Trajectory> check = (Node<Zones.Trajectory>)s.pop();
             if (check.hasChildren())
             {
-                System.out.println("dad:" + check.getData().x + ", " + check.getData().y);
-                List<Node<Coordinates>> children = check.getChildren();
+                System.out.println("dad:" );
+                check.getData().printTrajectory();
+                List<Node<Zones.Trajectory>> children = check.getChildren();
                 System.out.println("Children: ");
-                for (Node<Coordinates> child: children){
-                    System.out.println(child.getData().x + ", " + child.getData().y);
+                for (Node<Zones.Trajectory> child: children){
+                    child.getData().printTrajectory();
                     s.add(child);
                 }
             }
@@ -91,6 +93,46 @@ public class Tree<T> {
                 System.out.println ("leaf: " + leaveCoor.getData().x + ", " + leaveCoor.getData().y); 
             return this.leavesCoor;
         }
+    }
+    
+    public static void main(String args[]) {
+    
+        Tree<Integer> tree = new Tree <>();
+        Node<Integer> r = new Node<> (5);
+        tree.setRoot(r);
+        
+
+        Node<Integer> rc = new Node <> (4);
+        Node<Integer> rc1 = new Node <> (3);
+        ArrayList <Node<Integer>> list0 = new ArrayList();
+        list0.add(rc);
+        list0.add(rc1);
+        r.setChildren(list0);
+        
+        Node<Integer> rcc = new Node <> (10);
+        rc.addFirstChild(rcc);
+        
+        Node<Integer> rccc1 = new Node <> (20);
+        Node<Integer> rccc2 = new Node <> (30);
+        ArrayList <Node<Integer>> list1 = new ArrayList();
+        list1.add(rccc1);
+        list1.add (rccc2);
+        rcc.setChildren(list1);
+        
+         Node<Integer> a1 = new Node <> (2);
+        Node<Integer> a2 = new Node <> (1);
+         Node<Integer> a3 = new Node <> (10);
+
+         ArrayList <Node<Integer>> list2 = new ArrayList();
+         list2.add(a1);
+         list2.add(a2);
+         list2.add(a3);
+        rc1.setChildren(list2);
+        
+        if (r.hasChildren())
+        System.out.println ("hello");
+        
+        tree.printTreeRelations();
     }
     
 }

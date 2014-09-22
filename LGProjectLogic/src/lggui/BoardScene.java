@@ -8,20 +8,26 @@ import com.sun.j3d.utils.behaviors.vp.*;
 import com.sun.j3d.utils.image.TextureLoader;
 import com.sun.j3d.utils.universe.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.Map;
 import javax.media.j3d.*;
+import static javax.media.j3d.Background.SCALE_FIT_MAX;
+import static javax.media.j3d.Background.SCALE_FIT_MIN;
 import javax.swing.*;
 import javax.vecmath.*;
+import supportpackage.Coordinates;
 
 
-public class BoardScene extends JPanel {
-    
+public class BoardScene extends JPanel //implements ActionListener{
+{
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize(); 
-    private final int PWIDTH = screenDim.width;   
-    private final int PHEIGHT = screenDim.height; 
+    private final int PWIDTH = screenDim.width-60;   
+    private final int PHEIGHT = screenDim.height-60; 
     private final int BOUNDSIZE = 100; 
-    private final Point3d USERPOSN = new Point3d(6.5,5,6.5);
+    private final Point3d USERPOSN = new Point3d(4.0,17.0,1.0);
+            //new Point3d(6.5,5,6.5);
     //Point3d(20,16,45)
     
     private Scene loadedScene = null;
@@ -31,9 +37,15 @@ public class BoardScene extends JPanel {
     private BranchGroup sceneBG;
     private BoundingSphere bounds; 
     private Texture2D texture2;
-    
+    private Timer timer;
+    private  JButton button; 
+    //private Transform3D t3d;
+    //private TransformGroup tg;
+    private BoardObjects whiteJet, blackJet,  whiteSaturn;
+   
     public BoardScene() throws IOException  {
     
+        //timer = new Timer(100, this);
         setLayout( new BorderLayout() );
         setOpaque( false );
         setPreferredSize( new Dimension(PWIDTH, PHEIGHT));
@@ -41,6 +53,11 @@ public class BoardScene extends JPanel {
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
+        JPanel b = new JPanel ();
+        button = new JButton ("Start");
+        b.add(button);
+       // button.addActionListener(this);
+        add ("North", b);
         canvas3D.setFocusable(true);     // give focus to the canvas 
         canvas3D.requestFocus();
         canvas3D.setDoubleBufferEnable(true);
@@ -57,11 +74,31 @@ public class BoardScene extends JPanel {
     private void createSceneGraph() throws IOException
     { 
         sceneBG = new BranchGroup();
+       // tg = new TransformGroup();
+       // tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+       // sceneBG.addChild(tg);
         bounds = new BoundingSphere(new Point3d(0,0,0), BOUNDSIZE);
         lightScene();         // add the lights
         addBackground();      // add the sky
+        sceneBG.addChild( new CheckerFloor().getBG() );     
+      
+        whiteJet = new BoardObjects ("Su-37_Terminator/Su-37_Terminator.obj" , 
+                Coordinates.convertToGraph(new Vector3d(7, 0.1, 7)),
+                -Math.PI/2.0, 0.0, -Math.PI/4, 1.5, new Transform3D (), new TransformGroup(), "obj");
+        loadModel (whiteJet);
+        
+        blackJet = new BoardObjects ("Su-35_SuperFlanker/Su-35_SuperFlanker.obj" , 
+                Coordinates.convertToGraph(new Vector3d(0, 0.1,6 )),
+                -Math.PI/2.0, 0.0, Math.PI/2, 1.5, new Transform3D (), new TransformGroup(), "obj");
+        loadModel (blackJet);
+        
+        whiteSaturn = new BoardObjects ("BForge/BForge.3DS" , 
+                Coordinates.convertToGraph(new Vector3d(2, 0.1,5 )),
+                0, 0.0, 0, 7.0, new Transform3D (), new TransformGroup(), "3ds");
+        loadModel (whiteSaturn);
+        //     BoardObjects (String fn, Vector3d translateVec, double roty, double scale, 
+          //  Transform3D t3d,TransformGroup tg, String type)
 
-        loadModel("Airplane HORNET N210911.3DS", new Vector3d (1.5,1.5,1.5));
         sceneBG.compile();   // fix the scene
     } // end of createSceneGraph()
 
@@ -101,9 +138,15 @@ public class BoardScene extends JPanel {
 
     
     private void addBackground(){ 
-        Background back = new Background();
+        
+        TextureLoader txl = new TextureLoader ("755569.jpg", this);
+       
+        Background back = new Background(txl.getImage());
         back.setApplicationBounds( bounds );
-        back.setColor(0.0f, 0.0f, 0.0f);   
+        back.setImageScaleMode(SCALE_FIT_MAX);
+        //imageComponent2d
+        //back.setImage(null);
+        //back.setColor(0.0f, 0.0f, 0.0f);   
         sceneBG.addChild( back );
     }  // end of addBackground()
 
@@ -121,50 +164,63 @@ public class BoardScene extends JPanel {
         ViewingPlatform vp = su.getViewingPlatform();
         TransformGroup steerTG = vp.getViewPlatformTransform();
 
-        Transform3D t3d = new Transform3D();
-        steerTG.getTransform(t3d);
+        Transform3D td = new Transform3D();
+        steerTG.getTransform(td);
 
         // args are: viewer posn, where looking, up direction
-        t3d.lookAt( USERPOSN, new Point3d(0,0,0), new Vector3d(0,1,0));
-        t3d.invert();
+        td.lookAt( USERPOSN, new Point3d(4.0,0.0,4.0), new Vector3d(0,1,0));
+        td.invert();
 
         //Point3d(8,6,8)
-        steerTG.setTransform(t3d);
+        steerTG.setTransform(td);
     }  // end of initUserPosition()
 
-       public void loadModel(String fn, Vector3d translateVec){
+       public void loadModel(BoardObjects bo){
+           
         FileWriter ofw = null;
-        System.out.println( "Loading: " + fn );
-
+        System.out.println( "Loading: " + bo.fileName );
+        
+        Loader3DS loader = null;
+        ObjectFile ld= null;
         try {
-            //ObjectFile loader = new ObjectFile(ObjectFile.RESIZE) ;  
-            Loader3DS loader = new Loader3DS();
-            loadedScene = loader.load(fn);            
+            if (bo.type.equals("3ds")){
+                 loader = new Loader3DS();
+                 loadedScene = loader.load(bo.fileName); 
+            }
+            else{
+                ld = new ObjectFile(ObjectFile.RESIZE) ;  
+                loadedScene = ld.load(bo.fileName); 
+            }         
     
             if(loadedScene != null ) {
                 loadedBG = loadedScene.getSceneGroup();    
 
                 //listSceneNamedObjects(loadedScene);
 
-                Transform3D t3d = new Transform3D();
-                t3d.rotX( -Math.PI/2.0 );  
-                Vector3d scaleVec = calcScaleFactor(loadedBG, fn);  
-                t3d.setScale( scaleVec );
-                t3d.setTranslation(translateVec);
+                bo.t3d.rotX( bo.rotx );  
+                Vector3d scaleVec = calcScaleFactor(loadedBG, bo.scale); 
+         
+                bo.t3d.setScale( scaleVec );
+                bo.t3d.setTranslation(bo.translateVec);
 
-                Transform3D t3d2 = new Transform3D();
-                t3d2.rotZ((5*Math.PI)/4);//helicopter x-pi/2
-                t3d.mul(t3d2);
-                TransformGroup tg = new TransformGroup(t3d);
-
-                tg.addChild(loadedBG);
-                sceneBG.addChild(tg); 
+                Transform3D t3dY = new Transform3D();
+                t3dY.rotY(bo.roty);//helicopter x-pi/2
+                bo.t3d.mul(t3dY);
+                
+                Transform3D t3dZ = new Transform3D();
+                t3dZ.rotZ(bo.rotz);//helicopter x-pi/2
+                bo.t3d.mul(t3dZ);
+                
+                bo.tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);             
+                bo.tg.setTransform(bo.t3d);
+                bo.tg.addChild(loadedBG);
+                sceneBG.addChild(bo.tg); 
             }   
             else
-                System.out.println("Load error with: " + fn);
+                System.out.println("Load error with: " + bo.fileName);
             }
         catch( FileNotFoundException ioe )
-        {   System.err.println("Could not find object file: " + fn); }
+        {   System.err.println("Could not find object file: " + bo.fileName); }
     } // end of loadModel()
 
     void listSceneNamedObjects(Scene scene) {
@@ -201,7 +257,7 @@ public class BoardScene extends JPanel {
         texture2.setImage(0, image);
     }
   
-    private Vector3d calcScaleFactor(BranchGroup loadedBG, String fn){  
+    private Vector3d calcScaleFactor(BranchGroup loadedBG, double scale){  
         // Scale the model based on its original bounding box size
         BoundingBox boundbox = new BoundingBox( loadedBG.getBounds() );
 
@@ -222,7 +278,7 @@ public class BoardScene extends JPanel {
         if( (upper.z - lower.z ) > max )
         max = (upper.z - lower.z );
 
-        double scaleFactor = 3.0/max; 
+        double scaleFactor = scale/max; 
         // limit the scaling so that a big model isn't scaled too much
         if( scaleFactor < 0.0005 )
             scaleFactor = 0.0005;
@@ -258,4 +314,40 @@ public class BoardScene extends JPanel {
 
         sceneBG.addChild(dotShape);
     }
+
+   /* @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == button)
+        {
+            if(!timer.isRunning())
+            {
+                timer.start();
+                System.out.println ("hello");
+            }
+        }
+        
+        //if the action event's source is not from the button press,
+        //it is a timer tick
+        else
+        {
+           
+            Vector3d loc = new Vector3d();
+            t3d.get(loc);
+            
+           
+            
+            int tempX,tempZ;
+            tempX = (int) (loc.x*10);
+            tempZ = (int)(loc.z*10);
+            Vector3d tempVec = new Vector3d (tempX, 0, tempZ);
+            System.out.println ("Vector: "+ tempVec.x + ", " + tempVec.y + ", " + tempVec.z);
+            Vector3d newLoc = new Vector3d (loc.x+.1f, loc.y , loc.z+.1f );
+            if (!tempVec.equals(new Vector3d (37, 0, 37))){
+               
+            t3d.setTranslation(newLoc);
+            tg.setTransform(t3d);} else
+             timer.stop();
+           
+        }
+    }*/
 } 

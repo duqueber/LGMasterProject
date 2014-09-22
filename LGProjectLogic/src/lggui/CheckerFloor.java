@@ -1,3 +1,5 @@
+package lggui;
+
 
 // CheckerFloor.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 
 public class CheckerFloor
 {
-  private final static int FLOOR_LEN = 16;  // should be even
+  private final static int FLOOR_LEN = 8;  // should be even
 
   // colours for floor, etc
   private final static Color3f blue = new Color3f(0.0f, 0.1f, 0.4f);
@@ -70,22 +72,6 @@ public class CheckerFloor
   }  // end of createCoords()
 
 
- /* private void addOriginMarker()
-  // A red square centered at (0,0,0), of length 0.5
-  {  // points created counter-clockwise, a bit above the floor
-    Point3f p1 = new Point3f(-0.25f, 0.01f, 0.25f);
-    Point3f p2 = new Point3f(0.25f, 0.01f, 0.25f);
-    Point3f p3 = new Point3f(0.25f, 0.01f, -0.25f);    
-    Point3f p4 = new Point3f(-0.25f, 0.01f, -0.25f);
-
-    ArrayList oCoords = new ArrayList();
-    oCoords.add(p1); oCoords.add(p2);
-    oCoords.add(p3); oCoords.add(p4);
-
-    floorBG.addChild( new ColouredTiles(oCoords, medRed) );
-  } // end of addOriginMarker();
-
-*/
   private void labelAxes()
   // Place numbers along the X- and Z-axes at the integer positions
   {
@@ -122,7 +108,5 @@ public class CheckerFloor
 
   public BranchGroup getBG()
   {  return floorBG;  }
-
-
-}  // end of CheckerFloor class
+}  
 

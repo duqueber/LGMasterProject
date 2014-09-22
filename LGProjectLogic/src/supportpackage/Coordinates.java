@@ -6,6 +6,9 @@
 
 package supportpackage;
 
+import java.util.Vector;
+import javax.vecmath.Vector3d;
+
 /**
  *
  * @author nati
@@ -36,7 +39,11 @@ public class Coordinates {
     public static Coordinates getCoordinates(int value, int rows){
         return new Coordinates (value%rows,value/rows ) ;
     }
-            
+    
+    public static Vector3d convertToGraph (Vector3d f){
+
+        return new Vector3d(7.5-f.x, f.y, f.z+0.5);
+    }
             
             
     public boolean equals (Coordinates c){

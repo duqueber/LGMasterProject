@@ -8,6 +8,7 @@ package lggui;
 
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.vecmath.Color3f;
 import javax.vecmath.Vector3d;
 
 /**
@@ -21,10 +22,11 @@ public class BoardObjects {
     double roty, rotx, rotz, scale;
     Transform3D t3d ;
     TransformGroup tg;
+    Color3f color;
     
     
     BoardObjects (String fn, Vector3d translateVec, double rotx, double roty,double rotz,
-            double scale, Transform3D t3d,TransformGroup tg, String type){
+            double scale, Transform3D t3d,TransformGroup tg, Color3f color, String type){
         
         this.fileName = fn;
         this.translateVec = new Vector3d (translateVec);
@@ -35,6 +37,7 @@ public class BoardObjects {
         this.type = type;
         this.t3d = t3d;
         this.tg = tg;
+        this.color = color;
         
     }
     

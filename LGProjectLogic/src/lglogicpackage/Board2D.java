@@ -1,7 +1,9 @@
 package lglogicpackage;
 
+import java.io.IOException;
 import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
+import lggui.GUIFrame;
 import supportpackage.Coordinates;
 
 /*
@@ -93,7 +95,7 @@ public class Board2D {
         
     }
     
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         
         PiecesLogic[] pieces = new PiecesLogic[6];
         pieces[0]= new FighterLogic ( "B-Fighter", 0, 5, 2);
@@ -105,15 +107,16 @@ public class Board2D {
         
         Board2D hi = new Board2D(8,8, pieces);
 
+        GUIFrame gui = new GUIFrame(hi);
         
         /*System.out.println ("B=Bomber to W- target" );
         
         Zones z = new Zones (hi, pieces[2],pieces[5]);
         z.GenerateZones();
         
-       */System.out.println ("W-Bomber to B-target" );
+       /*System.out.println ("W-Bomber to B-target" );
         Zones st2 = new Zones (hi,pieces[3], pieces[4]);
-        st2.GenerateZones();
+        st2.GenerateZones();*/
         
         /*System.out.println ("B-Fighter to W-Bomber" );
         ShortestTrajectory st3 = new ShortestTrajectory(hi,pieces[0], new Coordinates (7,7));

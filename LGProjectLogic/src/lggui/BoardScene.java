@@ -11,22 +11,29 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import javax.media.j3d.*;
 import static javax.media.j3d.Background.SCALE_FIT_MAX;
 import static javax.media.j3d.Background.SCALE_FIT_MIN;
 import javax.swing.*;
 import javax.vecmath.*;
+import lggrammars.Zones;
+import lglogicpackage.Board2D;
 import supportpackage.Coordinates;
+import supportpackage.Tree;
 
 
-public class BoardScene extends JPanel //implements ActionListener{
-{
+public class BoardScene extends JPanel implements ActionListener{
+
     Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize(); 
     private final int PWIDTH = screenDim.width-60;   
     private final int PHEIGHT = screenDim.height-60; 
     private final int BOUNDSIZE = 100; 
     private final Point3d USERPOSN = new Point3d(4.0,17.0,1.0);
+    private final Color3f WHITE = new Color3f(0.7f, .15f, .15f);
+    private final Color3f BLACK = new Color3f(0.15f, .15f, .7f);
             //new Point3d(6.5,5,6.5);
     //Point3d(20,16,45)
     
@@ -39,13 +46,16 @@ public class BoardScene extends JPanel //implements ActionListener{
     private Texture2D texture2;
     private Timer timer;
     private  JButton button; 
-    //private Transform3D t3d;
-    //private TransformGroup tg;
-    private BoardObjects whiteJet, blackJet,  whiteSaturn;
-   
-    public BoardScene() throws IOException  {
+    private final double y = 0.5;
+    private Board2D board;
     
-        //timer = new Timer(100, this);
+    private BoardObjects whiteFighter, blackFighter,  whiteBomber, blackBomber,
+            whiteTarget, blackTarget;
+   
+    public BoardScene(Board2D board) throws IOException  {
+    
+        this.board = board;
+        timer = new Timer(100, this);
         setLayout( new BorderLayout() );
         setOpaque( false );
         setPreferredSize( new Dimension(PWIDTH, PHEIGHT));
@@ -56,7 +66,7 @@ public class BoardScene extends JPanel //implements ActionListener{
         JPanel b = new JPanel ();
         button = new JButton ("Start");
         b.add(button);
-       // button.addActionListener(this);
+        button.addActionListener(this);
         add ("North", b);
         canvas3D.setFocusable(true);     // give focus to the canvas 
         canvas3D.requestFocus();
@@ -81,24 +91,58 @@ public class BoardScene extends JPanel //implements ActionListener{
         lightScene();         // add the lights
         addBackground();      // add the sky
         sceneBG.addChild( new CheckerFloor().getBG() );     
-      
-        whiteJet = new BoardObjects ("Su-37_Terminator/Su-37_Terminator.obj" , 
-                Coordinates.convertToGraph(new Vector3d(7, 0.1, 7)),
-                -Math.PI/2.0, 0.0, -Math.PI/4, 1.5, new Transform3D (), new TransformGroup(), "obj");
-        loadModel (whiteJet);
         
-        blackJet = new BoardObjects ("Su-35_SuperFlanker/Su-35_SuperFlanker.obj" , 
-                Coordinates.convertToGraph(new Vector3d(0, 0.1,6 )),
-                -Math.PI/2.0, 0.0, Math.PI/2, 1.5, new Transform3D (), new TransformGroup(), "obj");
-        loadModel (blackJet);
+        Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
+        Coordinates bf = board.getPieceFromName("B-Fighter").getCoordinates();
+        Coordinates bb = board.getPieceFromName("B-Bomber").getCoordinates();
+        Coordinates wb = board.getPieceFromName("W-Bomber").getCoordinates();
+        Coordinates bt = board.getPieceFromName("B-Target").getCoordinates();
+        Coordinates wt = board.getPieceFromName("W-Target").getCoordinates();
         
-        whiteSaturn = new BoardObjects ("BForge/BForge.3DS" , 
-                Coordinates.convertToGraph(new Vector3d(2, 0.1,5 )),
-                0, 0.0, 0, 7.0, new Transform3D (), new TransformGroup(), "3ds");
-        loadModel (whiteSaturn);
-        //     BoardObjects (String fn, Vector3d translateVec, double roty, double scale, 
-          //  Transform3D t3d,TransformGroup tg, String type)
+        whiteFighter = new BoardObjects ("fighter plane/fighter plane.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wf.x, y,wf.y )),
+                0.0, Math.PI+0.05, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
+                WHITE, "obj");
+        loadModel (whiteFighter);
+        
+        blackFighter = new BoardObjects ("fighter plane/fighter plane.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bf.x, y, bf.y)),
+                0.0, -Math.PI/5.7, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (blackFighter);
 
+        whiteBomber = new BoardObjects ("obj/missile.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wb.x, y,wb.y )),
+                0.0, Math.PI/2, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
+                WHITE, "obj");
+        loadModel (whiteBomber);
+        
+        blackBomber = new BoardObjects ("obj/missile.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bb.x, y,bb.y )),
+                0.0, -Math.PI/2, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (blackBomber);
+
+        blackTarget = new BoardObjects ("Moon/Moon.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bt.x, y,bt.y )),
+                0.0, 0, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (blackTarget);
+        
+        whiteTarget = new BoardObjects ("Moon/Moon.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wt.x, y,wt.y )),
+                0.0, 0, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
+                WHITE, "obj");
+        loadModel (whiteTarget);     
+        
+        Zones mainBlack = new Zones (this.board,board.getPieceFromName("B-Bomber"),
+                board.getPieceFromName("W-Target"));
+        addZones (mainBlack);
+        
+        Zones mainWhite = new Zones (this.board,board.getPieceFromName("W-Bomber"),
+                board.getPieceFromName("B-Target"));
+        addZones (mainWhite);
+        
         sceneBG.compile();   // fix the scene
     } // end of createSceneGraph()
 
@@ -195,7 +239,7 @@ public class BoardScene extends JPanel //implements ActionListener{
             if(loadedScene != null ) {
                 loadedBG = loadedScene.getSceneGroup();    
 
-                //listSceneNamedObjects(loadedScene);
+                listSceneNamedObjects(loadedScene, bo.color);
 
                 bo.t3d.rotX( bo.rotx );  
                 Vector3d scaleVec = calcScaleFactor(loadedBG, bo.scale); 
@@ -223,22 +267,22 @@ public class BoardScene extends JPanel //implements ActionListener{
         {   System.err.println("Could not find object file: " + bo.fileName); }
     } // end of loadModel()
 
-    void listSceneNamedObjects(Scene scene) {
+    void listSceneNamedObjects(Scene scene, Color3f cc) {
         
         Map<String, Shape3D> nameMap = scene.getNamedObjects();
 
         Appearance ap = new Appearance ();
-        //Color3f col = new Color3f(0.0f, 0.0f, 0.0f);
-        //ColoringAttributes ca = new ColoringAttributes (col, ColoringAttributes.NICEST); 
-        //ap.setColoringAttributes(ca);
+      /*  Color3f col = new Color3f(0.0f, 1.0f, 0.0f);
+        ColoringAttributes ca = new ColoringAttributes (col, ColoringAttributes.NICEST); 
+        ap.setColoringAttributes(ca);*/
               
        //loadTexture("cementlight.jpeg");
-        ap.setTexture(texture2);
-        /*Color3f black = new Color3f(0.0f, 0.0f, 0.0f);
+        //ap.setTexture(texture2);
+        Color3f black = new Color3f(0.0f, 0.0f, 0.0f);
         Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-        Color3f red = new Color3f(0.7f, .15f, .15f);
-        Material mat = new Material(red, black, red, red, 70f);
-        ap.setMaterial(mat);*/
+        Color3f color = cc;
+        Material mat = new Material(color, black, color, white, 70f);
+        ap.setMaterial(mat);
         
         for(Map.Entry<String, Shape3D> entry : nameMap.entrySet()){
             System.out.println(entry.getKey() + "/" + entry.getValue());
@@ -284,29 +328,62 @@ public class BoardScene extends JPanel //implements ActionListener{
             scaleFactor = 0.0005;
 
         return new Vector3d(scaleFactor, scaleFactor, scaleFactor);
-  }  // end of calcScaleFactor()
+    }  // end of calcScaleFactor()
 
-    private void addLine(Point3f pointa, Point3f pointb){
+    private void addZones (Zones z){
+        z.GenerateZones();
+        ArrayList <Tree <Zones.Trajectory>> m= z.getZonesTree();
+        
+        for (Tree<Zones.Trajectory> zone : m){
+            ArrayList<supportpackage.Node<Zones.Trajectory>> t;
+            t = zone.getNodes();
+            
+            for (supportpackage.Node<Zones.Trajectory> node : t)
+                drawTrajectory (node.getData());
+        }        
+    }
     
-        Point3f[] dotPts = new Point3f[4];
-        dotPts[0] = pointa;
-        dotPts[1]=pointb;
-        dotPts[2]=pointb;
-        dotPts[3]=new Point3f (9,5,5);
+    private void drawTrajectory (Zones.Trajectory t){
+        Color3f color;
+        if (t.getPieceName() == "W-Fighter" ||t.getPieceName() =="W-Bomber")
+            color= WHITE; 
+        else
+            color= BLACK; 
+            
+        ArrayList <supportpackage.Node<Coordinates>> sp= t.getShortestPath();
+
+        Iterator<supportpackage.Node<Coordinates>> itFirst = sp.iterator();
+        Iterator<supportpackage.Node<Coordinates>> itSecond = sp.iterator();
+        if (itSecond.hasNext())
+            itSecond.next();
+        while (itSecond.hasNext()){
+            addLine (itFirst.next().getData(), itSecond.next().getData(), color);
+        }
+        
+        
+    }
+    
+    private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
+    
+        Vector3d vecA =Coordinates.convertToGraph(new Vector3d (pointa.x, y, pointa.y));
+        Vector3d vecB =Coordinates.convertToGraph(new Vector3d (pointb.x, y, pointb.y));
+        Point3f[] pts = new Point3f [2];
+        pts[0] = new Point3f ((float)vecA.x, (float)vecA.y, (float)vecA.z);
+        pts[1]=new Point3f ((float)vecB.x, (float)vecB.y, (float)vecB.z);
+     
 
         Appearance app = new Appearance();
-        ColoringAttributes ca = new ColoringAttributes(new Color3f (1,0,0),
-        ColoringAttributes.SHADE_FLAT);
+        ColoringAttributes ca = new ColoringAttributes(c,ColoringAttributes.SHADE_FLAT);
         app.setColoringAttributes(ca);
 
-        LineArray lineArr=new LineArray(4,LineArray.COORDINATES);
+        LineArray lineArr=new LineArray(2,LineArray.COORDINATES);
 
-        lineArr.setCoordinates(0, dotPts);
+        lineArr.setCoordinates(0, pts);
 
 
         LineAttributes lineAt =new LineAttributes();
         lineAt.setLineWidth(3.0f);
-        lineAt.setLinePattern(LineAttributes.PATTERN_SOLID);
+        lineAt.setLinePattern(LineAttributes.ALLOW_PATTERN_WRITE | LineAttributes.PATTERN_DASH_DOT);
         Appearance dotApp = new Appearance();
         dotApp.setLineAttributes(lineAt);
         dotApp.setColoringAttributes(ca);
@@ -315,7 +392,7 @@ public class BoardScene extends JPanel //implements ActionListener{
         sceneBG.addChild(dotShape);
     }
 
-   /* @Override
+    @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == button)
         {
@@ -332,22 +409,17 @@ public class BoardScene extends JPanel //implements ActionListener{
         {
            
             Vector3d loc = new Vector3d();
-            t3d.get(loc);
+            whiteFighter.t3d.get(loc);
+
+            Vector3d newLoc = new Vector3d (loc.x+.1f, loc.y , loc.z-.1f );
+            Vector3d stop = Coordinates.convertToGraph(new Vector3d (6, 0, 6));
             
-           
-            
-            int tempX,tempZ;
-            tempX = (int) (loc.x*10);
-            tempZ = (int)(loc.z*10);
-            Vector3d tempVec = new Vector3d (tempX, 0, tempZ);
-            System.out.println ("Vector: "+ tempVec.x + ", " + tempVec.y + ", " + tempVec.z);
-            Vector3d newLoc = new Vector3d (loc.x+.1f, loc.y , loc.z+.1f );
-            if (!tempVec.equals(new Vector3d (37, 0, 37))){
-               
-            t3d.setTranslation(newLoc);
-            tg.setTransform(t3d);} else
-             timer.stop();
+            if (loc.x< stop.x && loc.z>stop.z){  
+                whiteFighter.t3d.setTranslation(newLoc);
+                whiteFighter.tg.setTransform(whiteFighter.t3d);
+            } 
+
            
         }
-    }*/
+    }
 } 

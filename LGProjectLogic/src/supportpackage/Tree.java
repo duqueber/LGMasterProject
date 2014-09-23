@@ -74,6 +74,30 @@ public class Tree<T> {
         }
     }//End PrintTreeRelations
     
+        
+    public ArrayList<Node<T>> getNodes ()
+    {
+        s.add (root);
+        ArrayList<Node<T>> a = new ArrayList<> ();    
+        a.add (root);
+        while (!s.empty()){
+            
+            Node<T> check = (Node<T>)s.pop();
+            if (check.hasChildren()){
+                List<Node<T>> children = check.getChildren();
+                for (Node<T> child: children){
+                    s.add(child);
+                    a.add (child);
+                }
+            }
+        }
+     return a;   
+    }
+
+   // public ArrayList<Node<Zones.Trajectory>> getNodes() {
+     //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //}
+    
     public class TreeNode extends Tree<Coordinates>{
         
         private List<Node<Coordinates>> leavesCoor = new ArrayList();

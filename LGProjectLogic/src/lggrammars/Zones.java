@@ -354,6 +354,10 @@ public class Zones  {
             return true;
     }
     
+    public ArrayList <Tree <Zones.Trajectory>>   getZonesTree(){
+        return this.zonesTrees;
+    }
+    
     private class u{
         int lu;
         int xInt, yInt;
@@ -382,6 +386,13 @@ public class Zones  {
             this.pieceName = pieceName;
             this.shortestPath = shortestPath;
             this.lt = lt;
+        }
+        
+        public ArrayList<Node<Coordinates>> getShortestPath(){
+            return this.shortestPath;
+        }
+        public String getPieceName (){
+            return this.pieceName;
         }
         
         public void printTrajectory (){   

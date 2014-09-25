@@ -16,11 +16,12 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.media.j3d.*;
 import static javax.media.j3d.Background.SCALE_FIT_MAX;
-import static javax.media.j3d.Background.SCALE_FIT_MIN;
 import javax.swing.*;
 import javax.vecmath.*;
 import lggrammars.Zones;
 import lglogicpackage.Board2D;
+import lglogicpackage.FighterLogic;
+import lglogicpackage.Gateways;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
 
@@ -89,10 +90,10 @@ public class BoardScene extends JPanel implements ActionListener{
        // sceneBG.addChild(tg);
         bounds = new BoundingSphere(new Point3d(0,0,0), BOUNDSIZE);
         lightScene();         // add the lights
-        addBackground();      // add the sky
-        sceneBG.addChild( new CheckerFloor().getBG() );     
+        //addBackground();      // add the sky
+        //sceneBG.addChild( new CheckerFloor().getBG() );     
         
-        Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
+   /*     Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
         Coordinates bf = board.getPieceFromName("B-Fighter").getCoordinates();
         Coordinates bb = board.getPieceFromName("B-Bomber").getCoordinates();
         Coordinates wb = board.getPieceFromName("W-Bomber").getCoordinates();
@@ -134,18 +135,85 @@ public class BoardScene extends JPanel implements ActionListener{
                 0.0, 0, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
                 WHITE, "obj");
         loadModel (whiteTarget);     
-        
+       */         
+        testFunction();
+        sceneBG.compile();  
+    } // end of createSceneGraph()
+
+          
+    void testFunction() {
         Zones mainBlack = new Zones (this.board,board.getPieceFromName("B-Bomber"),
                 board.getPieceFromName("W-Target"));
+        mainBlack.GenerateZones();
+
         addZones (mainBlack);
         
         Zones mainWhite = new Zones (this.board,board.getPieceFromName("W-Bomber"),
                 board.getPieceFromName("B-Target"));
+        mainWhite.GenerateZones();
         addZones (mainWhite);
         
-        sceneBG.compile();   // fix the scene
-    } // end of createSceneGraph()
+        ArrayList <Tree <Zones.Trajectory>> w= mainWhite.getZonesTree();
+        ArrayList <Tree <Zones.Trajectory>> b= mainBlack.getZonesTree();
+        
+        Gateways g = new Gateways (this.board, b.get(0), w.get(0));
+        ArrayList <Coordinates> bGatewaysP =g.getBlackGatewaysProtect();
+        ArrayList <Coordinates> wGatewaysP =g.getWhiteGatewaysProtect();
+        ArrayList <Coordinates> bGatewaysI =g.getBlackGatewaysIntercept();
+        ArrayList <Coordinates> wGatewaysI =g.getWhiteGatewaysIntercept();
+        
+        System.out.println("black coordinates P");
+        for (Coordinates bG : bGatewaysP){
+            bG.PrintCoor();
+        }
+        
+        System.out.println("white coordinates P");
+           for (Coordinates wG : wGatewaysP){
+            wG.PrintCoor();
+        }
+           
+        System.out.println("black coordinates I");
+            for (Coordinates bG : bGatewaysI){
+            bG.PrintCoor();
+        }
+        
+        System.out.println("white coordinates I");
+           for (Coordinates wG : wGatewaysI){
+            wG.PrintCoor();
+        }
+           
+        Board2D temp = new Board2D (this.board);
+        Zones WInt;
+        temp.removePiece(temp.getPieceFromName("W-Fighter"));
+        if (!wGatewaysI.isEmpty()){
+            for (Coordinates wG : wGatewaysI)
+                temp.addPiece(new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
+            
+                WInt = new Zones (temp,temp.getPieceFromName("B-Bomber"),
+                temp.getPieceFromName("W-Target"));
+                WInt.GenerateZones();
+                addZones (WInt);
+            
+        }
+        
+        temp = new Board2D (this.board);
+        Zones WPro;    
+        temp.removePiece(temp.getPieceFromName("W-Fighter"));
+        temp.removePiece (temp.getPieceFromName("B-Fighter"));
+        temp.replace("B-Target","W-Target");
+        temp.replace ("W-Bomber", "B-Bomber");
+        if (!wGatewaysP.isEmpty()){
+            for (Coordinates wG : wGatewaysP)
+                temp.addPiece(new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
+            
+            WPro = new Zones (temp,temp.getPieceFromName("B-Bomber"),
+            temp.getPieceFromName("W-Target"));
+            WPro.GenerateZones();
+            addZones (WPro);            
+        }
 
+    }
+    
     private void addModelToUniverse() throws IOException {
         Scene scene = getSceneFromFile("tornado.obj"); 
         sceneBG = scene.getSceneGroup();
@@ -331,7 +399,7 @@ public class BoardScene extends JPanel implements ActionListener{
     }  // end of calcScaleFactor()
 
     private void addZones (Zones z){
-        z.GenerateZones();
+        
         ArrayList <Tree <Zones.Trajectory>> m= z.getZonesTree();
         
         for (Tree<Zones.Trajectory> zone : m){
@@ -365,8 +433,8 @@ public class BoardScene extends JPanel implements ActionListener{
     
     private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
     
-        Vector3d vecA =Coordinates.convertToGraph(new Vector3d (pointa.x, y, pointa.y));
-        Vector3d vecB =Coordinates.convertToGraph(new Vector3d (pointb.x, y, pointb.y));
+        Vector3d vecA =Coordinates.convertToGraph(new Vector3d (pointa.x, 0, pointa.y));
+        Vector3d vecB =Coordinates.convertToGraph(new Vector3d (pointb.x, 0, pointb.y));
         Point3f[] pts = new Point3f [2];
         pts[0] = new Point3f ((float)vecA.x, (float)vecA.y, (float)vecA.z);
         pts[1]=new Point3f ((float)vecB.x, (float)vecB.y, (float)vecB.z);
@@ -407,7 +475,16 @@ public class BoardScene extends JPanel implements ActionListener{
         //it is a timer tick
         else
         {
-           
+           /* Transform3D t3dstep = new Transform3D();
+            Matrix4d matrix = new Matrix4d();
+            t3dstep.rotZ(-Math.PI / 256);
+            whiteTarget.tg.getTransform(whiteTarget.t3d);
+            whiteTarget.t3d.get(matrix);
+            whiteTarget.t3d.setTranslation(new Vector3d(0.0, 0.0, 0.0));
+            whiteTarget.t3d.mul(t3dstep);
+            whiteTarget.t3d.setTranslation(new Vector3d(matrix.m03, matrix.m13, matrix.m23));
+            whiteTarget.tg.setTransform(whiteTarget.t3d);*/
+            
             Vector3d loc = new Vector3d();
             whiteFighter.t3d.get(loc);
 
@@ -421,5 +498,9 @@ public class BoardScene extends JPanel implements ActionListener{
 
            
         }
+    }
+
+    private void Gateways(Tree<Zones.Trajectory> get, Tree<Zones.Trajectory> get0) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 } 

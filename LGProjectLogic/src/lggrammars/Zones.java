@@ -27,7 +27,7 @@ public class Zones  {
     private final Board2D board;
     private PiecesLogic pieceStart;
     private  ArrayList<ArrayList<Node<Coordinates>>> mainPaths;
-    
+    private final int pieceStartTeam;
     private  final int rows, columns; 
     private  final int lInitial;
     
@@ -48,6 +48,7 @@ public class Zones  {
         
         this.pieceStart = pieceBegin;
         this.pieceTarget = pieceTarget;
+        this.pieceStartTeam = this.pieceStart.getTeam();
         this.lInitial = new ShortestTrajectory(board,this.pieceStart,
                 new Coordinates (this.pieceTarget.positionX, this.pieceTarget.positionY)).Map();
         this.zonesTrees= new ArrayList<>();
@@ -71,6 +72,54 @@ public class Zones  {
         
 
     }
+    
+    public static String getZoneType (Tree <Zones.Trajectory> tree){
+       
+        Node<Zones.Trajectory> t =tree.getRoot();
+
+        List <Node<Trajectory>> children;
+        String protect, intercept;
+        protect=intercept="0";
+        
+        if (!t.hasChildren())
+            protect = "1";
+        else{
+            children = t.getChildren();
+            for (Node<Trajectory> child: children){
+                if (!child.hasChildren())
+                    intercept = "1" ;
+            }
+        }     
+        
+        if (intercept == "0")
+            protect ="1";
+        //1 is White,  2 is Black for team
+        if (t.getData().pieceName == "W-Bomber")
+            return intercept+"_"+protect+"_";
+        else 
+            return "_"+intercept+"_"+protect;
+    }
+    
+    public static int getShortestDistFirstNeg (Tree <Zones.Trajectory> tree){
+       
+        Node<Zones.Trajectory> t =tree.getRoot();
+    
+        List <Node<Trajectory>> children;
+        int dist = 100;
+        int temp;
+        
+        if (t.hasChildren()){
+            children = t.getChildren();
+            for (Node<Trajectory> child: children){
+                temp =child.getData().shortestPath.size()-1;
+                if (temp  < dist);
+                    dist= temp;
+            }
+        }
+        else
+            return 0;
+        return dist;
+    }       
     
     private void Q2 (){
         

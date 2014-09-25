@@ -20,14 +20,14 @@ public class Board2D {
     
     public PiecesLogic [][] board;
     public int columns, rows;
-    private final PiecesLogic [] pieces;
+    public final PiecesLogic [] pieces;
     
     public Board2D (int rows, int columns, PiecesLogic [] players ){
         
         this.columns = columns;
         this.rows = rows;
         this.pieces = players;
-        board = new PiecesLogic [columns][rows];
+        this.board = new PiecesLogic [columns][rows];
         
         //test
         /*for (int i = rows-1; i >=0; i-- ){
@@ -55,8 +55,19 @@ public class Board2D {
         //test
     }    
     
-    
-    private void addPiece (PiecesLogic piece){
+    public Board2D (Board2D b){
+        this.columns = b.columns;
+        this.rows = b.rows;
+        this.pieces = b.getListPieces();
+        this.board = new PiecesLogic [columns][rows];
+        
+        for (int i= 0; i< this.pieces.length; i++){
+            addPiece (this.pieces[i]);        
+        }
+    }
+            
+            
+    public void addPiece (PiecesLogic piece){
         
         try{
             board[piece.positionX][piece.positionY] = piece;
@@ -68,7 +79,7 @@ public class Board2D {
             }         
     }
     
-    private void removePiece (PiecesLogic piece){
+    public void removePiece (PiecesLogic piece){
         try{
             board[piece.positionX][piece.positionY] = null;
 
@@ -77,6 +88,29 @@ public class Board2D {
                         + " be removed: "+  e.getMessage());
 
          }
+    }
+    
+    public void replace (String repP, String withP){
+        PiecesLogic p1, p2;
+        p1=p2=null;
+        for (PiecesLogic p: this.pieces ){
+            if (p.NAME.equals(repP) ){
+                p1=p;
+                removePiece(p);
+            }    
+            if (p.NAME.equals(withP)){
+                p2 = p;
+                removePiece(p);
+            }
+        }
+        Coordinates cp1 =p1.getCoordinates();
+        p1.positionX = p2.positionX;
+        p1.positionY = p2.positionY;
+        p2.positionX = cp1.x;
+        p2.positionY = cp1.y;
+        this.addPiece(p1);
+        this.addPiece(p2);
+         
     }
     
     public PiecesLogic getPiece (Coordinates c){
@@ -95,6 +129,9 @@ public class Board2D {
         
     }
     
+    public PiecesLogic[] getListPieces (){
+        return this.pieces;
+    }
     public static void main(String args[]) throws IOException {
         
         PiecesLogic[] pieces = new PiecesLogic[6];
@@ -128,4 +165,5 @@ public class Board2D {
         ShortestTrajectory st4 = new ShortestTrajectory(hi,pieces[1], new Coordinates (2,7));
         st4.GenerateShortestTrajectory();*/
     }        
+
 }

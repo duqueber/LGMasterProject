@@ -44,15 +44,15 @@ public class Board2D {
             addPiece (players[i]);        
         }
         
-        //test
-        /*for (int i = rows-1; i >=0; i-- ){
+      /*  //test
+        for (int i = rows-1; i >=0; i-- ){
             for (int j = 0; j < columns; j++){                
-                System.out.print ( board[j][i] + "- "+ j +" "+i + "");
+                System.out.print ( board[j][i].NAME + "- "+ j +" "+i + "");
             }    
         
         System.out.println(' ');
-        } */ 
-        //test
+        }  
+        //test*/
     }    
     
     public Board2D (Board2D b){
@@ -125,8 +125,13 @@ public class Board2D {
             if (p.NAME == Name)
                 return p;
         }    
-        return null;
-        
+        return null;   
+    }
+    
+    public boolean hasPiece (Coordinates c){
+        if (this.board[c.x][c.y]== null)
+            return true;
+        return false;
     }
     
     public PiecesLogic[] getListPieces (){

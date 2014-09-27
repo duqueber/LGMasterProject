@@ -125,7 +125,7 @@ public class ShortestTrajectory {
                 begin.getData().y);
         for (Coordinates STOneMove : STOneMoves) {
                 if (STOneMove.x < columns && STOneMove.y < rows && STOneMove.x >-1 
-                        && STOneMove.y >-1) {
+                        && STOneMove.y >-1 ) {
                    STOne.add(STOneMove);
                 }
         }        

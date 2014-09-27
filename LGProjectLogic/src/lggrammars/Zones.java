@@ -276,7 +276,7 @@ public class Zones  {
         
     }
     
-    private boolean ShareCoordinates (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2){
+    public static boolean ShareCoordinates (ArrayList<Node<Coordinates>> path1, ArrayList<Node<Coordinates>> path2){
     
        Node<Coordinates> tempRemove = path1.remove (path1.size()-1);
         

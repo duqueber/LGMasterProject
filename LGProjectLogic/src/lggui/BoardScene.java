@@ -18,10 +18,13 @@ import javax.media.j3d.*;
 import static javax.media.j3d.Background.SCALE_FIT_MAX;
 import javax.swing.*;
 import javax.vecmath.*;
+import lggrammars.GatewaysZones;
+import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lglogicpackage.Board2D;
 import lglogicpackage.FighterLogic;
 import lglogicpackage.Gateways;
+import lglogicpackage.PiecesLogic;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
 
@@ -156,6 +159,7 @@ public class BoardScene extends JPanel implements ActionListener{
         ArrayList <Tree <Zones.Trajectory>> w= mainWhite.getZonesTree();
         ArrayList <Tree <Zones.Trajectory>> b= mainBlack.getZonesTree();
         
+        
         Gateways g = new Gateways (this.board, b.get(0), w.get(0));
         ArrayList <Coordinates> bGatewaysP =g.getBlackGatewaysProtect();
         ArrayList <Coordinates> wGatewaysP =g.getWhiteGatewaysProtect();
@@ -181,38 +185,33 @@ public class BoardScene extends JPanel implements ActionListener{
            for (Coordinates wG : wGatewaysI){
             wG.PrintCoor();
         }
-           
-        Board2D temp = new Board2D (this.board);
-        Zones WInt;
-        temp.removePiece(temp.getPieceFromName("W-Fighter"));
-        if (!wGatewaysI.isEmpty()){
-            for (Coordinates wG : wGatewaysI)
-                temp.addPiece(new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
-            
-                WInt = new Zones (temp,temp.getPieceFromName("B-Bomber"),
-                temp.getPieceFromName("W-Target"));
-                WInt.GenerateZones();
-                addZones (WInt);
-            
-        }
         
-        temp = new Board2D (this.board);
+        ArrayList<supportpackage.Node<Coordinates>> mainTraj = b.get(0).getRoot().getData().
+                getShortestPath();
+        ArrayList<ArrayList<supportpackage.Node<Coordinates>>> pathsToGW;
+        GatewaysZones gw = new GatewaysZones (this.board, mainTraj,wGatewaysI);
+        gw.generateGatewayZones();
+        pathsToGW = gw.getGatewaysZones();
+
+        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: pathsToGW){
+                    drawShortestPath(trajToGW, WHITE);
+         }
+     }
+            
+    
+        
+       /* Board2D temp = new Board2D (this.board);
         Zones WPro;    
+        PiecesLogic fighter;
         temp.removePiece(temp.getPieceFromName("W-Fighter"));
         temp.removePiece (temp.getPieceFromName("B-Fighter"));
         temp.replace("B-Target","W-Target");
         temp.replace ("W-Bomber", "B-Bomber");
         if (!wGatewaysP.isEmpty()){
-            for (Coordinates wG : wGatewaysP)
-                temp.addPiece(new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
-            
-            WPro = new Zones (temp,temp.getPieceFromName("B-Bomber"),
-            temp.getPieceFromName("W-Target"));
-            WPro.GenerateZones();
-            addZones (WPro);            
-        }
-
-    }
+            for (Coordinates wG : wGatewaysP){
+                fighter = (new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
+                temp.addPiece(fighter);
+*/
     
     private void addModelToUniverse() throws IOException {
         Scene scene = getSceneFromFile("tornado.obj"); 
@@ -419,17 +418,21 @@ public class BoardScene extends JPanel implements ActionListener{
             color= BLACK; 
             
         ArrayList <supportpackage.Node<Coordinates>> sp= t.getShortestPath();
-
+        drawShortestPath (sp, color);
+        
+    }
+    
+    private void drawShortestPath (ArrayList <supportpackage.Node<Coordinates>>  sp, Color3f color){
+        
         Iterator<supportpackage.Node<Coordinates>> itFirst = sp.iterator();
         Iterator<supportpackage.Node<Coordinates>> itSecond = sp.iterator();
         if (itSecond.hasNext())
             itSecond.next();
         while (itSecond.hasNext()){
             addLine (itFirst.next().getData(), itSecond.next().getData(), color);
-        }
-        
-        
+        }       
     }
+    
     
     private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
     
@@ -500,7 +503,5 @@ public class BoardScene extends JPanel implements ActionListener{
         }
     }
 
-    private void Gateways(Tree<Zones.Trajectory> get, Tree<Zones.Trajectory> get0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 } 

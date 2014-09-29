@@ -345,11 +345,11 @@ public class Zones  {
         
         int i=0;
         for (Node<Coordinates> coor: Coors ){
-            if (i>0){
+           // Changed from grammar. Includes the coordinate where the piece is if (i>0){
                 Coordinates pos = coor.getData();
                 this.distance.changeValue(pos, i+1);
                 this.v.changeValue(pos, 1);
-            }
+            //}
             i++;
         }
     }

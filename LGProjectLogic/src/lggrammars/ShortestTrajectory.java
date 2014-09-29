@@ -223,6 +223,9 @@ public class ShortestTrajectory {
     public int Map (){
         return this.l;
     }
+    public int[][] getSTPieceBegin (){
+        return this.STPieceBegin;
+    }
     
     public ArrayList<ArrayList<Node<Coordinates>>> getShortestTrajectories (){
         return this.ShortestPaths;

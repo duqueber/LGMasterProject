@@ -18,13 +18,9 @@ import javax.media.j3d.*;
 import static javax.media.j3d.Background.SCALE_FIT_MAX;
 import javax.swing.*;
 import javax.vecmath.*;
-import lggrammars.GatewaysZones;
-import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lglogicpackage.Board2D;
-import lglogicpackage.FighterLogic;
 import lglogicpackage.Gateways;
-import lglogicpackage.PiecesLogic;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
 
@@ -186,32 +182,24 @@ public class BoardScene extends JPanel implements ActionListener{
             wG.PrintCoor();
         }
         
-        ArrayList<supportpackage.Node<Coordinates>> mainTraj = b.get(0).getRoot().getData().
-                getShortestPath();
+
         ArrayList<ArrayList<supportpackage.Node<Coordinates>>> pathsToGW;
-        GatewaysZones gw = new GatewaysZones (this.board, mainTraj,wGatewaysI);
-        gw.generateGatewayZones();
-        pathsToGW = gw.getGatewaysZones();
+        pathsToGW = g.generateGatewaysZones(Gateways.Teams.WHITE, Gateways.Types.PROTECT);
 
         for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: pathsToGW){
                     drawShortestPath(trajToGW, WHITE);
-         }
-     }
-            
-    
+        }
         
-       /* Board2D temp = new Board2D (this.board);
-        Zones WPro;    
-        PiecesLogic fighter;
-        temp.removePiece(temp.getPieceFromName("W-Fighter"));
-        temp.removePiece (temp.getPieceFromName("B-Fighter"));
-        temp.replace("B-Target","W-Target");
-        temp.replace ("W-Bomber", "B-Bomber");
-        if (!wGatewaysP.isEmpty()){
-            for (Coordinates wG : wGatewaysP){
-                fighter = (new FighterLogic ("W-Fighter",wG.x ,wG.y , 1));
-                temp.addPiece(fighter);
-*/
+        
+        ArrayList<ArrayList<supportpackage.Node<Coordinates>>> pathsToGWII;
+        pathsToGW = g.generateGatewaysZones(Gateways.Teams.BLACK, Gateways.Types.INTERCEPT);
+
+        for (ArrayList<supportpackage.Node<Coordinates>> trajToGWII: pathsToGW){
+                    drawShortestPath(trajToGWII, WHITE);
+        }
+        
+     }//end of testfunction
+            
     
     private void addModelToUniverse() throws IOException {
         Scene scene = getSceneFromFile("tornado.obj"); 

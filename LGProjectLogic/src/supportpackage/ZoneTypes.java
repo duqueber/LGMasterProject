@@ -18,7 +18,7 @@ public class ZoneTypes {
         this.whiteZone = white;
     }
     
-    //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protectt
+    //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     public boolean isWhiteWin () {
         if ("0_1_".equals(this.whiteZone)&& "_1_0".equals(this.blackZone))
             return true;

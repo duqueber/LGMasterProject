@@ -149,7 +149,10 @@ public class Board2D {
         
         Board2D hi = new Board2D(8,8, pieces);
 
-        GUIFrame gui = new GUIFrame(hi);
+        //GUIFrame gui = new GUIFrame(hi);
+        
+        WhiteWins test = new WhiteWins (hi);
+        test.evaluateWhiteWins();
         
         /*System.out.println ("B=Bomber to W- target" );
         

@@ -17,9 +17,18 @@ public class Moves {
     private Coordinates step;
     private PiecesLogic piece;
     
-    public Moves (Coordinates step, PiecesLogic piece){
-        this.step = step;
+    public Moves ( PiecesLogic piece,Coordinates step){
+        this.step = step; 
         this.piece = piece;
+    }
+    
+    public Moves ( PiecesLogic piece){
+        this.step = null; 
+        this.piece = piece;
+    }
+    
+    public Coordinates getStep (){
+        return this.step;
     }
     
 }

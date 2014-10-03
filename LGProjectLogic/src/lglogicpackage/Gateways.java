@@ -177,7 +177,7 @@ public class Gateways {
         return this.whiteGatewaysP;
     }
     
-    private boolean IsInArray (ArrayList<Coordinates> a, Coordinates c){
+    public static boolean IsInArray (ArrayList<Coordinates> a, Coordinates c){
         for (Coordinates coor : a)
             if (coor.equals(c))
                 return true;

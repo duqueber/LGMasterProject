@@ -46,8 +46,15 @@ public class Coordinates {
     }
             
             
-    public boolean equals (Coordinates c){
-        if (this.x == c.x && this.y == c.y)
+    @Override
+    public boolean equals (Object c){
+        if (c == null)
+            return false;
+   
+        if (this.getClass() != c.getClass())
+            return false;
+        
+        if (this.x == ((Coordinates)c).x && this.y == ((Coordinates)c).y)
             return true;
         else 
             return false;

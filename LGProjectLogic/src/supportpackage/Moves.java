@@ -31,4 +31,8 @@ public class Moves {
         return this.step;
     }
     
+    public PiecesLogic getPiece(){
+        return this.piece;
+    }
+    
 }

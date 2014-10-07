@@ -5,6 +5,8 @@ import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lggui.GUIFrame;
 import supportpackage.Coordinates;
+import supportpackage.Moves;
+import supportpackage.Node;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,7 +22,7 @@ public class Board2D {
     
     public PiecesLogic [][] board;
     public int columns, rows;
-    public final PiecesLogic [] pieces;
+    public PiecesLogic [] pieces;
     
     public Board2D (int rows, int columns, PiecesLogic [] players ){
         
@@ -70,18 +72,22 @@ public class Board2D {
     public void addPiece (PiecesLogic piece){
         
         try{
-            board[piece.positionX][piece.positionY] = piece;
+            this.board[piece.positionX][piece.positionY] = piece;
+            for (PiecesLogic p: this.pieces)
+                if (piece.NAME.equals(p.NAME)){
+                    p.positionX = piece.positionX;
+                    p.positionY = piece.positionY;
+                }    
 
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
                         + " be placed: "+  e.getMessage());
-
             }         
     }
     
     public void removePiece (PiecesLogic piece){
         try{
-            board[piece.positionX][piece.positionY] = null;
+            this.board[piece.positionX][piece.positionY] = null;
 
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
@@ -134,8 +140,28 @@ public class Board2D {
         return false;
     }
     
+    public Board2D getBoard (){
+        return this;
+    }
+    
     public PiecesLogic[] getListPieces (){
         return this.pieces;
+    }
+    
+    public boolean makeMove (Moves m){
+        PiecesLogic piece = m.getPiece();
+        if (m!= null){
+            removePiece(getPieceFromName(piece.NAME));
+            piece.positionX = m.getStep().x;
+            piece.positionY = m.getStep().y;
+            addPiece(piece); 
+            return true;
+        }
+        //test
+        else
+            System.out.println ("m is null");
+        //test
+        return false;
     }
     public static void main(String args[]) throws IOException {
         

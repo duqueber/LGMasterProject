@@ -70,7 +70,7 @@ public class BothStatesChange  implements Tactics  {
         this.sharedLocation = sharedLocationGW(gwPointPro, gwZonesProtect, 
                 gwPointInt, gwZonesIntercept);
         
-        OnlyGateways(); // just choose shared locations that are GW. Prune the other ones.
+        OnlyGateways(); // just choose shared locations that are GW if they exist. Prune the other ones.
         
         if (!this.sharedLocation.isEmpty()){
             shared.add(Boolean.TRUE);
@@ -171,20 +171,13 @@ public class BothStatesChange  implements Tactics  {
         
         if (!tempshared.isEmpty()){
             this.sharedLocation = tempshared;
+            return true;
         }
             
         return false;
     }
-    
-    
-    @Override
-    public boolean win (){
-        
-        for (Node<Moves> n: this.nextSteps)
-            if (IsGateway(n.getData().getStep()))
-                return true;
-        return false;        
-    }
+
+
     
     private class StructGW{
         Coordinates gwPro, gwInt;
@@ -242,16 +235,21 @@ public class BothStatesChange  implements Tactics  {
 
 
     @Override
-    public boolean fail() {
+    public boolean possible() {
 
-        if (shared.get(shared.size()-1).equals (Boolean.TRUE) )
-            return false;
-        else 
-        if (closestArray.size()>1)
-            return closestArray.get(closestArray.size()-1)< closestArray.get(closestArray.size()-2);
-
+        if (shared.size() > 1)     
+            if (shared.get(shared.size()-1).equals (Boolean.TRUE) )
+                return true; // There is a shared locations
         return false;
     }
-
     
+    
+    @Override
+    public boolean notPossible() {
+        
+        if (closestArray.size()>1)
+            return closestArray.get(closestArray.size()-1)> closestArray.get(closestArray.size()-2);
+        return false;
+    }
+         
 }

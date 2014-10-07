@@ -17,10 +17,9 @@ import supportpackage.Node;
 public interface Tactics {
     
     
-    
     void developTactic ();
     void calculateNextMoves ();
     ArrayList<Node<Moves>> getNextMoves();
-    boolean win();
-    boolean fail ();
+    boolean possible();
+    boolean notPossible ();
 }

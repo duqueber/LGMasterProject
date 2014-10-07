@@ -24,7 +24,7 @@ import supportpackage.Tree;
  */
 public class Zones  {
 
-    private final Board2D board;
+    public final Board2D board;
     private PiecesLogic pieceStart;
     private  ArrayList<ArrayList<Node<Coordinates>>> mainPaths;
     private final int pieceStartTeam;
@@ -215,7 +215,7 @@ public class Zones  {
         for (Node<Zones.Trajectory> n : nodes){
             SetNextTime (n);
             if (!tableEqualToZero (this.w)){
-                this.pieceStart= this.board.getPiece(n.getData().shortestPath.get(0).data);
+                this.pieceStart= this.board.getPiece(n.getData().shortestPath.get(0).getData());
                 this.time = new Table (this.nextTime);
                 u uTemp = new u (0,0,0);
                 this.uParam = uTemp;
@@ -444,6 +444,9 @@ public class Zones  {
             return this.pieceName;
         }
         
+        public int getLen (){
+            return this.lt;
+        }
         public void printTrajectory (){   
             System.out.print ("Trajectory: " + pieceName + ", " );
             Print.PrintArray(shortestPath);

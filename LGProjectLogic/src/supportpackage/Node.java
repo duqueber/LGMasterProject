@@ -16,16 +16,18 @@ import lggrammars.Zones;
  */
 public class Node<T> {
     
-    public T data;
-    public List<Node<T>> children;
-    public Node<T> father;
-        
+    T data;
+    List<Node<T>> children;
+    Node<T> father;
+    boolean isRoot;
+    
     public Node(){
         super();
     }
     
     public Node (T data){
         this.data = data;
+        this.isRoot = false;
     }
     
     public T getData (){    
@@ -41,6 +43,8 @@ public class Node<T> {
     
     public void setChildren(List<Node<T>> children) {
         this.children = children;
+        for (Node<T>child: children)
+            child.setFather(this);
     }
     
     public void setFather (Node<T> dad){
@@ -52,12 +56,27 @@ public class Node<T> {
             return false;
         return true;
     }
+    public boolean isRoot (){
+        return this.isRoot;
+    }
 
     public void addFirstChild(Node<T> child) {
         List<Node<T>> c = new ArrayList<>();
         c.add(child);
         this.setChildren(c);
+        child.setFather(this);
     }
     
-
+    public int getDepth (){
+        if (this.father != null)
+            return getDepth(this);
+        else
+            return 0;
+    }
+    
+    private int getDepth (Node<T> n){
+        if (n.father == null)
+            return 0;
+        return (getDepth (n.father)+ 1);
+    }
 }

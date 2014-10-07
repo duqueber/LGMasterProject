@@ -6,13 +6,60 @@
 
 package lglogicpackage;
 
+import java.util.ArrayList;
+import supportpackage.Moves;
+import supportpackage.Node;
+
 /**
  *
  * @author nati
  */
 public class BlackWins extends Strategies {
 
+    private Tactics WTactic, BTactic;
+    ArrayList<Node<Moves>> nextSteps;
+    
     BlackWins (Board2D board){
         super (board);
+        this.nextSteps = new ArrayList<>();
+        this.WTactic = null;
+        this.BTactic = null;
     }
+    public void evaluateBlackWins (){
+        evaluateBlackWins (this.moves.getRoot());
+    }
+    
+    public void evaluateBlackWins (Node<Moves> m ){
+        
+        //if (isDefWin() || isDefFail())
+          //  return;
+
+        if (!m.isRoot())
+            makeStrategyMove (m.getData());
+            
+        this.nextSteps = generateNextSteps (m);    
+
+        if (!this.nextSteps.isEmpty())
+            m.setChildren(this.nextSteps);                    
+
+        for (Node<Moves> step: this.nextSteps)       
+            evaluateBlackWins(step);
+    }
+    //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
+    private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
+        
+        if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
+            this.WTactic = chooseTactic ("_1_0","0_1_" );
+            this.WTactic.developTactic();
+            return this.WTactic.getNextMoves();
+        }
+        else {
+            this.BTactic = chooseTactic ("_0_1","1_0_"  );
+            this.BTactic.developTactic();
+            return this.BTactic.getNextMoves();
+        }    
+            
+    }
+    
+
 }

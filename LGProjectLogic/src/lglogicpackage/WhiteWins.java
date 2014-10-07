@@ -18,14 +18,13 @@ import supportpackage.Tree;
 public class WhiteWins extends Strategies{
 
     private Tactics WTactic, BTactic;
-    private boolean defWin, defFail;
     ArrayList<Node<Moves>> nextSteps;
     
     WhiteWins (Board2D board){
         super (board);
-        this.defFail = false;
-        this.defWin = false;
         this.nextSteps = new ArrayList<>();
+        this.WTactic = null;
+        this.BTactic = null;
     }
     public void evaluateWhiteWins (){
         evaluateWhiteWins (this.moves.getRoot());
@@ -33,31 +32,49 @@ public class WhiteWins extends Strategies{
     
     public void evaluateWhiteWins (Node<Moves> m ){
         
-        if (isDefWin() || isDefFail())
-     
-        //this.moves.setRoot(new Node(new Moves(this.board.getPieceFromName("W-Fighter"))));
-        //while (!fail){
-           // if (this.moves.isEmpty()){
-                
-            //}// add conditions to stop loop, change board in strategies (need to 
-            // add a function for doing this.
-            this.WTactic = chooseTactic ("_1_0","0_1_" );
-            this.WTactic.developTactic();
-            this.nextSteps = this.WTactic.getNextMoves();
+        if (necessaryConditionMet () || necessaryConditionNotMet())
+ //       if (m.getDepth() == 2)
+            return;
+        
+        if (!m.isRoot())
+            makeStrategyMove (m.getData());
             
-            if (!this.nextSteps.isEmpty())
-                m.setChildren(this.nextSteps);                    
+        this.nextSteps = generateNextSteps (m);    
 
-          //  this.tac = chooseTactic ("_0_1","1_0_" );
-        //}
+        if (!this.nextSteps.isEmpty())
+            m.setChildren(this.nextSteps);                    
+
+        for (Node<Moves> step: this.nextSteps)       
+            evaluateWhiteWins(step);
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
-    private boolean isDefFail(){
+    private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
-        return this.BTactic.win() || this.WTactic.fail();
+        if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
+            this.WTactic = chooseTactic ("_1_0","0_1_" );
+            this.WTactic.developTactic();
+            return this.WTactic.getNextMoves();
+        }
+        else {
+            this.BTactic = chooseTactic ("_0_1","1_0_"  );
+            this.BTactic.developTactic();
+            return this.BTactic.getNextMoves();
+        }    
+            
     }
     
-    private boolean isDefWin(){
-        return this.WTactic.win();
+    private boolean necessaryConditionMet(){
+         if (this.WTactic == null)
+             return false;
+         else
+             return this.WTactic.possible();
     }
+    
+    private boolean necessaryConditionNotMet(){
+         if (this.WTactic == null)
+             return false;
+          else
+             return this.WTactic.notPossible();
+    }
+    
 }

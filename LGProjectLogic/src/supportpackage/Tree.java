@@ -27,6 +27,8 @@ public class Tree<T> {
     
     public void setRoot (Node<T> r){
         this.root = r;
+        r.isRoot = true;
+        r.father = null;
     }
     
     public Node<T> getRoot (){
@@ -36,7 +38,7 @@ public class Tree<T> {
     public void addLeaf (Node<T> l){
         this.leaves.add(l);
     }
-        
+    
     public List<Node<T>> getLeaves ()
     {
         if (leaves == null)

@@ -35,4 +35,10 @@ public class Moves {
         return this.piece;
     }
     
+    public void Print (){
+        System.out.println ("Moves: " + piece.NAME + ", ");
+        if (step!= null)
+        step.PrintCoor();
+    }
+    
 }

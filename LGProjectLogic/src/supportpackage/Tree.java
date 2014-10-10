@@ -55,6 +55,28 @@ public class Tree<T> {
         a.add(node);
     }
     
+    
+   public void printTreeRelationsMoves ()
+    {
+        s.add (root);
+            
+        while (!s.empty()){
+            
+            Node<Moves> check = (Node<Moves>)s.pop();
+            if (check.hasChildren())
+            {
+                System.out.println("dad:" );
+                check.getData().Print();
+                List<Node<Moves>> children = check.getChildren();
+                System.out.println("Children: ");
+                for (Node<Moves> child: children){
+                    child.getData().Print();
+                    s.add(child);
+                }
+            }
+        }
+    }
+   
     public void printTreeRelations ()
     {
         s.add (root);

@@ -49,20 +49,22 @@ public class Gateways {
         //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
         this.whitePDist = Zones.getShortestDistFirstNeg(this.whiteZone);
         this.blackPDist = Zones.getShortestDistFirstNeg(this.blackZone);
+        
+  
         ZoneTypes zt = new ZoneTypes(blackZoneType, whiteZoneType);
 
         if (zt.isWhiteWin()) {
-            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 2);
+            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
             calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
         } else if (zt.isBlackWin()) {
             calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
-            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 2);
+            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
         } else if (zt.isBothIntercept()) {
             calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
             calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
         } else if (zt.isBothProtect()) {
-            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 2);
-            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 2);
+            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
         }
     }
 
@@ -72,26 +74,25 @@ public class Gateways {
         ArrayList<ArrayList<Node<Coordinates>>> stsFirstStep;
         ShortestTrajectory stToMain;
         Coordinates c;
-        //Gateways do not go to begining
-        Iterator<Node<Coordinates>> it = st.iterator();
-        if (it.hasNext()) {
-            it.next();
-        }
-
-        if (it.hasNext()) {
-            stToMain = new ShortestTrajectory(this.board, start,
-                    it.next().getData());
-            stToMain.GenerateShortestTrajectory();
-            stsFirstStep = stToMain.getShortestTrajectories();
-
-            for (ArrayList<Node<Coordinates>> stFirstStep : stsFirstStep) {
-                c= stFirstStep.get(stFirstStep.size() - 1 - dist).getData();
-                if (!IsInArray ( array, c))
-                    array.add(c);
-            }
+        int distTemp;
+        if (st.size() > 1){
+            for (int i=1; i < st.size(); i++){
+                stToMain = new ShortestTrajectory(this.board, start,
+                    st.get(i).getData());
+                stToMain.GenerateShortestTrajectory();
+                stsFirstStep = stToMain.getShortestTrajectories();
+                if (dist == 0)
+                    distTemp = i+1;
+                else 
+                    distTemp = dist;
+                for (ArrayList<Node<Coordinates>> stFirstStep : stsFirstStep) {
+                    c= stFirstStep.get(stFirstStep.size() - 1 - distTemp).getData();
+                        if (!IsInArray ( array, c))
+                            array.add(c);
+                }
+            }        
         }
     }
-
     public ArrayList<ArrayList <Node<Coordinates>>> generateGatewaysZones( Teams team,
             Types type){
         
@@ -160,20 +161,30 @@ public class Gateways {
         return finalArray;
     }// endo of generateZones
     
+    private void Print (ArrayList<Coordinates> gw){
+        
+        System.out.print("GW: ");
+        for (Coordinates c: gw)
+            c.PrintCoor();     
+    }
     
     public ArrayList<Coordinates> getBlackGatewaysProtect() {
+        Print(this.blackGatewaysP);
         return this.blackGatewaysP;
     }
 
     public ArrayList<Coordinates> getWhiteGatewaysIntercept() {
+        Print (this.whiteGatewaysI);
         return this.whiteGatewaysI;
     }
     
     public ArrayList<Coordinates> getBlackGatewaysIntercept() {
+        Print (this.blackGatewaysI);
         return this.blackGatewaysI;
     }
 
     public ArrayList<Coordinates> getWhiteGatewaysProtect() {
+        Print (this.whiteGatewaysP);
         return this.whiteGatewaysP;
     }
     

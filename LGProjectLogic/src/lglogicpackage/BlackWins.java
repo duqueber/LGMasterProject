@@ -29,17 +29,19 @@ public class BlackWins extends Strategies {
         evaluateBlackWins (this.moves.getRoot());
     }
     
-    public void evaluateBlackWins (Node<Moves> m ){
+    private void evaluateBlackWins (Node<Moves> m ){
         
-        //if (isDefWin() || isDefFail())
-          //  return;
-
+        if (necessaryConditionMet () || necessaryConditionNotMet())
+            return;
+        
         if (!m.isRoot())
             makeStrategyMove (m.getData());
             
         this.nextSteps = generateNextSteps (m);    
 
         if (!this.nextSteps.isEmpty())
+         if (!necessaryConditionMet () && !necessaryConditionNotMet() ||
+                 this.BTactic instanceof KeepBothStates)
             m.setChildren(this.nextSteps);                    
 
         for (Node<Moves> step: this.nextSteps)       
@@ -59,6 +61,20 @@ public class BlackWins extends Strategies {
             return this.BTactic.getNextMoves();
         }    
             
+    }
+    
+    private boolean necessaryConditionMet(){
+         if (this.BTactic == null)
+             return false;
+         else
+             return this.BTactic.possible();
+    }
+    
+    private boolean necessaryConditionNotMet(){
+         if (this.BTactic == null)
+             return false;
+          else
+             return this.BTactic.notPossible();
     }
     
 

@@ -29,6 +29,9 @@ public abstract class Strategies {
     static Tree<Moves> moves = new Tree<>();
     ArrayList <Tree <Zones.Trajectory>> bTree, wTree;
     
+    public enum Teams {WHITE, BLACK};
+    public enum Types {PROTECT, INTERCEPT};
+    
     Strategies (Board2D board){
         this.board = board;
         this.moves.setRoot(new Node (new Moves(this.board.getPieceFromName("W-Fighter"))));
@@ -57,13 +60,12 @@ public abstract class Strategies {
         }
         else 
         // either white or black are not desired 
-        if (this.desiredBlackZoneType.equals(this.startBlackZoneType) ||
-                    this.desiredWhiteZoneType.equals(this.startWhiteZoneType)) {
-           // changeOne (); 
-            System.out.println("Chose change one");
-            return tac= null;
-            
-        }
+        if (this.desiredBlackZoneType.equals(this.startBlackZoneType))
+            return tac= new ChangeOneState (this, this.desiredWhiteZoneType);
+        else 
+        if (this.desiredWhiteZoneType.equals(this.startWhiteZoneType)) 
+            return tac= new ChangeOneState (this, this.desiredBlackZoneType);
+        
         else{
             // both different
             System.out.println("Chose change both");

@@ -9,33 +9,31 @@ package lglogicpackage;
 import java.util.ArrayList;
 import supportpackage.Moves;
 import supportpackage.Node;
-import supportpackage.Tree;
 
 /**
  *
  * @author nati
  */
-public class WhiteWins extends Strategies{
-
+public class DrawIntercept extends Strategies {
+    
     private Tactics WTactic, BTactic;
     ArrayList<Node<Moves>> nextSteps;
-    private boolean whiteWinsChance;
+    Teams teamName;
     
-    WhiteWins (Board2D board){
+    DrawIntercept (Board2D board){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;
         this.BTactic = null;
-        this.whiteWinsChance= false;
+        this.teamName = teamName;
     }
-    public void evaluateWhiteWins (){
-        evaluateWhiteWins (this.moves.getRoot());
-
+    public void evaluateDrawIntercept (){
+        evaluateDrawIntercept (this.moves.getRoot());
     }
     
-    public void evaluateWhiteWins (Node<Moves> m ){
+    public void evaluateDrawIntercept (Node<Moves> m ){
         
-        if (necessaryConditionNotMet()){
+        if (necessaryConditionMet () || necessaryConditionNotMet()){
            // m.delete();
             return;
         }
@@ -45,27 +43,34 @@ public class WhiteWins extends Strategies{
         this.nextSteps = generateNextSteps (m);    
 
         if (!this.nextSteps.isEmpty())
-            if (!necessaryConditionNotMet()||
+            if (!necessaryConditionMet () && !necessaryConditionNotMet()||
                  this.WTactic instanceof KeepBothStates)
                 m.setChildren(this.nextSteps);                    
 
         for (Node<Moves> step: this.nextSteps)       
-            evaluateWhiteWins(step);
+            evaluateDrawIntercept(step);
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
-            this.WTactic = chooseTactic ("_1_0","0_1_" );
+            if (Teams.WHITE.equals(this.teamName))
+                this.WTactic = chooseTactic ("_1_0","1_0_" );
+            else 
+                this.WTactic = chooseTactic ("_1_0","0_1_" );
+            
             this.WTactic.developTactic();
             return this.WTactic.getNextMoves();
         }
         else {
-            this.BTactic = chooseTactic ("_0_1","1_0_"  );
+            if (Teams.BLACK.equals(this.teamName))
+                this.BTactic = chooseTactic ("_1_0","1_0_" );
+            else
+                this.BTactic = chooseTactic  ("_0_1","1_0_");
+            
             this.BTactic.developTactic();
             return this.BTactic.getNextMoves();
-        }    
-            
+        }                
     }
     
     private boolean necessaryConditionMet(){
@@ -83,5 +88,4 @@ public class WhiteWins extends Strategies{
     }
     
 
-    
 }

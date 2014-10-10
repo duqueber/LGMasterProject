@@ -140,7 +140,7 @@ public class KeepBothStates implements Tactics{
 
     @Override
     public boolean notPossible() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return !possible();
     }
 
     

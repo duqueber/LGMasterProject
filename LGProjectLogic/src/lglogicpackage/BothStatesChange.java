@@ -72,12 +72,12 @@ public class BothStatesChange  implements Tactics  {
         
         OnlyGateways(); // just choose shared locations that are GW if they exist. Prune the other ones.
         
-        if (!this.sharedLocation.isEmpty()){
+        if (!this.sharedLocation.isEmpty())
             shared.add(Boolean.TRUE);
-            calculateNextMoves();
-        }   
         else 
             shared.add(Boolean.FALSE);
+        
+        calculateNextMoves();
     }// End changeBoth
     
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
@@ -115,6 +115,8 @@ public class BothStatesChange  implements Tactics  {
             if (e.getValue().equals((Integer)(closest)))
                 mCheck.put(e.getKey(), e.getValue());
         
+        //loops the closest shortest first negation trajectories from gateways to 
+        //main path to search for shared locations
         for (ArrayList <Node<Coordinates>> st1: gwZonePro)
             for (ArrayList <Node<Coordinates>> st2: gwZoneInt){  
                 this.closestGWRandom = new StructGW (st1.get(0).getData(), 
@@ -142,7 +144,7 @@ public class BothStatesChange  implements Tactics  {
     
     private boolean containsKey (Map <StructGW, Integer> m, StructGW s){
 
-        for (Map.Entry<StructGW, Integer> e : m.entrySet()) // eliminate no closest
+        for (Map.Entry<StructGW, Integer> e : m.entrySet()) 
             if (e.getKey().equals(s))
                 return true;
         return false;
@@ -246,6 +248,11 @@ public class BothStatesChange  implements Tactics  {
     
     @Override
     public boolean notPossible() {
+        
+        if (shared.size() > 1)
+            if (shared.get(shared.size()-2).equals(Boolean.TRUE) &&
+                    shared.get(shared.size()-1).equals(Boolean.FALSE))
+            return true;
         
         if (closestArray.size()>1)
             return closestArray.get(closestArray.size()-1)> closestArray.get(closestArray.size()-2);

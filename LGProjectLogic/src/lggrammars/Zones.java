@@ -447,6 +447,9 @@ public class Zones  {
         public int getLen (){
             return this.lt;
         }
+        public void Print () {
+            printTrajectory ();
+        }
         public void printTrajectory (){   
             System.out.print ("Trajectory: " + pieceName + ", " );
             Print.PrintArray(shortestPath);

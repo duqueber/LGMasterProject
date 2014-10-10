@@ -179,7 +179,10 @@ public class Board2D {
         
         WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
-        
+                
+        //BlackWins bTest = new BlackWins (hi);
+        //bTest.evaluateBlackWins();
+        Strategies.moves.printTreeRelationsMoves();
         /*System.out.println ("B=Bomber to W- target" );
         
         Zones z = new Zones (hi, pieces[2],pieces[5]);

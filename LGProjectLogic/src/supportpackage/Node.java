@@ -67,6 +67,21 @@ public class Node<T> {
         child.setFather(this);
     }
     
+    public void delete (){
+        deleteNodeasChild();
+        this.children = null;
+        this.data = null;
+        this.isRoot = false;
+    }
+    
+    private void deleteNodeasChild (){
+        List<Node<T>> temp = new ArrayList <>();
+        for (Node<T>child:  this.father.children)
+            if (!child.equals(this))
+                temp.add(child);                    
+        this.father.children = temp;
+    }
+    
     public int getDepth (){
         if (this.father != null)
             return getDepth(this);
@@ -79,4 +94,5 @@ public class Node<T> {
             return 0;
         return (getDepth (n.father)+ 1);
     }
+    
 }

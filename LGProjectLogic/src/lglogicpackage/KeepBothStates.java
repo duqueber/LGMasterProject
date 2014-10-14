@@ -25,12 +25,14 @@ public class KeepBothStates implements Tactics{
     private ArrayList<Node<Moves>> nextSteps;
     private PiecesLogic fighter, bomber;
     private Tree<Trajectory> attackZone, protectZone;
-    private int loserProtectDist, loserInterceptDist;
     private boolean protectShrink, attackShrinks;
+    private ArrayList<Integer> attackSd, protectSd; 
     
     KeepBothStates (Strategies strategy){
         this.strategy = strategy;
         this.nextSteps = new ArrayList<>();
+        this.attackSd = new ArrayList <>();
+        this.protectSd = new ArrayList<>();
         this.attackShrinks = false;
         this.protectShrink = false;
     }
@@ -40,22 +42,22 @@ public class KeepBothStates implements Tactics{
 
         ZoneTypes type = new ZoneTypes (strategy.startBlackZoneType, strategy.startWhiteZoneType);
         if (type.isBlackWin()){
-            this.fighter = strategy.board.getPieceFromName("B-Fighter");
-            this.bomber = strategy.board.getPieceFromName("B-Bomber");
-            this.attackZone = strategy.wTree.get(0);
-            this.protectZone = strategy.bTree.get(0);
+            this.fighter = this.strategy.board.getPieceFromName("B-Fighter");
+            this.bomber = this.strategy.board.getPieceFromName("B-Bomber");
+            this.attackZone = this.strategy.wTree.get(0);
+            this.protectZone = this.strategy.bTree.get(0);
+            this.attackSd = Strategies.sdBlackInt;
+            this.protectSd = Strategies.sdWhitePro;
         }    
         else
         if (type.isWhiteWin()){
-            this.fighter = strategy.board.getPieceFromName("W-Fighter");
-            this.bomber = strategy.board.getPieceFromName("W-Bomber");
-            this.attackZone = strategy.bTree.get(0);
-            this.protectZone = strategy.wTree.get(0);
+            this.fighter = this.strategy.board.getPieceFromName("W-Fighter");
+            this.bomber = this.strategy.board.getPieceFromName("W-Bomber");
+            this.attackZone = this.strategy.bTree.get(0);
+            this.protectZone = this.strategy.wTree.get(0);
+            this.attackSd = Strategies.sdWhiteInt;
+            this.protectSd = Strategies.sdBlackPro;
         }    
-        
-        this.loserProtectDist = this.attackZone.getRoot().getChildren().get(0).
-                getData().getShortestPath().size()-1;              
-        this.loserInterceptDist= this.protectZone.getRoot().getData().getLen ();
         
        calculateNextMoves();
     }
@@ -63,69 +65,81 @@ public class KeepBothStates implements Tactics{
     @Override
     public void calculateNextMoves() {
         
+        Coordinates protectStep;
+        boolean protectSdinc, attackSdinc;
+        protectSdinc = false;
+        attackSdinc = false;
+                
+        if (this.protectSd.size() > 1)
+            protectSdinc = this.protectSd.get(this.protectSd.size()-1) < 
+                    this.protectSd.get(this.protectSd.size()-2); 
+        
+        if (this.attackSd.size() > 1)
+            attackSdinc = this.attackSd.get(this.attackSd.size()-1) < 
+                    this.attackSd.get(this.attackSd.size()-2); 
+        
         //there exists only ONE step with an open trajectory for the bomber.
-        Coordinates protectStep = this.protectZone.getRoot().getData().getShortestPath().get(1).getData();
-        this.nextSteps.add(new Node (new Moves (this.bomber, protectStep)));
+        if (this.protectSd.size()==1 || protectSdinc ){
+            protectStep = this.protectZone.getRoot().getData().getShortestPath().get(1).getData();
+            this.nextSteps.add(new Node (new Moves (this.bomber, protectStep)));
+        }
         
         // there exists at least one step with open trajectory for the fighter but I need 
         // to look for it. There might be steps without open trajectory
         List<Node<Trajectory>> childrenRoot = this.attackZone.getRoot().getChildren();
         Coordinates attackStep;
-        
-        if (!childrenRoot.isEmpty()){
-            for (Node<Trajectory> firstNeg: childrenRoot )
-                if (!firstNeg.hasChildren()){
-                    attackStep= firstNeg.getData().getShortestPath().get(1).getData();
-                    this.nextSteps.add(new Node (new Moves (this.fighter, attackStep)));
-                }            
+        if (this.attackSd.size()== 1 || attackSdinc){
+
+            if (!childrenRoot.isEmpty()){
+                for (Node<Trajectory> firstNeg: childrenRoot )
+                    if (!firstNeg.hasChildren()){
+                        attackStep= firstNeg.getData().getShortestPath().get(1).getData();
+                        this.nextSteps.add(new Node (new Moves (this.fighter, attackStep)));
+                    }            
+            }
         }
+        validateNextMoves ();
  
     }
 
-    void simulateNextMoves (){
+    void validateNextMoves (){
         Board2D boardTemp;
         Moves move;
         BoardZones bz;
-        int newLoserProDist, newLoserIntDist;
-        newLoserProDist = 999;
-        newLoserIntDist = 999;
-        
-        
+        boardTemp=new Board2D (this.strategy.board);
         for (Node<Moves> nMove: this.nextSteps){
-            boardTemp=new Board2D (this.strategy.board);
             move = nMove.getData();
-
-            if ((move.getPiece().NAME.equals("W-Bomber") ||
-                    move.getPiece().NAME.equals("B-Bomber")) && 
-                    newLoserIntDist > this.loserInterceptDist){
-                boardTemp.makeMove (move);
-                bz = new BoardZones (boardTemp);
-                if (move.getPiece().NAME.equals("W-Bomber")) 
-                    newLoserProDist = bz.getWhiteZones().get(0).getRoot().getData().getLen ();
-                else 
-                    newLoserIntDist = bz.getBlackZones().get(0).getRoot().getData().getLen ();
-            }    
-            else{
-                if ((move.getPiece().NAME.equals("W-Fighter") ||
-                    move.getPiece().NAME.equals("B-Fighter")) && 
-                    newLoserProDist > this.loserProtectDist){
-                    boardTemp.makeMove (move);
-                    bz = new BoardZones (boardTemp);
-                        if (move.getPiece().NAME.equals("W-Fighter")) 
-                            newLoserProDist = bz.getBlackZones().get(0).getRoot().getChildren().
-                            get(0).getData().getShortestPath().size()-1; 
-                        else 
-                            newLoserProDist = bz.getWhiteZones().get(0).getRoot().getChildren().
-                            get(0).getData().getShortestPath().size()-1; 
-                }         
-            }
+            boardTemp.makeMove (move);
         }
         
-     
-        if (newLoserProDist< this.loserProtectDist)
-            this.protectShrink = true;
-        if (newLoserIntDist < this.loserInterceptDist)
+        bz = new BoardZones (boardTemp);
+            
+        int currentAttackSd, currentProSd;
+
+        if (this.bomber.NAME =="B-Bomber"){    
+                currentAttackSd = bz.getGateways().blackIspaceDist;
+                currentProSd = bz.getGateways().whitePspaceDist;
+        }    
+        else {
+                currentAttackSd = bz.getGateways().whiteIspaceDist;
+                currentProSd = bz.getGateways().blackPspaceDist;
+        }
+        
+        int oldAttackSd, oldProtectSd;
+        if (this.attackSd.size() == 1)
+            oldAttackSd= this.attackSd.get(0)+1;
+        else
+            oldAttackSd = this.attackSd.get(this.attackSd.size()-2);
+        
+        if (this.protectSd.size() == 1)
+            oldProtectSd= this.protectSd.get(0)+1;
+        else
+            oldProtectSd = this.protectSd.get(this.protectSd.size()-2);
+        
+        if (currentAttackSd == oldAttackSd)
             this.attackShrinks = true;
+        if (currentProSd == oldProtectSd)
+            this.protectShrink = true;
     }
     
     @Override
@@ -135,12 +149,14 @@ public class KeepBothStates implements Tactics{
 
     @Override
     public boolean possible() {
+        //Take into account when start state is win. Both gateways types need to shrink
+        // if bomber is B-bomber Is black win
         return (this.attackShrinks && this.protectShrink);
     }
 
     @Override
     public boolean notPossible() {
-        return !possible();
+        return false;
     }
 
     

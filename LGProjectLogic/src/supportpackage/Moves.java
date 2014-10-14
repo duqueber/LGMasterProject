@@ -6,7 +6,10 @@
 
 package supportpackage;
 
+import lglogicpackage.BomberLogic;
+import lglogicpackage.FighterLogic;
 import lglogicpackage.PiecesLogic;
+import lglogicpackage.TargetLogic;
 
 /**
  *
@@ -19,12 +22,23 @@ public class Moves {
     
     public Moves ( PiecesLogic piece,Coordinates step){
         this.step = step; 
-        this.piece = piece;
+        setPiece(piece);
     }
     
     public Moves ( PiecesLogic piece){
         this.step = null; 
-        this.piece = piece;
+        setPiece(piece);
+    }
+    
+    private void setPiece (PiecesLogic piece){
+        
+        if (piece instanceof BomberLogic)
+            this.piece = new BomberLogic (piece);
+        else
+        if (piece instanceof FighterLogic)
+            this.piece = new FighterLogic (piece);
+        else
+            this.piece = new TargetLogic (piece);
     }
     
     public Coordinates getStep (){

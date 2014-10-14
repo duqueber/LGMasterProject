@@ -112,7 +112,7 @@ public class Zones  {
             children = t.getChildren();
             for (Node<Trajectory> child: children){
                 temp =child.getData().shortestPath.size()-1;
-                if (temp  < dist);
+                if (temp  < dist)
                     dist= temp;
             }
         }
@@ -157,7 +157,7 @@ public class Zones  {
             Q_3 (treez.getRoot()); 
         }
         System.out.println ("q2");
-        zonesTrajectories.printTreeRelations();
+        //zonesTrajectories.printTreeRelations();
         
     }
     

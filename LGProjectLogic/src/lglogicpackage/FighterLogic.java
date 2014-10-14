@@ -18,7 +18,10 @@ public class FighterLogic extends PiecesLogic {
         super(n, posX, posY, team);
     }
 
-
+    public FighterLogic (PiecesLogic f){
+        super(f);
+    }
+            
     @Override
     public Coordinates[] PossibleMoves(int posX, int posY) {
         Coordinates [] moves = new Coordinates [8];

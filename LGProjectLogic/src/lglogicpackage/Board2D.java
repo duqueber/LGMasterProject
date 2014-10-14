@@ -1,6 +1,8 @@
 package lglogicpackage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lggui.GUIFrame;
@@ -22,15 +24,25 @@ public class Board2D {
     
     public PiecesLogic [][] board;
     public int columns, rows;
-    public PiecesLogic [] pieces;
+    public ArrayList <PiecesLogic> pieces;
     
-    public Board2D (int rows, int columns, PiecesLogic [] players ){
+    public Board2D (int rows, int columns, ArrayList <PiecesLogic> players ){
         
         this.columns = columns;
         this.rows = rows;
-        this.pieces = players;
+        this.pieces = new ArrayList<>();
         this.board = new PiecesLogic [columns][rows];
         
+        for (int i=0; i< this.columns; i++)
+            for (int j=0; j< this.rows; j++)
+                this.board[i][j] = null;
+        
+        PiecesLogic p;
+        for (PiecesLogic q : players){
+            p = returnPieceObj (q);
+            this.pieces.add(p);
+            addPiece (p);        
+        }
         //test
         /*for (int i = rows-1; i >=0; i-- ){
             for (int j = 0; j < columns; j++){
@@ -42,9 +54,6 @@ public class Board2D {
         System.out.println(' ');
         } */   
         //test
-        for (int i= 0; i< players.length; i++){
-            addPiece (players[i]);        
-        }
         
       /*  //test
         for (int i = rows-1; i >=0; i-- ){
@@ -60,11 +69,18 @@ public class Board2D {
     public Board2D (Board2D b){
         this.columns = b.columns;
         this.rows = b.rows;
-        this.pieces = b.getListPieces();
-        this.board = new PiecesLogic [columns][rows];
+        this.pieces = new ArrayList<>();
+        this.board = new PiecesLogic [b.columns][b.rows];
         
-        for (int i= 0; i< this.pieces.length; i++){
-            addPiece (this.pieces[i]);        
+        for (int i=0; i<b.columns; i++)
+            for (int j=0; j<b.rows; j++)
+                this.board[i][j] = null;
+        
+        PiecesLogic p;
+        for (PiecesLogic q : b.pieces){
+            p= returnPieceObj (q);
+            this.pieces.add(p);
+            addPiece (p);        
         }
     }
             
@@ -72,7 +88,8 @@ public class Board2D {
     public void addPiece (PiecesLogic piece){
         
         try{
-            this.board[piece.positionX][piece.positionY] = piece;
+                this.board[piece.positionX][piece.positionY] = returnPieceObj (piece);
+            
             for (PiecesLogic p: this.pieces)
                 if (piece.NAME.equals(p.NAME)){
                     p.positionX = piece.positionX;
@@ -98,14 +115,15 @@ public class Board2D {
     
     public void replace (String repP, String withP){
         PiecesLogic p1, p2;
-        p1=p2=null;
+        p1= null;
+        p2=null;
         for (PiecesLogic p: this.pieces ){
             if (p.NAME.equals(repP) ){
-                p1=p;
+                p1=returnPieceObj (p);
                 removePiece(p);
             }    
             if (p.NAME.equals(withP)){
-                p2 = p;
+                p2 = returnPieceObj (p);;
                 removePiece(p);
             }
         }
@@ -144,7 +162,7 @@ public class Board2D {
         return this;
     }
     
-    public PiecesLogic[] getListPieces (){
+    public ArrayList <PiecesLogic> getListPieces (){
         return this.pieces;
     }
     
@@ -163,26 +181,45 @@ public class Board2D {
         //test
         return false;
     }
+    
+    private PiecesLogic returnPieceObj ( PiecesLogic piece){
+        if (piece instanceof FighterLogic)
+            return new FighterLogic (piece);
+        else
+        if (piece instanceof BomberLogic)
+            return new BomberLogic (piece);
+        else 
+            return new TargetLogic (piece);
+    } 
+    
     public static void main(String args[]) throws IOException {
         
-        PiecesLogic[] pieces = new PiecesLogic[6];
-        pieces[0]= new FighterLogic ( "B-Fighter", 0, 5, 2);
-        pieces[1]= new FighterLogic ("W-Fighter", 7, 7, 1);
-        pieces[2]= new BomberLogic ("B-Bomber", 7, 4, 2, -1);
-        pieces[3] = new BomberLogic ("W-Bomber", 2, 5, 1, 1);
-        pieces[4] = new TargetLogic ("B-Target", 2, 7, 2);
-        pieces[5] = new TargetLogic ("W-Target", 7, 0, 1);        
+        ArrayList <PiecesLogic> pieces = new ArrayList<>();
+        pieces.add (new FighterLogic ( "B-Fighter", 0, 5, 2));
+        pieces.add (new FighterLogic ("W-Fighter", 7, 7, 1));
+        pieces.add (new BomberLogic ("B-Bomber", 7, 4, 2, -1));
+        pieces.add(new BomberLogic ("W-Bomber", 2, 5, 1, 1));
+        pieces.add( new TargetLogic ("B-Target", 2, 7, 2));
+        pieces.add( new TargetLogic ("W-Target", 7, 0, 1));        
+        
         
         Board2D hi = new Board2D(8,8, pieces);
-
+         Board2D start = new Board2D (hi);
         //GUIFrame gui = new GUIFrame(hi);
         
         WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
-                
-        //BlackWins bTest = new BlackWins (hi);
-        //bTest.evaluateBlackWins();
-        Strategies.moves.printTreeRelationsMoves();
+        System.out.println ("White wins");
+        test.getTree().printTreeRelationsMoves();
+        
+        Strategies.restartSd ();
+        BlackWins bTest = new BlackWins (start); 
+        bTest.evaluateBlackWins();
+        System.out.println ("Black wins");
+        bTest.getTree().printTreeRelationsMoves();
+        
+        
+        
         /*System.out.println ("B=Bomber to W- target" );
         
         Zones z = new Zones (hi, pieces[2],pieces[5]);

@@ -23,6 +23,7 @@ public class Gateways {
     private ArrayList<Coordinates> whiteGatewaysP, whiteGatewaysI;
     private ArrayList<Coordinates> blackGatewaysP, blackGatewaysI;
     private Tree<Zones.Trajectory> blackZone, whiteZone;
+    public int whitePspaceDist, blackIspaceDist, blackPspaceDist,whiteIspaceDist;
     private ArrayList<Node<Coordinates>> stBlack, stWhite;
     private int whitePDist, blackPDist;
 
@@ -34,6 +35,10 @@ public class Gateways {
         this.blackGatewaysP = new ArrayList<>();
         this.whiteGatewaysI = new ArrayList<>();
         this.blackGatewaysI = new ArrayList<>();
+        this.blackIspaceDist = 0;
+        this.blackPspaceDist = 0;
+        this.whiteIspaceDist = 0;
+        this.whitePspaceDist = 0;
         this.blackZone = black;
         this.whiteZone = white;
 
@@ -54,23 +59,24 @@ public class Gateways {
         ZoneTypes zt = new ZoneTypes(blackZoneType, whiteZoneType);
 
         if (zt.isWhiteWin()) {
-            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
-            calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
+            this.whiteIspaceDist = calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
+            this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
         } else if (zt.isBlackWin()) {
-            calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
-            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+             this.whitePspaceDist = calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
+             this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
         } else if (zt.isBothIntercept()) {
-            calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
-            calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
+            this.whitePspaceDist= calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
+            this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
         } else if (zt.isBothProtect()) {
-            calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
-            calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
+            this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+            this.whiteIspaceDist= calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
         }
     }
 
-    private void calculateGateways(PiecesLogic start, ArrayList<Node<Coordinates>> st,
+    private int calculateGateways(PiecesLogic start, ArrayList<Node<Coordinates>> st,
             ArrayList<Coordinates> array, int dist) {
-
+        
+        int sd = 0;
         ArrayList<ArrayList<Node<Coordinates>>> stsFirstStep;
         ShortestTrajectory stToMain;
         Coordinates c;
@@ -89,10 +95,14 @@ public class Gateways {
                     c= stFirstStep.get(stFirstStep.size() - 1 - distTemp).getData();
                         if (!IsInArray ( array, c))
                             array.add(c);
+                    if (sd == 0 || sd> stFirstStep.size() - 1 - distTemp )
+                        sd = stFirstStep.size() - 1 - distTemp;
                 }
             }        
         }
+        return sd;
     }
+    
     public ArrayList<ArrayList <Node<Coordinates>>> generateGatewaysZones( Teams team,
             Types type){
         

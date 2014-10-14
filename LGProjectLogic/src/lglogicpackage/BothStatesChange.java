@@ -46,25 +46,25 @@ public class BothStatesChange  implements Tactics  {
         gwZonesProtect = new ArrayList<> ();
         gwZonesIntercept = new ArrayList<>();
 
-        ZoneTypes type = new ZoneTypes (strategy.startBlackZoneType, strategy.startWhiteZoneType);
+        ZoneTypes type = new ZoneTypes (this.strategy.startBlackZoneType, strategy.startWhiteZoneType);
         if (type.isBlackWin()){
-            this.fighter = strategy.board.getPieceFromName("W-Fighter");
-            gwZonesProtect = strategy.startGw.generateGatewaysZones(Gateways.Teams.WHITE, 
+            this.fighter = this.strategy.board.getPieceFromName("W-Fighter");
+            gwZonesProtect = this.strategy.startGw.generateGatewaysZones(Gateways.Teams.WHITE, 
                     Gateways.Types.PROTECT);
-            gwZonesIntercept = strategy.startGw.generateGatewaysZones(Gateways.Teams.BLACK, 
+            gwZonesIntercept = this.strategy.startGw.generateGatewaysZones(Gateways.Teams.BLACK, 
                     Gateways.Types.INTERCEPT);
-            gwPointInt = strategy.startGw.getBlackGatewaysIntercept();
-            gwPointPro = strategy.startGw.getWhiteGatewaysProtect();
+            gwPointInt = this.strategy.startGw.getBlackGatewaysIntercept();
+            gwPointPro = this.strategy.startGw.getWhiteGatewaysProtect();
         }    
         else
         if (type.isWhiteWin()){
-            this.fighter = strategy.board.getPieceFromName("B-Fighter");
-            gwZonesProtect = strategy.startGw.generateGatewaysZones(Gateways.Teams.BLACK, 
+            this.fighter = this.strategy.board.getPieceFromName("B-Fighter");
+            gwZonesProtect = this.strategy.startGw.generateGatewaysZones(Gateways.Teams.BLACK, 
                     Gateways.Types.PROTECT);
-            gwZonesIntercept = strategy.startGw.generateGatewaysZones(Gateways.Teams.WHITE, 
+            gwZonesIntercept = this.strategy.startGw.generateGatewaysZones(Gateways.Teams.WHITE, 
                     Gateways.Types.INTERCEPT);
-            gwPointInt = strategy.startGw.getWhiteGatewaysIntercept();
-            gwPointPro = strategy.startGw.getBlackGatewaysProtect();
+            gwPointInt = this.strategy.startGw.getWhiteGatewaysIntercept();
+            gwPointPro = this.strategy.startGw.getBlackGatewaysProtect();
         }    
        
         this.sharedLocation = sharedLocationGW(gwPointPro, gwZonesProtect, 
@@ -98,7 +98,7 @@ public class BothStatesChange  implements Tactics  {
         else
             for (Coordinates gwPro :  gwPtPro){
                 fighterDummy = new FighterLogic("Fighter", gwPro.x, gwPro.y, 99);
-                st = new ShortestTrajectory (strategy.board, fighterDummy, 
+                st = new ShortestTrajectory (this.strategy.board, fighterDummy, 
                       new Coordinates (0, 0));
                 steps = st.getSTPieceBegin();
                 for (Coordinates gwInt : gwPtInt){

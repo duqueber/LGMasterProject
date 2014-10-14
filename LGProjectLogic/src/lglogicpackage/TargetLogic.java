@@ -18,6 +18,10 @@ public class TargetLogic extends PiecesLogic {
         super(n, posX, posY, team);
     }
 
+    public TargetLogic (PiecesLogic t){
+        super (t);
+    }
+    
     @Override
     public Coordinates[] PossibleMoves(int posX, int posY) {
        return null;

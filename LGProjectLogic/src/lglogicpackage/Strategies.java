@@ -26,14 +26,18 @@ public abstract class Strategies {
     Gateways startGw;
     String startBlackZoneType, startWhiteZoneType, desiredBlackZoneType, 
             desiredWhiteZoneType ;
-    static Tree<Moves> moves = new Tree<>();
+    Tree<Moves> moves = new Tree<>();
     ArrayList <Tree <Zones.Trajectory>> bTree, wTree;
+    public static ArrayList<Integer> sdWhiteInt = new ArrayList<>();
+    public static ArrayList<Integer>  sdBlackInt = new ArrayList<>();
+    public static ArrayList<Integer>  sdWhitePro = new ArrayList<>();
+    public static ArrayList<Integer>  sdBlackPro = new ArrayList<>();
     
     public enum Teams {WHITE, BLACK};
     public enum Types {PROTECT, INTERCEPT};
     
     Strategies (Board2D board){
-        this.board = board;
+        this.board = new Board2D( board);
         this.moves.setRoot(new Node (new Moves(this.board.getPieceFromName("W-Fighter"))));
     }
    
@@ -50,33 +54,52 @@ public abstract class Strategies {
         this.startBlackZoneType = Zones.getZoneType(bTree.get(0));
         this.startWhiteZoneType = Zones.getZoneType(wTree.get(0));
         
+        if (this.startGw.whiteIspaceDist != 0)
+            sdWhiteInt.add(this.startGw.whiteIspaceDist);
+        if (this.startGw.blackIspaceDist != 0)
+            sdBlackInt.add(this.startGw.blackIspaceDist);
+        if (this.startGw.whitePspaceDist != 0)
+            sdWhitePro.add(this.startGw.whitePspaceDist);
+        if (this.startGw.blackPspaceDist !=0)
+            sdBlackPro.add (this.startGw.blackPspaceDist);
         
         if (this.desiredBlackZoneType.equals(this.startBlackZoneType)&&
                 this.desiredWhiteZoneType.equals(this.startWhiteZoneType)){
             System.out.println("Chose keep both");
             return tac = new KeepBothStates(this);
-                    //new keepBoth ();
-           
         }
-        else 
-        // either white or black are not desired 
-        if (this.desiredBlackZoneType.equals(this.startBlackZoneType))
-            return tac= new ChangeOneState (this, this.desiredWhiteZoneType);
-        else 
-        if (this.desiredWhiteZoneType.equals(this.startWhiteZoneType)) 
-            return tac= new ChangeOneState (this, this.desiredBlackZoneType);
-        
-        else{
-            // both different
-            System.out.println("Chose change both");
-            return tac = new BothStatesChange(this);   
+        else {
+            
+            ZoneTypes zt = new ZoneTypes (this.desiredBlackZoneType, this.startWhiteZoneType);
+            // either white or black are not desired and the start state is a win. The team
+            // can change either of the states
+            if (zt.isBlackWin() || zt.isWhiteWin()){    
+                if (this.desiredBlackZoneType.equals(this.startBlackZoneType) ||
+                    this.desiredWhiteZoneType.equals(this.startWhiteZoneType))
+                return tac= new ChangeEitherState (this, this.desiredWhiteZoneType);
+            }
         }    
+       
+        // else both different
+        System.out.println("Chose change both");
+        return tac = new BothStatesChange(this);   
+            
      }    
    
     boolean makeStrategyMove (Moves m){
             return this.board.makeMove(m);
     }
+    
+    public Tree<Moves> getTree (){
+        return this.moves;
+    }
 
+    public static void restartSd (){
+        sdWhiteInt = new ArrayList<>();
+        sdBlackInt = new ArrayList<>();
+        sdWhitePro = new ArrayList<>();
+        sdBlackPro = new ArrayList<>();
+    }
     
     private void keepBoth (){
         

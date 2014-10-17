@@ -70,13 +70,15 @@ public abstract class Strategies {
         }
         else {
             
-            ZoneTypes zt = new ZoneTypes (this.desiredBlackZoneType, this.startWhiteZoneType);
+            ZoneTypes zt = new ZoneTypes (this.startBlackZoneType, this.startWhiteZoneType);
             // either white or black are not desired and the start state is a win. The team
             // can change either of the states
-            if (zt.isBlackWin() || zt.isWhiteWin()){    
-                if (this.desiredBlackZoneType.equals(this.startBlackZoneType) ||
-                    this.desiredWhiteZoneType.equals(this.startWhiteZoneType))
-                return tac= new ChangeEitherState (this, this.desiredWhiteZoneType);
+            if (zt.isBlackWin() || zt.isWhiteWin()){ 
+                System.out.println("Chose change either");
+                if (this.desiredBlackZoneType.equals(this.startBlackZoneType)) 
+                    return tac= new ChangeEitherState (this, this.desiredWhiteZoneType);
+                if (this.desiredWhiteZoneType.equals(this.startWhiteZoneType)) 
+                    return tac= new ChangeEitherState (this, this.desiredBlackZoneType);
             }
         }    
        

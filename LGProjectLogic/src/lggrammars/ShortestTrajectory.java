@@ -92,13 +92,13 @@ public class ShortestTrajectory {
             tree.pathToRoot (leaf, path);
             ShortestPaths.add(path);
         }
-        //test
+       /* //test
         for (ArrayList<Node<Coordinates>> ShortestPath: ShortestPaths){
             System.out.print("Path: ");
             for (Node<Coordinates> p : ShortestPath)
                 System.out.print("" + p.getData().x + ", " + p.getData().y + " / ");
         System.out.println ("");
-        }
+        }*/
         //test
     //NEED to print paths    
     }

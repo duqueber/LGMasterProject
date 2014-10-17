@@ -66,20 +66,20 @@ public class KeepBothStates implements Tactics{
     public void calculateNextMoves() {
         
         Coordinates protectStep;
-        boolean protectSdinc, attackSdinc;
-        protectSdinc = false;
-        attackSdinc = false;
+        boolean protectSdShrank, attackSdShrank;
+        protectSdShrank = false;
+        attackSdShrank = false;
                 
         if (this.protectSd.size() > 1)
-            protectSdinc = this.protectSd.get(this.protectSd.size()-1) < 
+            protectSdShrank = this.protectSd.get(this.protectSd.size()-1) < 
                     this.protectSd.get(this.protectSd.size()-2); 
         
         if (this.attackSd.size() > 1)
-            attackSdinc = this.attackSd.get(this.attackSd.size()-1) < 
+            attackSdShrank = this.attackSd.get(this.attackSd.size()-1) < 
                     this.attackSd.get(this.attackSd.size()-2); 
         
         //there exists only ONE step with an open trajectory for the bomber.
-        if (this.protectSd.size()==1 || protectSdinc ){
+        if (this.protectSd.size()==1 || attackSdShrank ){
             protectStep = this.protectZone.getRoot().getData().getShortestPath().get(1).getData();
             this.nextSteps.add(new Node (new Moves (this.bomber, protectStep)));
         }
@@ -88,7 +88,7 @@ public class KeepBothStates implements Tactics{
         // to look for it. There might be steps without open trajectory
         List<Node<Trajectory>> childrenRoot = this.attackZone.getRoot().getChildren();
         Coordinates attackStep;
-        if (this.attackSd.size()== 1 || attackSdinc){
+        if (this.attackSd.size()== 1 || protectSdShrank){
 
             if (!childrenRoot.isEmpty()){
                 for (Node<Trajectory> firstNeg: childrenRoot )

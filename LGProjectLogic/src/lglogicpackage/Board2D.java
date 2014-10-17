@@ -6,6 +6,7 @@ import java.util.Collections;
 import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lggui.GUIFrame;
+import lglogicpackage.Strategies.Teams;
 import supportpackage.Coordinates;
 import supportpackage.Moves;
 import supportpackage.Node;
@@ -88,7 +89,7 @@ public class Board2D {
     public void addPiece (PiecesLogic piece){
         
         try{
-                this.board[piece.positionX][piece.positionY] = returnPieceObj (piece);
+            this.board[piece.positionX][piece.positionY] = returnPieceObj (piece);
             
             for (PiecesLogic p: this.pieces)
                 if (piece.NAME.equals(p.NAME)){
@@ -207,7 +208,7 @@ public class Board2D {
          Board2D start = new Board2D (hi);
         //GUIFrame gui = new GUIFrame(hi);
         
-        WhiteWins test = new WhiteWins (hi);
+       /* WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
         System.out.println ("White wins");
         test.getTree().printTreeRelationsMoves();
@@ -218,7 +219,23 @@ public class Board2D {
         System.out.println ("Black wins");
         bTest.getTree().printTreeRelationsMoves();
         
+        Strategies.restartSd ();
+        DrawIntercept dTest = new DrawIntercept (start, Teams.WHITE); 
+        dTest.evaluateDrawIntercept();
+        System.out.println ("Draw Intercept");
+        dTest.getTree().printTreeRelationsMoves();
         
+        Strategies.restartSd ();
+        DrawProtect pTest = new DrawProtect (start, Teams.WHITE); 
+        pTest.evaluateDrawProtect();
+        System.out.println ("Draw Protect" );
+        pTest.getTree().printTreeRelationsMoves();*/
+        
+        Strategies.restartSd ();
+        MixedDraw mTest = new MixedDraw (start, Teams.WHITE); 
+        mTest.evaluateMixedDraw();
+        System.out.println ("Mixed Draw" );
+        mTest.getTree().printTreeRelationsMoves();
         
         /*System.out.println ("B=Bomber to W- target" );
         

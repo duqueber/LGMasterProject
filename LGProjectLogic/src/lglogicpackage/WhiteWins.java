@@ -53,7 +53,7 @@ public class WhiteWins extends Strategies{
             evaluateWhiteWins(step);
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
-    private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
+    ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
             this.WTactic = chooseTactic ("_1_0","0_1_" );

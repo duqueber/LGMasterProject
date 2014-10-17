@@ -14,24 +14,24 @@ import supportpackage.Node;
  *
  * @author nati
  */
-public class DrawIntercept extends Strategies {
+public class MixedDraw extends Strategies {
     
     private Tactics WTactic, BTactic;
     ArrayList<Node<Moves>> nextSteps;
     Teams teamName;
-    
-    DrawIntercept (Board2D board, Teams teamName){
+
+    MixedDraw (Board2D board, Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;
         this.BTactic = null;
         this.teamName = teamName;
     }
-    public void evaluateDrawIntercept (){
-        evaluateDrawIntercept (this.moves.getRoot());
+    public void evaluateMixedDraw (){
+        evaluateMixedDraw  (this.moves.getRoot());
     }
     
-    public void evaluateDrawIntercept (Node<Moves> m ){
+    public void evaluateMixedDraw(Node<Moves> m ){
         
         if (necessaryConditionMet () || necessaryConditionNotMet()){
            // m.delete();
@@ -48,14 +48,15 @@ public class DrawIntercept extends Strategies {
                 m.setChildren(this.nextSteps);                    
 
         for (Node<Moves> step: this.nextSteps)       
-            evaluateDrawIntercept(step);
+            evaluateMixedDraw(step);
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
             if (Teams.WHITE.equals(this.teamName))
-                this.WTactic = chooseTactic ("_1_0","1_0_" );
+                this.WTactic = chooseTactic ("_1_0","1_0_" );// choose intercept or protect.
+            //both will return a mixed strategy if it exists.
             else 
                 this.WTactic = chooseTactic ("_1_0","0_1_" );
             
@@ -105,6 +106,4 @@ public class DrawIntercept extends Strategies {
                 return this.BTactic.notPossible();            
         }  
     }
-    
-
 }

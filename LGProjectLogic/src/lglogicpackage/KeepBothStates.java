@@ -94,7 +94,8 @@ public class KeepBothStates implements Tactics{
                 for (Node<Trajectory> firstNeg: childrenRoot )
                     if (!firstNeg.hasChildren()){
                         attackStep= firstNeg.getData().getShortestPath().get(1).getData();
-                        this.nextSteps.add(new Node (new Moves (this.fighter, attackStep)));
+                        if (!Gateways.IsInNodeArray(this.attackZone.getRoot().getData().getShortestPath(), attackStep))
+                            this.nextSteps.add(new Node (new Moves (this.fighter, attackStep)));
                     }            
             }
         }

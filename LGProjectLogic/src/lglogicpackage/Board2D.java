@@ -154,7 +154,7 @@ public class Board2D {
     }
     
     public boolean hasPiece (Coordinates c){
-        if (this.board[c.x][c.y]== null)
+        if (this.board[c.x][c.y]!= null)
             return true;
         return false;
     }
@@ -229,13 +229,19 @@ public class Board2D {
         DrawProtect pTest = new DrawProtect (start, Teams.WHITE); 
         pTest.evaluateDrawProtect();
         System.out.println ("Draw Protect" );
-        pTest.getTree().printTreeRelationsMoves();*/
+        pTest.getTree().printTreeRelationsMoves();
         
         Strategies.restartSd ();
         MixedDraw mTest = new MixedDraw (start, Teams.WHITE); 
         mTest.evaluateMixedDraw();
         System.out.println ("Mixed Draw" );
-        mTest.getTree().printTreeRelationsMoves();
+        mTest.getTree().printTreeRelationsMoves();*/
+        
+        Strategies.restartSd ();
+        BWinWMixed bwTest = new BWinWMixed (start, Teams.WHITE); 
+        bwTest.createTree();
+        System.out.println ("Strategy" );
+        bwTest.getTree().printTreeRelationsMoves();
         
         /*System.out.println ("B=Bomber to W- target" );
         

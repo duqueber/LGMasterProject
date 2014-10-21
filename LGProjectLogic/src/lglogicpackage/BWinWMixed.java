@@ -7,6 +7,7 @@
 package lglogicpackage;
 
 import java.util.ArrayList;
+import supportpackage.Coordinates;
 import supportpackage.Moves;
 import supportpackage.Node;
 
@@ -17,16 +18,12 @@ import supportpackage.Node;
 public class BWinWMixed extends Strategies{
     
         
-    private MixedDraw WTactic; 
-    private BlackWins BTactic;
     ArrayList<Node<Moves>> nextSteps;
     Strategies.Teams teamName;
 
     BWinWMixed (Board2D board, Strategies.Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
-        this.WTactic = null;
-        this.BTactic = null;
         this.teamName = teamName;
     }
     public void createTree (){
@@ -35,16 +32,16 @@ public class BWinWMixed extends Strategies{
     
     public void createTree(Node<Moves> m ){
         
-        if (wSufficientConditionMet () || bSufficientConditionMet()){
+        if (sufficientConditionMet (m)){
             return;
         }
         if (!m.isRoot())
             makeStrategyMove (m.getData());
             
-        this.nextSteps = generateNextSteps (m);    
+        this.nextSteps = getPreferedSteps(generateNextSteps (m));    
 
         if (!this.nextSteps.isEmpty())
-            if ((!wSufficientConditionMet () && !bSufficientConditionMet()))
+          //  if ((!wSufficientConditionMet () && !bSufficientConditionMet()))
                 m.setChildren(this.nextSteps);                    
 
         for (Node<Moves> step: this.nextSteps)       
@@ -53,47 +50,89 @@ public class BWinWMixed extends Strategies{
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
+        this.setZones();
+        
+        MixedDraw WTactic;
+        BlackWins BTactic;
+        
         ArrayList<Node<Moves>> temp;
+        
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
-            this.WTactic = new MixedDraw (this.board, Teams.WHITE);// choose intercept or protect.
+            WTactic = new MixedDraw (this.board, Teams.WHITE);// choose intercept or protect.
             //both will return a mixed strategy if it exists.
-            temp =this.WTactic.generateNextSteps(m);
+            temp =WTactic.generateNextSteps(m);
             if (!temp.isEmpty()) // a mixed strategy does not exist.
                 return temp;
             else
-              if (isInterceptDraw(Teams.WHITE) && isProtectDraw(Teams.WHITE))   
-                  //calculate next steps for both types of draw and return both.
-                // if only one calculate next steps for that one . 
-                  // for black same think except that I want to calculate first
-                  //black win
+                return drawArray (Teams.WHITE, m);              
+        }
+        
         else {
-       //     this.BTactic = chooseTactic  ("_0_1","1_0_");            
-        //    this.BTactic.developTactic();
-           // return this.BTactic.getNextMoves();
-        }                
-         }
+            BTactic = new BlackWins (this.board);            
+            temp = BTactic.generateNextSteps(m);
+            if (!temp.isEmpty())
+                return temp;
+            else
+                return drawArray (Teams.BLACK, m);
+        }                   
     }
-    private boolean isInterceptDraw (Teams t){
-        return this.startGw.blackIspaceDist <= this.startGw.whitePspaceDist;
-    } 
-    
-    private boolean isProtectDraw (Teams t){
-        return this.startGw.blackIspaceDist <= this.startGw.whitePspaceDist;
-    } 
-    
-    private boolean wSufficientConditionMet(){
 
-        if (this.WTactic == null)
-            return false;
-        else
-            return this.WTactic.possible();
+    private ArrayList<Node<Moves>> drawArray (Teams team, Node<Moves> m){
+        
+        ArrayList<Node<Moves>> temp;
+        DrawIntercept tacticII;
+        DrawProtect tacticIII;
+        tacticII = new DrawIntercept (this.board, team); 
+        temp= tacticII.generateNextSteps(m);
+                
+        tacticIII = new DrawProtect (this.board, team);
+        temp.addAll(tacticIII.generateNextSteps(m));
+                
+        return temp;
+        
     }
     
-    private boolean bSufficientConditionMet(){
-       
-        if (this.BTactic == null)
-            return false;
+    private ArrayList<Node<Moves>> getPreferedSteps (ArrayList<Node<Moves>> mArray){
+     
+        ArrayList<Node<Moves>> temp = new ArrayList<>();
+        ArrayList <Coordinates> preferred;
+        preferred =  this.startGw.getprefered();
+        
+        if (preferred.isEmpty())
+            return mArray;
+        for (Coordinates c : preferred)
+            for (Node<Moves> node: mArray)
+                if (node.getData().getStep().equals(c))
+                    temp.add(node);
+        if (temp.isEmpty())
+            return mArray;
         else
-            return this.BTactic.notPossible();            
-     }         
+            return temp;
+    }
+    private boolean sufficientConditionMet(Node<Moves> m){
+        
+        if (this.startGw == null)
+            return false;
+        
+        ArrayList<Coordinates> intercept= new ArrayList<>();
+        ArrayList<Coordinates> protect= new ArrayList<> ();
+        Moves move = m.getData();
+        if (move.getPiece().getTeam()== 2){
+            if (this.board.hasPiece(move.getStep()))
+                return true;
+        }
+        else{
+            intercept = this.startGw.getBlackGatewaysIntercept();
+            for (Coordinates i : intercept)
+                if (i.equals(move.getStep()))
+                    return true;
+            
+            protect = this.startGw.getWhiteGatewaysProtect();
+            for (Coordinates i : protect){
+                if (i.equals(move.getStep()))
+                    return true;                    
+            }
+        }    
+       return false; 
+    }  
 }

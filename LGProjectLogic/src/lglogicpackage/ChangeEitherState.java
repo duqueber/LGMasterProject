@@ -95,6 +95,7 @@ public class ChangeEitherState implements Tactics {
         }        
         else {
             this.sumSdShrank = true;
+            calculateNextMoves (); 
         }    
         
     }
@@ -126,6 +127,7 @@ public class ChangeEitherState implements Tactics {
     }
     
     private boolean validNextMove ( Moves move){
+        
         Board2D boardTemp;
         BoardZones bz;
         boardTemp=new Board2D (this.strategy.board);
@@ -160,6 +162,7 @@ public class ChangeEitherState implements Tactics {
             return true;
     }    
     
+
     @Override
     public ArrayList<Node<Moves>> getNextMoves() {
         return this.nextSteps;

@@ -46,13 +46,7 @@ public abstract class Strategies {
         this.desiredBlackZoneType= desiredBlack;
         this.desiredWhiteZoneType = desiredWhite;
         
-        BoardZones bz = new BoardZones (this.board);
-        this.bTree = bz.getBlackZones();
-        this.wTree = bz.getWhiteZones();
-        this.startGw = bz.getGateways();
-        
-        this.startBlackZoneType = Zones.getZoneType(bTree.get(0));
-        this.startWhiteZoneType = Zones.getZoneType(wTree.get(0));
+        setZones ();
         
         if (this.startGw.whiteIspaceDist != 0)
             sdWhiteInt.add(this.startGw.whiteIspaceDist);
@@ -88,6 +82,16 @@ public abstract class Strategies {
             
      }    
    
+    public void setZones (){
+        BoardZones bz = new BoardZones (this.board);
+        this.bTree = bz.getBlackZones();
+        this.wTree = bz.getWhiteZones();
+        this.startGw = bz.getGateways();
+        
+        this.startBlackZoneType = Zones.getZoneType(bTree.get(0));
+        this.startWhiteZoneType = Zones.getZoneType(wTree.get(0));
+    }
+    
     boolean makeStrategyMove (Moves m){
             return this.board.makeMove(m);
     }

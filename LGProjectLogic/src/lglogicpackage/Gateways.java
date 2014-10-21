@@ -22,6 +22,7 @@ public class Gateways {
     private Board2D board;
     private ArrayList<Coordinates> whiteGatewaysP, whiteGatewaysI;
     private ArrayList<Coordinates> blackGatewaysP, blackGatewaysI;
+    private ArrayList<Coordinates> preferredGateways;
     private Tree<Zones.Trajectory> blackZone, whiteZone;
     public int whitePspaceDist, blackIspaceDist, blackPspaceDist,whiteIspaceDist;
     private ArrayList<Node<Coordinates>> stBlack, stWhite;
@@ -35,6 +36,7 @@ public class Gateways {
         this.blackGatewaysP = new ArrayList<>();
         this.whiteGatewaysI = new ArrayList<>();
         this.blackGatewaysI = new ArrayList<>();
+        this.preferredGateways = new ArrayList<>();
         this.blackIspaceDist = 0;
         this.blackPspaceDist = 0;
         this.whiteIspaceDist = 0;
@@ -93,8 +95,11 @@ public class Gateways {
                     distTemp = dist;
                 for (ArrayList<Node<Coordinates>> stFirstStep : stsFirstStep) {
                     c= stFirstStep.get(stFirstStep.size() - 1 - distTemp).getData();
-                        if (!IsInArray ( array, c))
-                            array.add(c);
+                    if (!IsInArray ( array, c))
+                        array.add(c);
+                    if (i+1 >distTemp)
+                            if (!IsInArray (this.preferredGateways, c))
+                                this.preferredGateways.add(c);
                     if (sd == 0 || sd> stFirstStep.size() - 1 - distTemp )
                         sd = stFirstStep.size() - 1 - distTemp;
                 }
@@ -198,9 +203,21 @@ public class Gateways {
         return this.whiteGatewaysP;
     }
     
+     public ArrayList<Coordinates> getprefered() {
+        Print (this.preferredGateways);
+        return this.preferredGateways;
+    }
+    
     public static boolean IsInArray (ArrayList<Coordinates> a, Coordinates c){
         for (Coordinates coor : a)
             if (coor.equals(c))
+                return true;
+        return false;
+    }
+    
+    public static boolean IsInNodeArray (ArrayList<Node<Coordinates>> a, Coordinates c){
+        for (Node<Coordinates> coor : a)
+            if (coor.getData().equals(c))
                 return true;
         return false;
     }

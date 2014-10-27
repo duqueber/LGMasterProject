@@ -56,12 +56,12 @@ public class WhiteWins extends Strategies{
     ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
-            this.WTactic = chooseTactic ("_1_0","0_1_" );
+            this.WTactic = chooseTactic ("_1_0","0_1_");
             this.WTactic.developTactic();
             return this.WTactic.getNextMoves();
         }
         else {
-            this.BTactic = chooseTactic ("_0_1","1_0_"  );
+            this.BTactic = chooseTactic ("_0_1","1_0_");
             this.BTactic.developTactic();
             return this.BTactic.getNextMoves();
         }    

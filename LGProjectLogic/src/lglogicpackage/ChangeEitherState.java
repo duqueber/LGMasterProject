@@ -133,7 +133,7 @@ public class ChangeEitherState implements Tactics {
         boardTemp=new Board2D (this.strategy.board);
         boardTemp.makeMove (move);
 
-        bz = new BoardZones (boardTemp);
+        bz = new BoardZones (boardTemp, null);
 
         int currentAttackSd, currentProSd;
 

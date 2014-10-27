@@ -14,24 +14,40 @@ import supportpackage.Tree;
  *
  * @author nati
  */
-public class BoardZones extends Zones{
+public class BoardZones {
     
     private ArrayList <Tree <Zones.Trajectory>> bTree, wTree;
     private Gateways startGW;
     
-    BoardZones(Board2D board ){
-   
-        super (board, board.getPieceFromName("B-Bomber"), 
-        board.getPieceFromName("W-Target"));
-        GenerateZones();
-        this.bTree= getZonesTree();
+    BoardZones(Board2D board, Strategies.Teams team ){
+        Tree <Zones.Trajectory> mainBTraj, mainWTraj;
         
-        Zones whiteZone =new Zones (board,board.getPieceFromName("W-Bomber"),
+        if (board.getPieceFromName("B-Bomber")!=null && 
+                board.getPieceFromName("W-Target")!= null){
+            Zones BlackZone = new Zones (board, board.getPieceFromName("B-Bomber"), 
+            board.getPieceFromName("W-Target"));
+            BlackZone.GenerateZones();
+            this.bTree= BlackZone.getZonesTree();
+            mainBTraj = this.bTree.get(0);
+        }
+        else{
+            this.bTree = null;
+            mainBTraj = null;
+        }
+        
+        if (board.getPieceFromName("W-Bomber")!=null && 
+                board.getPieceFromName("B-Target")!= null){
+            Zones whiteZone =new Zones (board,board.getPieceFromName("W-Bomber"),
             board.getPieceFromName("B-Target"));
-        whiteZone.GenerateZones();
-        this.wTree= whiteZone.getZonesTree();
-        
-        this.startGW = new Gateways (this.board, this.bTree.get(0), this.wTree.get(0));
+            whiteZone.GenerateZones();
+            this.wTree= whiteZone.getZonesTree();
+            mainWTraj = this.wTree.get(0);
+        }
+        else {
+            this.wTree = null;
+            mainWTraj = null;
+        }
+        this.startGW = new Gateways (board, mainBTraj, mainWTraj, team);
         
     }
     

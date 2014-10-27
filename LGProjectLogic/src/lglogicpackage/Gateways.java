@@ -29,7 +29,7 @@ public class Gateways {
     private int whitePDist, blackPDist;
 
     public Gateways(Board2D board, Tree<Zones.Trajectory> black,
-            Tree<Zones.Trajectory> white) {
+            Tree<Zones.Trajectory> white, Strategies.Teams team) {
 
         this.board = board;
         this.whiteGatewaysP = new ArrayList<>();
@@ -47,17 +47,30 @@ public class Gateways {
         PiecesLogic wFighter = this.board.getPieceFromName("W-Fighter");
         PiecesLogic bFighter = this.board.getPieceFromName("B-Fighter");
 
-        this.stBlack = this.blackZone.getRoot().getData().getShortestPath();
-        this.stWhite = this.whiteZone.getRoot().getData().getShortestPath();
-
-        String blackZoneType = Zones.getZoneType(this.blackZone);
-        String whiteZoneType = Zones.getZoneType(this.whiteZone);
-
-        //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
-        this.whitePDist = Zones.getShortestDistFirstNeg(this.whiteZone);
-        this.blackPDist = Zones.getShortestDistFirstNeg(this.blackZone);
+        if (this.blackZone != null){
+            this.stBlack = this.blackZone.getRoot().getData().getShortestPath();
+            this.blackPDist = Zones.getShortestDistFirstNeg(this.blackZone);
+        }    
+        else {
+            this.stBlack = null;
+            this.blackPDist = 0;
+        }    
         
-  
+        if (this.whiteZone != null){
+            this.stWhite = this.whiteZone.getRoot().getData().getShortestPath();
+            this.whitePDist = Zones.getShortestDistFirstNeg(this.whiteZone);
+        }    
+        else {
+            this.stWhite= null;
+            this.whitePDist = 0;
+        }
+        String blackZoneType;
+        String whiteZoneType; 
+        
+         
+        blackZoneType = Zones.getZoneType(this.blackZone, team);
+        whiteZoneType = Zones.getZoneType(this.whiteZone, team);
+
         ZoneTypes zt = new ZoneTypes(blackZoneType, whiteZoneType);
 
         if (zt.isWhiteWin()) {
@@ -65,7 +78,10 @@ public class Gateways {
             this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
         } else if (zt.isBlackWin()) {
              this.whitePspaceDist = calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
-             this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+             if (team == null)
+                this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+             else
+                 this.blackIspaceDist = -1;
         } else if (zt.isBothIntercept()) {
             this.whitePspaceDist= calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
             this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
@@ -77,7 +93,8 @@ public class Gateways {
 
     private int calculateGateways(PiecesLogic start, ArrayList<Node<Coordinates>> st,
             ArrayList<Coordinates> array, int dist) {
-        
+        if (st == null)
+            return 0;
         int sd = 0;
         ArrayList<ArrayList<Node<Coordinates>>> stsFirstStep;
         ShortestTrajectory stToMain;
@@ -215,10 +232,13 @@ public class Gateways {
         return false;
     }
     
-    public static boolean IsInNodeArray (ArrayList<Node<Coordinates>> a, Coordinates c){
-        for (Node<Coordinates> coor : a)
-            if (coor.getData().equals(c))
-                return true;
+    public static boolean inArrayNoFirst (ArrayList<Node<Coordinates>> a, Coordinates c){
+        
+        if (a.size()>1){
+            for (int i = 1; i<a.size(); i++)
+                if (a.get(i).getData().equals(c))
+                    return true;         
+        }
         return false;
     }
 

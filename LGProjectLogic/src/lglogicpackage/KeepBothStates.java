@@ -94,7 +94,7 @@ public class KeepBothStates implements Tactics{
                 for (Node<Trajectory> firstNeg: childrenRoot )
                     if (!firstNeg.hasChildren()){
                         attackStep= firstNeg.getData().getShortestPath().get(1).getData();
-                        if (!Gateways.IsInNodeArray(this.attackZone.getRoot().getData().getShortestPath(), attackStep))
+                        if (!Gateways.inArrayNoFirst(this.attackZone.getRoot().getData().getShortestPath(), attackStep))
                             this.nextSteps.add(new Node (new Moves (this.fighter, attackStep)));
                     }            
             }
@@ -113,7 +113,7 @@ public class KeepBothStates implements Tactics{
             boardTemp.makeMove (move);
         }
         
-        bz = new BoardZones (boardTemp);
+        bz = new BoardZones (boardTemp, null);
             
         int currentAttackSd, currentProSd;
 

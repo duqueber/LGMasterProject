@@ -156,7 +156,8 @@ public class BoardScene extends JPanel implements ActionListener{
         ArrayList <Tree <Zones.Trajectory>> b= mainBlack.getZonesTree();
         
         
-        Gateways g = new Gateways (this.board, b.get(0), w.get(0));
+      /*  Gateways g = new Gateways (this.board, b.get(0), w.get(0));
+      
         ArrayList <Coordinates> bGatewaysP =g.getBlackGatewaysProtect();
         ArrayList <Coordinates> wGatewaysP =g.getWhiteGatewaysProtect();
         ArrayList <Coordinates> bGatewaysI =g.getBlackGatewaysIntercept();
@@ -197,7 +198,7 @@ public class BoardScene extends JPanel implements ActionListener{
         for (ArrayList<supportpackage.Node<Coordinates>> trajToGWII: pathsToGW){
                     drawShortestPath(trajToGWII, WHITE);
         }
-        
+        */
      }//end of testfunction
             
     

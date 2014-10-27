@@ -56,9 +56,9 @@ public class DrawProtect extends Strategies{
         
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
             if (Teams.WHITE.equals(this.teamName))
-                this.WTactic = chooseTactic ("_0_1","0_1_" );
+                this.WTactic = chooseTactic ("_0_1","0_1_");
             else 
-                this.WTactic = chooseTactic ("_1_0","0_1_" );
+                this.WTactic = chooseTactic ("_1_0","0_1_");
             
             this.WTactic.developTactic();
             return this.WTactic.getNextMoves();

@@ -41,7 +41,6 @@ public class Board2D {
         PiecesLogic p;
         for (PiecesLogic q : players){
             p = returnPieceObj (q);
-            this.pieces.add(p);
             addPiece (p);        
         }
         //test
@@ -80,7 +79,6 @@ public class Board2D {
         PiecesLogic p;
         for (PiecesLogic q : b.pieces){
             p= returnPieceObj (q);
-            this.pieces.add(p);
             addPiece (p);        
         }
     }
@@ -93,20 +91,25 @@ public class Board2D {
             
             for (PiecesLogic p: this.pieces)
                 if (piece.NAME.equals(p.NAME)){
-                    p.positionX = piece.positionX;
-                    p.positionY = piece.positionY;
+                    throw new IllegalArgumentException();
                 }    
 
+            this.pieces.add(piece);
+            
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
                         + " be placed: "+  e.getMessage());
             }         
     }
     
-    public void removePiece (PiecesLogic piece){
+    private void removePiece (PiecesLogic piece){
+        ArrayList <PiecesLogic> tem= new ArrayList<>();
         try{
             this.board[piece.positionX][piece.positionY] = null;
-
+            for (PiecesLogic p: this.pieces )
+                if (!p.getCoordinates().equals(piece.getCoordinates()))
+                        tem.add(p);
+            this.pieces = tem;
          } catch (IndexOutOfBoundsException e) {
                 System.err.println("Caught IndexOutOfBoundsException. Piece cannot"
                         + " be removed: "+  e.getMessage());
@@ -167,9 +170,17 @@ public class Board2D {
         return this.pieces;
     }
     
+    //returns true if it destroys a piece
     public boolean makeMove (Moves m){
         PiecesLogic piece = m.getPiece();
+        boolean destroy = false;
+      
         if (m!= null){
+            if (hasPiece(m.getStep())){
+                removePiece(getPiece(m.getStep()));
+                // the zones guarantee that the piece is an enemy
+                destroy=true;
+            }
             removePiece(getPieceFromName(piece.NAME));
             piece.positionX = m.getStep().x;
             piece.positionY = m.getStep().y;
@@ -182,6 +193,7 @@ public class Board2D {
         //test
         return false;
     }
+    
     
     private PiecesLogic returnPieceObj ( PiecesLogic piece){
         if (piece instanceof FighterLogic)
@@ -208,7 +220,7 @@ public class Board2D {
          Board2D start = new Board2D (hi);
         //GUIFrame gui = new GUIFrame(hi);
         
-       /* WhiteWins test = new WhiteWins (hi);
+        /*WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
         System.out.println ("White wins");
         test.getTree().printTreeRelationsMoves();

@@ -12,6 +12,7 @@ import java.util.List;
 import lglogicpackage.Board2D;
 import lglogicpackage.BomberLogic;
 import lglogicpackage.PiecesLogic;
+import lglogicpackage.Strategies;
 import supportpackage.Coordinates;
 import supportpackage.Node;
 import supportpackage.Print;
@@ -38,9 +39,11 @@ public class Zones  {
     private ArrayList <Tree <Zones.Trajectory>> zonesTrees; // Array of all zones
     private Tree <Zones.Trajectory> zonesTrajectories;// zone starting with each main trajectory
 
-    
     public Zones (Board2D board, PiecesLogic pieceBegin, PiecesLogic pieceTarget){
-    
+       
+        if (pieceBegin == null || pieceTarget == null)
+            throw new IllegalArgumentException ("pieces cannot be empty in Zones");
+        
         this.board = board;
         columns = this.board.columns;
         rows = this.board.rows;
@@ -73,21 +76,34 @@ public class Zones  {
 
     }
     
-    public static String getZoneType (Tree <Zones.Trajectory> tree){
+    public static String getZoneType (Tree <Zones.Trajectory> tree, Strategies.Teams team){
        
+        if (tree == null)
+            return null;
+        
         Node<Zones.Trajectory> t =tree.getRoot();
 
         List <Node<Trajectory>> children;
         String protect, intercept;
-        protect=intercept="0";
+        protect="0";
+        intercept="0";
         
         if (!t.hasChildren())
             protect = "1";
         else{
             children = t.getChildren();
             for (Node<Trajectory> child: children){
-                if (!child.hasChildren())
-                    intercept = "1" ;
+                if (child!=null){
+                    if (!child.hasChildren()) 
+                        if (team == null)
+                            intercept = "1";
+                        else {
+                            if (child.getData().getPieceName().equals("W-Fighter") && team.equals(Strategies.Teams.WHITE))
+                                intercept = "1";    
+                            if (child.getData().getPieceName().equals("B-Fighter") && team.equals(Strategies.Teams.BLACK))
+                                intercept = "1" ;
+                        }    
+                }    
             }
         }     
         

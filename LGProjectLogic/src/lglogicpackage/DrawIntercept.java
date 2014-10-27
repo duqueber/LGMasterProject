@@ -64,7 +64,7 @@ public class DrawIntercept extends Strategies {
         }
         else {
             if (Teams.BLACK.equals(this.teamName))
-                this.BTactic = chooseTactic ("_1_0","1_0_" );
+                this.BTactic = chooseTactic ("_1_0","1_0_");
             else
                 this.BTactic = chooseTactic  ("_0_1","1_0_");
             

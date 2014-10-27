@@ -27,36 +27,71 @@ public class BWinWMixed extends Strategies{
         this.teamName = teamName;
     }
     public void createTree (){
-        createTree  (this.moves.getRoot());
+        MoveStruct m = new MoveStruct (this.moves.getRoot(), this.board);
+        createTree  (m);
     }
     
-    public void createTree(Node<Moves> m ){
+    public void createTree(MoveStruct m ){
         
-        if (sufficientConditionMet (m)){
+        this.board = new Board2D (m.getBoard());
+        
+        if (sufficientConditionMet (m.getMove())){
             return;
         }
-        if (!m.isRoot())
-            makeStrategyMove (m.getData());
+        
+        if (!m.getMove().isRoot())
+            makeStrategyMove (m.getMove().getData());
             
-        this.nextSteps = getPreferedSteps(generateNextSteps (m));    
+        this.nextSteps = getPreferedSteps(generateNextSteps (m.getMove()));    
 
         if (!this.nextSteps.isEmpty())
           //  if ((!wSufficientConditionMet () && !bSufficientConditionMet()))
-                m.setChildren(this.nextSteps);                    
+                m.getMove().setChildren(this.nextSteps);                    
 
-        for (Node<Moves> step: this.nextSteps)       
-            createTree (step);
+        ArrayList<MoveStruct> arrayS = new ArrayList <>();
+        for (Node<Moves> step: this.nextSteps) { 
+            MoveStruct s = new MoveStruct (step, this.board);
+            arrayS.add(s);
+        }    
+        
+        for (MoveStruct mS : arrayS)
+            createTree (mS);
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
-        
-        this.setZones();
+  
         
         MixedDraw WTactic;
         BlackWins BTactic;
-        
+        ArrayList<Coordinates> intercept= new ArrayList<>();
+        ArrayList<Coordinates> protect= new ArrayList<> ();
         ArrayList<Node<Moves>> temp;
+        boolean inAttackGW, inProtectGW;
         
+        inAttackGW=false;
+        inProtectGW = false;
+         
+        if (this.startGw !=null){
+            intercept = this.startGw.getBlackGatewaysIntercept();
+            for (Coordinates i: intercept)
+                if (i.equals(m.getData().getPiece().getCoordinates()))
+                    inAttackGW = true;
+   
+           /* protect = this.startGw.getWhiteGatewaysProtect();
+            for (Coordinates a: protect){
+                if (a.equals(m.getData().getPiece().getCoordinates()))
+                    inProtectGW = true;
+            }*/
+        }
+        
+        this.setZones();
+        
+        /*if (inAttackGW || inProtectGW)
+            if (m.getData().getPiece().getTeam()== 1)
+                return stepsGW(inAttackGW, inProtectGW, Strategies.Teams.WHITE);
+            else 
+                return stepsGW(inAttackGW, inProtectGW, Strategies.Teams.BLACK);
+        */
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
             WTactic = new MixedDraw (this.board, Teams.WHITE);// choose intercept or protect.
             //both will return a mixed strategy if it exists.
@@ -68,7 +103,7 @@ public class BWinWMixed extends Strategies{
         }
         
         else {
-            BTactic = new BlackWins (this.board);            
+            BTactic = new BlackWins (this.board, inAttackGW, Teams.BLACK);            
             temp = BTactic.generateNextSteps(m);
             if (!temp.isEmpty())
                 return temp;
@@ -77,6 +112,26 @@ public class BWinWMixed extends Strategies{
         }                   
     }
 
+    private  ArrayList<Node<Moves>> stepsGW (boolean attack, boolean protect, 
+            Strategies.Teams team){
+        
+        PieceOnGateway gwTactic;
+        ArrayList<Node<Moves>> temp = new ArrayList<>(); 
+        if (attack){
+            gwTactic = new PieceOnGateway (this, Strategies.Types.INTERCEPT,
+                        team);
+            gwTactic.developTactic();
+            temp.addAll(gwTactic.getNextMoves());
+        }    
+        if (protect){
+            gwTactic = new PieceOnGateway (this, Strategies.Types.PROTECT,
+                        team);
+            gwTactic.developTactic();
+            temp.addAll(gwTactic.getNextMoves());
+        }
+        return temp;    
+    }
+    
     private ArrayList<Node<Moves>> drawArray (Teams team, Node<Moves> m){
         
         ArrayList<Node<Moves>> temp;
@@ -96,6 +151,7 @@ public class BWinWMixed extends Strategies{
      
         ArrayList<Node<Moves>> temp = new ArrayList<>();
         ArrayList <Coordinates> preferred;
+        
         preferred =  this.startGw.getprefered();
         
         if (preferred.isEmpty())
@@ -124,7 +180,7 @@ public class BWinWMixed extends Strategies{
         else{
             intercept = this.startGw.getBlackGatewaysIntercept();
             for (Coordinates i : intercept)
-                if (i.equals(move.getStep()))
+                if (i.equals(move.getPiece().getCoordinates()))
                     return true;
             
             protect = this.startGw.getWhiteGatewaysProtect();
@@ -134,5 +190,24 @@ public class BWinWMixed extends Strategies{
             }
         }    
        return false; 
-    }  
+    }
+    
+    private class MoveStruct {
+        
+        private Node <Moves> move;
+        private Board2D board;
+        
+        MoveStruct (Node <Moves> move, Board2D board){
+            this.move = move;
+            this.board = board;
+        }
+        
+        final Node <Moves> getMove (){
+            return this.move;
+        } 
+        
+        final Board2D getBoard (){
+            return this.board;
+        }
+    }
 }

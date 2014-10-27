@@ -18,6 +18,7 @@ public class BlackWins extends Strategies {
 
     private Tactics WTactic, BTactic;
     ArrayList<Node<Moves>> nextSteps;
+
     
     BlackWins (Board2D board){
         super (board);
@@ -25,6 +26,14 @@ public class BlackWins extends Strategies {
         this.WTactic = null;
         this.BTactic = null;
     }
+                
+    BlackWins (Board2D board, boolean inAttackGW, Teams team){
+        super (board, inAttackGW, team);
+        this.nextSteps = new ArrayList<>();
+        this.WTactic = null;
+        this.BTactic = null;
+    }
+    
     public void evaluateBlackWins (){
         evaluateBlackWins (this.moves.getRoot());
     }
@@ -51,12 +60,12 @@ public class BlackWins extends Strategies {
     ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
         
         if (m.getData().getPiece().getTeam() == 2  ){
-            this.WTactic = chooseTactic ("_1_0","0_1_" );
+            this.WTactic = chooseTactic ("_1_0","0_1_");
             this.WTactic.developTactic();
             return this.WTactic.getNextMoves();
         }
         else {
-            this.BTactic = chooseTactic ("_0_1","1_0_"  );
+            this.BTactic = chooseTactic ("_0_1","1_0_" );
             this.BTactic.developTactic();
             return this.BTactic.getNextMoves();
         }    

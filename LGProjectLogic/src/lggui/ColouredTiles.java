@@ -77,10 +77,10 @@ public class ColouredTiles extends Shape3D {
           // so can see the ColouredTiles from both sides
        // app.setPolygonAttributes(pa);
 
-        TransparencyAttributes trans = new TransparencyAttributes();
-        trans.setTransparencyMode (trans.BLENDED);
-        trans.setTransparency (0.9f);
-        app.setTransparencyAttributes(trans);
+        //TransparencyAttributes trans = new TransparencyAttributes();
+        //trans.setTransparencyMode (trans.BLENDED);
+        //trans.setTransparency (0.9f);
+        //app.setTransparencyAttributes(trans);
         
         TextureAttributes ta = new TextureAttributes( );
         ta.setTextureMode( TextureAttributes.MODULATE );

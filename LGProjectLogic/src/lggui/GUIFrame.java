@@ -8,21 +8,42 @@ package lggui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.IOException;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import lglogicpackage.Board2D;
 
 
 public class GUIFrame extends JFrame {
 
     Board2D board;
+    static Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize(); 
+    static final int PWIDTH = screenDim.width-60;   
+    static final int PHEIGHT = screenDim.height-50; 
+    static final int BHEIGHT = PHEIGHT+20;
+    
     public GUIFrame(Board2D board) throws IOException {
         super("LG States");
         this.board = board;
         Container c = getContentPane();
         c.setLayout( new BorderLayout() );
         BoardScene bs = new BoardScene(board);     //
-        c.add(bs, BorderLayout.CENTER);
+        c.add(bs, BorderLayout.LINE_START);
+        
+        JPanel panelRight = new JPanel();        
+        c.add (panelRight, BorderLayout.CENTER);
+    
+        panelRight.setPreferredSize (new Dimension (this.PWIDTH-this.BHEIGHT,this.PHEIGHT));
+        panelRight.setLayout(new BorderLayout());
+        
+        JPanel panelTree = new JPanel ();
+        panelTree.setPreferredSize(new Dimension (this.PWIDTH- this.BHEIGHT, 3*(this.PHEIGHT/4)));
+        panelRight.add (panelTree, BorderLayout.NORTH);
+        
+        PanelButtons panelButtons = new PanelButtons (bs);
+        panelRight.add (panelButtons.getPanelButtons(), BorderLayout.SOUTH);
 
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         pack();

@@ -119,5 +119,24 @@ public abstract class Strategies {
         sdBlackInt = new ArrayList<>();
         sdWhitePro = new ArrayList<>();
         sdBlackPro = new ArrayList<>();
-    }  
+    }
+    
+    public static class MoveStruct {
+        
+        private Node <Moves> move;
+        private Board2D board;
+        
+        public MoveStruct (Node <Moves> move, Board2D board){
+            this.move = move;
+            this.board = board;
+        }
+        
+        public final Node <Moves> getMove (){
+            return this.move;
+        } 
+        
+        public final Board2D getBoard (){
+            return this.board;
+        }
+    }
 }

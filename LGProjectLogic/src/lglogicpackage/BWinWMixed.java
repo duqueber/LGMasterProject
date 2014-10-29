@@ -21,7 +21,7 @@ public class BWinWMixed extends Strategies{
     ArrayList<Node<Moves>> nextSteps;
     Strategies.Teams teamName;
 
-    BWinWMixed (Board2D board, Strategies.Teams teamName){
+    public BWinWMixed (Board2D board, Strategies.Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.teamName = teamName;
@@ -192,22 +192,5 @@ public class BWinWMixed extends Strategies{
        return false; 
     }
     
-    private class MoveStruct {
-        
-        private Node <Moves> move;
-        private Board2D board;
-        
-        MoveStruct (Node <Moves> move, Board2D board){
-            this.move = move;
-            this.board = board;
-        }
-        
-        final Node <Moves> getMove (){
-            return this.move;
-        } 
-        
-        final Board2D getBoard (){
-            return this.board;
-        }
-    }
+   
 }

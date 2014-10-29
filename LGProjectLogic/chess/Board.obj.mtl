@@ -1,0 +1,28 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.1.187496374)
+
+newmtl Wood
+Kd 0.415686 0.415686 0.415686
+Ka 0.415686 0.415686 0.415686
+Ks 1 1 1
+Ke 0 0 0
+d 1
+illum 1
+map_Kd Wood.bmp
+
+newmtl Glass
+Kd 0.0784314 0.0784314 0.0784314
+Ka 0 0 0
+Ks 0.807843 0.807843 0.807843
+Ke 0 0 0
+d 1
+Ns 90
+illum 2
+#Kd 0.576471 0.372549 0
+#Ka 0.576471 0.372549 0
+#Ks 1 1 1
+#Ke 0 0 0
+#d 1
+#illum 1
+map_Kd Chess_Board.jpg
+

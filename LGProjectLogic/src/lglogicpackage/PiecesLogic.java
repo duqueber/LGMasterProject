@@ -59,6 +59,23 @@ public abstract class PiecesLogic {
     public void setDirection (int dir){
         DIRECTION = dir;
     }
+    @Override
+    public boolean equals (Object c){
+        if (c == null)
+            return false;
+   
+        if (this.getClass() != c.getClass())
+            return false;
+        
+        PiecesLogic cp = (PiecesLogic)c;
+        if (this.NAME.equals(cp.NAME) && this.DIRECTION == cp.DIRECTION &&
+            this.TEAM == cp.TEAM && this.positionX == cp.positionX &&
+            this.positionY == cp.positionY)
+            return true;  
+        return false;
+    }
+    
+    
     public abstract Coordinates[] PossibleMoves (int posX, int posY);
     
     public abstract Coordinates[] AttackMoves (int posX, int posY);

@@ -1,0 +1,57 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.1.187496374)
+
+newmtl Plastic black
+Kd 0.0784314 0.0784314 0.0784314
+Ka 0 0 0
+Ks 0.396078 0.396078 0.396078
+Ke 0 0 0
+d 1
+Ns 50
+illum 2
+
+newmtl checker_board
+Kd 0.290196 0.290196 0.290196
+Ka 0 0 0
+Ks 0.27451 0.27451 0.27451
+Ke 0 0 0
+d 1
+Ns 80
+illum 2
+
+newmtl Chrome
+Kd 0.0784314 0.0784314 0.0784314
+Ka 0 0 0
+Ks 0.807843 0.807843 0.807843
+Ke 0 0 0
+d 1
+Ns 90
+illum 2
+
+newmtl Plastic Black2
+Kd 0.0196078 0.0196078 0.0196078
+Ka 0 0 0
+Ks 0.0784314 0.0784314 0.0784314
+Ke 0 0 0
+d 1
+Ns 50
+illum 2
+
+newmtl Low Shine Timber
+Kd 0.2 0.0901961 0.027451
+Ka 0 0 0
+Ks 0.156863 0.156863 0.156863
+Ke 0 0 0
+d 1
+Ns 70
+illum 2
+
+newmtl Plastic white
+Kd 0.788235 0.776471 0.639216
+Ka 0 0 0
+Ks 0.396078 0.396078 0.396078
+Ke 0 0 0
+d 1
+Ns 50
+illum 2
+

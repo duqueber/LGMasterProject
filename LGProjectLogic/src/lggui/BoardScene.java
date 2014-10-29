@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,13 +26,13 @@ import supportpackage.Coordinates;
 import supportpackage.Tree;
 
 
-public class BoardScene extends JPanel implements ActionListener{
+public class BoardScene extends JPanel{
 
-    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize(); 
-    private final int PWIDTH = screenDim.width-60;   
-    private final int PHEIGHT = screenDim.height-60; 
+    
+
     private final int BOUNDSIZE = 100; 
-    private final Point3d USERPOSN = new Point3d(4.0,17.0,1.0);
+    private final Point3d USERPOSN = new Point3d(4.0,10.5,-1.0);
+           // new Point3d(4.0,17.0,1.0);
     private final Color3f WHITE = new Color3f(0.7f, .15f, .15f);
     private final Color3f BLACK = new Color3f(0.15f, .15f, .7f);
             //new Point3d(6.5,5,6.5);
@@ -46,28 +47,27 @@ public class BoardScene extends JPanel implements ActionListener{
     private Texture2D texture2;
     private Timer timer;
     private  JButton button; 
-    private final double y = 0.5;
+    private final double y = 0.8;
     private Board2D board;
-    
-    private BoardObjects whiteFighter, blackFighter,  whiteBomber, blackBomber,
+    private URL filename = null;
+    BoardObjects whiteFighter, blackFighter,  whiteBomber, blackBomber,
             whiteTarget, blackTarget;
    
     public BoardScene(Board2D board) throws IOException  {
     
         this.board = board;
-        timer = new Timer(100, this);
+       // timer = new Timer(100, this);
         setLayout( new BorderLayout() );
         setOpaque( false );
-        setPreferredSize( new Dimension(PWIDTH, PHEIGHT));
+        //setPreferredSize( new Dimension(PWIDTH, PHEIGHT));
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
-        JPanel b = new JPanel ();
-        button = new JButton ("Start");
-        b.add(button);
-        button.addActionListener(this);
-        add ("North", b);
+        
+        
+        canvas3D.setPreferredSize(new Dimension(GUIFrame.BHEIGHT, GUIFrame.PHEIGHT));
+        
         canvas3D.setFocusable(true);     // give focus to the canvas 
         canvas3D.requestFocus();
         canvas3D.setDoubleBufferEnable(true);
@@ -78,7 +78,7 @@ public class BoardScene extends JPanel implements ActionListener{
         orbitControls(canvas3D);   // controls for moving the viewpoint
 
         su.addBranchGraph( sceneBG );
-
+        
     }
 
     private void createSceneGraph() throws IOException
@@ -89,41 +89,18 @@ public class BoardScene extends JPanel implements ActionListener{
        // sceneBG.addChild(tg);
         bounds = new BoundingSphere(new Point3d(0,0,0), BOUNDSIZE);
         lightScene();         // add the lights
-        //addBackground();      // add the sky
-        //sceneBG.addChild( new CheckerFloor().getBG() );     
+       // addBackground();      // add the sky
+        sceneBG.addChild( new CheckerFloor().getBG() );   
+        prepareModels (this.board);
         
-   /*     Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
-        Coordinates bf = board.getPieceFromName("B-Fighter").getCoordinates();
-        Coordinates bb = board.getPieceFromName("B-Bomber").getCoordinates();
-        Coordinates wb = board.getPieceFromName("W-Bomber").getCoordinates();
-        Coordinates bt = board.getPieceFromName("B-Target").getCoordinates();
-        Coordinates wt = board.getPieceFromName("W-Target").getCoordinates();
-        
-        whiteFighter = new BoardObjects ("fighter plane/fighter plane.obj" , 
-                Coordinates.convertToGraph(new Vector3d(wf.x, y,wf.y )),
-                0.0, Math.PI+0.05, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
-                WHITE, "obj");
-        loadModel (whiteFighter);
-        
-        blackFighter = new BoardObjects ("fighter plane/fighter plane.obj" , 
-                Coordinates.convertToGraph(new Vector3d(bf.x, y, bf.y)),
-                0.0, -Math.PI/5.7, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
-                BLACK, "obj");
-        loadModel (blackFighter);
-
-        whiteBomber = new BoardObjects ("obj/missile.obj" , 
-                Coordinates.convertToGraph(new Vector3d(wb.x, y,wb.y )),
-                0.0, Math.PI/2, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
-                WHITE, "obj");
-        loadModel (whiteBomber);
-        
-        blackBomber = new BoardObjects ("obj/missile.obj" , 
-                Coordinates.convertToGraph(new Vector3d(bb.x, y,bb.y )),
-                0.0, -Math.PI/2, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
-                BLACK, "obj");
-        loadModel (blackBomber);
-
-        blackTarget = new BoardObjects ("Moon/Moon.obj" , 
+//BoardObjects (String fn, Vector3d translateVec, double rotx, double roty,double rotz,
+            //double scale, Transform3D t3d,TransformGroup tg, Color3f color, String type)
+        /*BoardObjects chessSet =new BoardObjects ("chess/Board.obj", new Vector3d (0,0,0), 
+                0.0, 0.0, 0.0, 10.0, new Transform3D(), new TransformGroup(),
+        WHITE, "obj");
+        loadModel (chessSet);*/
+     
+       /* blackTarget = new BoardObjects ("Moon/Moon.obj" , 
                 Coordinates.convertToGraph(new Vector3d(bt.x, y,bt.y )),
                 0.0, 0, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
                 BLACK, "obj");
@@ -134,12 +111,46 @@ public class BoardScene extends JPanel implements ActionListener{
                 0.0, 0, 0.0, 1.0, new Transform3D (), new TransformGroup(), 
                 WHITE, "obj");
         loadModel (whiteTarget);     
-       */         
-        testFunction();
+                
+        testFunction();*/
         sceneBG.compile();  
     } // end of createSceneGraph()
 
-          
+    public void prepareModels (Board2D board){
+        
+        Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
+        Coordinates bf = board.getPieceFromName("B-Fighter").getCoordinates();
+        Coordinates bb = board.getPieceFromName("B-Bomber").getCoordinates();
+        Coordinates wb = board.getPieceFromName("W-Bomber").getCoordinates();
+        Coordinates bt = board.getPieceFromName("B-Target").getCoordinates();
+        Coordinates wt = board.getPieceFromName("W-Target").getCoordinates();
+        
+        whiteFighter = new BoardObjects ("chess/King.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wf.x, this.y,wf.y )),
+                0.0, 0.0, 0.0, 2.0, new Transform3D (), new TransformGroup(), 
+                WHITE, "obj");
+        loadModel (whiteFighter);
+        
+        blackFighter = new BoardObjects ("chess/King.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bf.x, this.y, bf.y)),
+                0.0, 0.0, 0.0, 2.0, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (blackFighter);
+
+        whiteBomber = new BoardObjects ("chess/pawn.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wb.x, this.y,wb.y )),
+                0.0, 0.0, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
+                WHITE, "obj");
+        loadModel (whiteBomber);
+        
+        blackBomber = new BoardObjects ("chess/pawn.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bb.x, this.y,bb.y )),
+                0.0, 0.0, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (blackBomber);
+
+    }
+    
     void testFunction() {
         Zones mainBlack = new Zones (this.board,board.getPieceFromName("B-Bomber"),
                 board.getPieceFromName("W-Target"));
@@ -156,7 +167,7 @@ public class BoardScene extends JPanel implements ActionListener{
         ArrayList <Tree <Zones.Trajectory>> b= mainBlack.getZonesTree();
         
         
-      /*  Gateways g = new Gateways (this.board, b.get(0), w.get(0));
+        Gateways g = new Gateways (this.board, b.get(0), w.get(0), null);
       
         ArrayList <Coordinates> bGatewaysP =g.getBlackGatewaysProtect();
         ArrayList <Coordinates> wGatewaysP =g.getWhiteGatewaysProtect();
@@ -198,12 +209,12 @@ public class BoardScene extends JPanel implements ActionListener{
         for (ArrayList<supportpackage.Node<Coordinates>> trajToGWII: pathsToGW){
                     drawShortestPath(trajToGWII, WHITE);
         }
-        */
+        
      }//end of testfunction
             
     
     private void addModelToUniverse() throws IOException {
-        Scene scene = getSceneFromFile("tornado.obj"); 
+        Scene scene = getSceneFromFile("chess/King.3DS"); 
         sceneBG = scene.getSceneGroup();
     }
 
@@ -214,7 +225,7 @@ public class BoardScene extends JPanel implements ActionListener{
  
     private void lightScene(){/* One ambient light, 2 directional lights */
     
-        Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
+        Color3f white = new Color3f(Color.WHITE);
 
         // Set up the ambient light
         AmbientLight ambientLightNode = new AmbientLight(white);
@@ -239,7 +250,7 @@ public class BoardScene extends JPanel implements ActionListener{
     
     private void addBackground(){ 
         
-        TextureLoader txl = new TextureLoader ("755569.jpg", this);
+        /*TextureLoader txl = new TextureLoader ("755569.jpg", this);
        
         Background back = new Background(txl.getImage());
         back.setApplicationBounds( bounds );
@@ -247,6 +258,12 @@ public class BoardScene extends JPanel implements ActionListener{
         //imageComponent2d
         //back.setImage(null);
         //back.setColor(0.0f, 0.0f, 0.0f);   
+        sceneBG.addChild( back );*/
+        
+          // A blue sky
+        Background back = new Background();
+        back.setApplicationBounds( bounds );
+        back.setColor(0.0f, 0.0f, 0.0f);    // sky colour
         sceneBG.addChild( back );
     }  // end of addBackground()
 
@@ -270,7 +287,7 @@ public class BoardScene extends JPanel implements ActionListener{
         // args are: viewer posn, where looking, up direction
         td.lookAt( USERPOSN, new Point3d(4.0,0.0,4.0), new Vector3d(0,1,0));
         td.invert();
-
+//new Point3d(4.0,0.0,4.0)
         //Point3d(8,6,8)
         steerTG.setTransform(td);
     }  // end of initUserPosition()
@@ -295,7 +312,7 @@ public class BoardScene extends JPanel implements ActionListener{
             if(loadedScene != null ) {
                 loadedBG = loadedScene.getSceneGroup();    
 
-                listSceneNamedObjects(loadedScene, bo.color);
+               // listSceneNamedObjects(loadedScene, bo.color);
 
                 bo.t3d.rotX( bo.rotx );  
                 Vector3d scaleVec = calcScaleFactor(loadedBG, bo.scale); 
@@ -315,6 +332,7 @@ public class BoardScene extends JPanel implements ActionListener{
                 bo.tg.setTransform(bo.t3d);
                 bo.tg.addChild(loadedBG);
                 sceneBG.addChild(bo.tg); 
+                //this.sceneBG.addChild(this.loadedBG);
             }   
             else
                 System.out.println("Load error with: " + bo.fileName);
@@ -451,7 +469,7 @@ public class BoardScene extends JPanel implements ActionListener{
 
         sceneBG.addChild(dotShape);
     }
-
+/*
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == button)
@@ -460,9 +478,7 @@ public class BoardScene extends JPanel implements ActionListener{
             {
                 timer.start();
                 System.out.println ("hello");
-            }
-        }
-        
+        }      
         //if the action event's source is not from the button press,
         //it is a timer tick
         else
@@ -475,7 +491,7 @@ public class BoardScene extends JPanel implements ActionListener{
             whiteTarget.t3d.setTranslation(new Vector3d(0.0, 0.0, 0.0));
             whiteTarget.t3d.mul(t3dstep);
             whiteTarget.t3d.setTranslation(new Vector3d(matrix.m03, matrix.m13, matrix.m23));
-            whiteTarget.tg.setTransform(whiteTarget.t3d);*/
+            whiteTarget.tg.setTransform(whiteTarget.t3d);
             
             Vector3d loc = new Vector3d();
             whiteFighter.t3d.get(loc);
@@ -491,6 +507,6 @@ public class BoardScene extends JPanel implements ActionListener{
            
         }
     }
-
+*/
 
 } 

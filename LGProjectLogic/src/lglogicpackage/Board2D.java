@@ -205,6 +205,28 @@ public class Board2D {
             return new TargetLogic (piece);
     } 
     
+     
+    @Override
+    public boolean equals (Object c){ 
+        if (c == null)
+            return false;
+   
+        if (this.getClass() != c.getClass())
+            return false;
+        
+        for (int i = 0; i< this.columns; i++)
+            for (int j=0; j< this.rows; j++){
+                if (this.board[i][j] == null && ((Board2D)c).board[i][j] != null)
+                        return false;
+                if (((Board2D)c).board[i][j] == null && this.board[i][j] != null)
+                    return false;
+                if (((Board2D)c).board[i][j] != null && this.board[i][j] != null)
+                    if (!this.board[i][j].equals(((Board2D)c).board[i][j]))
+                        return false;
+            }    
+        return true;        
+    }
+    
     public static void main(String args[]) throws IOException {
         
         ArrayList <PiecesLogic> pieces = new ArrayList<>();
@@ -217,10 +239,10 @@ public class Board2D {
         
         
         Board2D hi = new Board2D(8,8, pieces);
-         Board2D start = new Board2D (hi);
-        //GUIFrame gui = new GUIFrame(hi);
+        Board2D start = new Board2D (hi);
+        GUIFrame gui = new GUIFrame(hi);
         
-        /*WhiteWins test = new WhiteWins (hi);
+       /* WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
         System.out.println ("White wins");
         test.getTree().printTreeRelationsMoves();
@@ -247,13 +269,14 @@ public class Board2D {
         MixedDraw mTest = new MixedDraw (start, Teams.WHITE); 
         mTest.evaluateMixedDraw();
         System.out.println ("Mixed Draw" );
-        mTest.getTree().printTreeRelationsMoves();*/
+        mTest.getTree().printTreeRelationsMoves();
         
         Strategies.restartSd ();
         BWinWMixed bwTest = new BWinWMixed (start, Teams.WHITE); 
         bwTest.createTree();
         System.out.println ("Strategy" );
         bwTest.getTree().printTreeRelationsMoves();
+        
         
         /*System.out.println ("B=Bomber to W- target" );
         

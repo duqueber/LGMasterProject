@@ -1,0 +1,14 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.1.187496374)
+
+newmtl wood
+Kd 0.435294 0.309804 0.145098
+Ka 0.435294 0.309804 0.145098
+Ks 0.898039 0.898039 0.898039
+Ke 0 0 0
+d 1
+Ns 48
+illum 2
+map_Kd Ashwide.JPG
+#map_Kd BUBING_2.GIF
+

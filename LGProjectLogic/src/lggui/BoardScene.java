@@ -47,7 +47,7 @@ public class BoardScene extends JPanel{
     private Texture2D texture2;
     private Timer timer;
     private  JButton button; 
-    private final double y = 0.8;
+    static final double y = 0.8;
     private Board2D board;
     private URL filename = null;
     BoardObjects whiteFighter, blackFighter,  whiteBomber, blackBomber,

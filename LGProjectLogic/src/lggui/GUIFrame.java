@@ -24,6 +24,7 @@ public class GUIFrame extends JFrame {
     static final int PHEIGHT = screenDim.height-50; 
     static final int BHEIGHT = PHEIGHT+20;
     
+    
     public GUIFrame(Board2D board) throws IOException {
         super("LG States");
         this.board = board;
@@ -38,12 +39,13 @@ public class GUIFrame extends JFrame {
         panelRight.setPreferredSize (new Dimension (this.PWIDTH-this.BHEIGHT,this.PHEIGHT));
         panelRight.setLayout(new BorderLayout());
         
-        JPanel panelTree = new JPanel ();
-        panelTree.setPreferredSize(new Dimension (this.PWIDTH- this.BHEIGHT, 3*(this.PHEIGHT/4)));
-        panelRight.add (panelTree, BorderLayout.NORTH);
-        
         PanelButtons panelButtons = new PanelButtons (bs);
         panelRight.add (panelButtons.getPanelButtons(), BorderLayout.SOUTH);
+        
+        JPanel panelTree = panelButtons.getPanelTree();
+        panelRight.add (panelTree, BorderLayout.NORTH);
+        
+      
 
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         pack();

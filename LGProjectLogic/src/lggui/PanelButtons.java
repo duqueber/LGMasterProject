@@ -6,7 +6,6 @@
 
 package lggui;
 
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
@@ -54,10 +52,11 @@ public class PanelButtons extends JPanel implements ActionListener{
     private Board2D currentBoard;
     private Timer timer;
     private JButton next;
-    private Tree<Moves> currentTree = new Tree<>();
+    static Tree<Moves> currentTree = new Tree<>();
     private Stack <Node<Strategies.MoveStruct>> steptoDraw; 
     private BoardScene scene;
     private Vector3d changeVector = new Vector3d ();
+    private PanelTree pTree;
     
     PanelButtons (BoardScene scene){
         super();
@@ -68,6 +67,13 @@ public class PanelButtons extends JPanel implements ActionListener{
         this.startBoard = setStartBoard ();
         this.currentBoard = new Board2D (this.startBoard);
         this.steptoDraw = new Stack<> ();
+        this.pTree = new PanelTree ();
+        
+        //for testing should be after pressing solution radiobutton
+                         this.currentTree = mixedDraw ();
+                 setBoardStartStack();
+                 this.pTree.setTreeStartStack(this.currentTree.getRoot());
+                 System.out.println("sol");
     }
     
     private Board2D setStartBoard(){
@@ -142,12 +148,15 @@ public class PanelButtons extends JPanel implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == this.next)
             try {
+                this.pTree.setNextPressed(true); 
+                //this.pTree.repaint();
                 NextButtonActionPerformed ();
         } catch (IOException ex) {
             Logger.getLogger(PanelButtons.class.getName()).log(Level.SEVERE, null, ex);
         }
         else 
             RadioButtonActionPerformed(e);
+  
     }
     
     private void NextButtonActionPerformed () throws IOException{
@@ -168,8 +177,11 @@ public class PanelButtons extends JPanel implements ActionListener{
         Moves doMove = doMoveNode.getData().getMove().getData();
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
             this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
-            this.scene = new BoardScene (this.currentBoard);
+            setPiecesToCurrent ();
+            this.steptoDraw.add (doMoveNode);
+            return;
         }
+        this.pTree.callRepaint (doMoveNode.getData().getMove());
         PiecesLogic piece = this.currentBoard.getPieceFromName(doMove.getPiece().NAME);
         
         int difx = doMove.getStep().x - piece.positionX ;
@@ -181,12 +193,15 @@ public class PanelButtons extends JPanel implements ActionListener{
         
         doMoveNode.getData().getBoard().makeMove(doMove);
         this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
-        addChildrenToStack (doMoveNode);
+        addChildrenToBoardStack (doMoveNode);
 
+        
+        
         BoardObjects boardObj = selectBoardObj (doMove.getPiece().NAME);
         
         boardObj.t3d.get(loc);        
         this.changeVector = new Vector3d (); 
+        
         while (stopCondition (loc, stop, difx, dify)){  
             
             boardObj.t3d.setTranslation(this.changeVector);
@@ -216,9 +231,10 @@ public class PanelButtons extends JPanel implements ActionListener{
                  System.out.println("drawM");
             break;                 
             default:
-                 this.currentTree = mixedDraw ();
-                 setStartStack();
-                 System.out.println("sol");
+                /* this.currentTree = mixedDraw ();
+                 setBoardStartStack();
+                 this.pTree.setTreeStartStack(this.currentTree.getRoot());
+                 System.out.println("sol");*/
             break;    
         }
     }
@@ -269,7 +285,29 @@ public class PanelButtons extends JPanel implements ActionListener{
         
         throw new IllegalArgumentException ("case not considered in difference ");
     }
-
+    
+    private void setPiecesToCurrent (){
+        Vector3d loc = new Vector3d();
+        PiecesLogic piece;
+        piece = this.currentBoard.getPieceFromName("W-Fighter");        
+        setPiecesToCurrentHelper (this.scene.whiteFighter, piece);
+        
+        piece = this.currentBoard.getPieceFromName("B-Fighter");        
+        setPiecesToCurrentHelper (this.scene.blackFighter, piece);
+        
+        piece = this.currentBoard.getPieceFromName("W-Bomber");        
+        setPiecesToCurrentHelper (this.scene.whiteBomber, piece);
+        
+        piece = this.currentBoard.getPieceFromName("B-Bomber");        
+        setPiecesToCurrentHelper (this.scene.blackBomber, piece);
+    }
+    
+    private void setPiecesToCurrentHelper (BoardObjects boardObj, PiecesLogic piece){
+            Vector3d loc = Coordinates.convertToGraph (new Vector3d (piece.positionX, 
+                    BoardScene.y,piece.positionY));
+            boardObj.t3d.setTranslation(loc);
+            boardObj.tg.setTransform(boardObj.t3d);
+    }
     
     private BoardObjects selectBoardObj (String Name ){
         switch (Name){
@@ -284,12 +322,13 @@ public class PanelButtons extends JPanel implements ActionListener{
         }
     }
     
-    private void setStartStack (){
+    private void setBoardStartStack (){
         this.steptoDraw = new Stack <> ();
-        addChildrenToStack (new Node (new MoveStruct (this.currentTree.getRoot(), this.startBoard)));
+        addChildrenToBoardStack (new Node (new MoveStruct (this.currentTree.getRoot(), this.startBoard)));
+        
     }
     
-    private void addChildrenToStack (Node<MoveStruct> dad){
+    private void addChildrenToBoardStack (Node<MoveStruct> dad){
         List <Node <Moves>>  rootChildren = dad.getData().getMove().getChildren();
         Node<MoveStruct> newM;
         if (!rootChildren.isEmpty())
@@ -299,4 +338,10 @@ public class PanelButtons extends JPanel implements ActionListener{
                 this.steptoDraw.add (newM);
             }        
     }
+    
+    public JPanel getPanelTree(){
+        return this.pTree;
+    }
+
+
 }

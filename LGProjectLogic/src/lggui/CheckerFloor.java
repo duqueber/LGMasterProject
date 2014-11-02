@@ -50,8 +50,8 @@ public class CheckerFloor
       }
     
     }
-    floorBG.addChild( new ColouredTiles(blueCoords, "cementdark.jpeg") );
-    floorBG.addChild( new ColouredTiles(greenCoords, "cementlight.jpeg") );
+    floorBG.addChild( new ColouredTiles(blueCoords, "chess/darkWood4.jpg") );
+    floorBG.addChild( new ColouredTiles(greenCoords, "chess/lightWood3.JPG") );
 
     //addOriginMarker();
     labelAxes();

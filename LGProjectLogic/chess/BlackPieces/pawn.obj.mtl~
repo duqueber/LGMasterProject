@@ -9,9 +9,8 @@ newmtl wood
 #d 1
 #Ns 48
 #illum 2
+#map_Kd Ashwide.JPG
 #map_Kd BUBING_2.GIF
-
-
 Kd 0.0196078 0.0196078 0.0196078
 Ka 0 0 0
 Ks 0.0784314 0.0784314 0.0784314

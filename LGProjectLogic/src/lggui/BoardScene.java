@@ -89,7 +89,7 @@ public class BoardScene extends JPanel{
        // sceneBG.addChild(tg);
         bounds = new BoundingSphere(new Point3d(0,0,0), BOUNDSIZE);
         lightScene();         // add the lights
-       // addBackground();      // add the sky
+        addBackground();      // add the sky
         sceneBG.addChild( new CheckerFloor().getBG() );   
         prepareModels (this.board);
         
@@ -125,25 +125,25 @@ public class BoardScene extends JPanel{
         Coordinates bt = board.getPieceFromName("B-Target").getCoordinates();
         Coordinates wt = board.getPieceFromName("W-Target").getCoordinates();
         
-        whiteFighter = new BoardObjects ("chess/King.obj" , 
+        whiteFighter = new BoardObjects ("chess/WhitePieces/King.obj" , 
                 Coordinates.convertToGraph(new Vector3d(wf.x, this.y,wf.y )),
                 0.0, 0.0, 0.0, 2.0, new Transform3D (), new TransformGroup(), 
                 WHITE, "obj");
         loadModel (whiteFighter);
         
-        blackFighter = new BoardObjects ("chess/King.obj" , 
+        blackFighter = new BoardObjects ("chess/BlackPieces/Circle.obj" , 
                 Coordinates.convertToGraph(new Vector3d(bf.x, this.y, bf.y)),
                 0.0, 0.0, 0.0, 2.0, new Transform3D (), new TransformGroup(), 
                 BLACK, "obj");
         loadModel (blackFighter);
 
-        whiteBomber = new BoardObjects ("chess/pawn.obj" , 
+        whiteBomber = new BoardObjects ("chess/WhitePieces/pawn.obj" , 
                 Coordinates.convertToGraph(new Vector3d(wb.x, this.y,wb.y )),
                 0.0, 0.0, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
                 WHITE, "obj");
         loadModel (whiteBomber);
         
-        blackBomber = new BoardObjects ("chess/pawn.obj" , 
+        blackBomber = new BoardObjects ("chess/BlackPieces/pawn.obj" , 
                 Coordinates.convertToGraph(new Vector3d(bb.x, this.y,bb.y )),
                 0.0, 0.0, 0.0, 1.5, new Transform3D (), new TransformGroup(), 
                 BLACK, "obj");
@@ -263,7 +263,7 @@ public class BoardScene extends JPanel{
           // A blue sky
         Background back = new Background();
         back.setApplicationBounds( bounds );
-        back.setColor(0.0f, 0.0f, 0.0f);    // sky colour
+        back.setColor(0.119f, 0.136f, 0.153f); //(119,136,153)   // sky colour
         sceneBG.addChild( back );
     }  // end of addBackground()
 

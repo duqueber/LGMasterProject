@@ -20,7 +20,7 @@ public class DrawProtect extends Strategies{
     ArrayList<Node<Moves>> nextSteps;
     Teams teamName;
     
-    DrawProtect (Board2D board, Teams teamName){
+    public DrawProtect (Board2D board, Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;

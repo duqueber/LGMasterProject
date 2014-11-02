@@ -242,7 +242,7 @@ public class Board2D {
         Board2D start = new Board2D (hi);
         GUIFrame gui = new GUIFrame(hi);
         
-       /* WhiteWins test = new WhiteWins (hi);
+       WhiteWins test = new WhiteWins (hi);
         test.evaluateWhiteWins();
         System.out.println ("White wins");
         test.getTree().printTreeRelationsMoves();
@@ -252,7 +252,7 @@ public class Board2D {
         bTest.evaluateBlackWins();
         System.out.println ("Black wins");
         bTest.getTree().printTreeRelationsMoves();
-        
+        /*
         Strategies.restartSd ();
         DrawIntercept dTest = new DrawIntercept (start, Teams.WHITE); 
         dTest.evaluateDrawIntercept();

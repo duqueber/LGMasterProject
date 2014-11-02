@@ -20,7 +20,7 @@ public class MixedDraw extends Strategies {
     ArrayList<Node<Moves>> nextSteps;
     Teams teamName;
 
-    MixedDraw (Board2D board, Teams teamName){
+    public MixedDraw (Board2D board, Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;

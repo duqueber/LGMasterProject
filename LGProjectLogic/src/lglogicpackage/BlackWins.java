@@ -20,14 +20,14 @@ public class BlackWins extends Strategies {
     ArrayList<Node<Moves>> nextSteps;
 
     
-    BlackWins (Board2D board){
+    public BlackWins (Board2D board){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;
         this.BTactic = null;
     }
                 
-    BlackWins (Board2D board, boolean inAttackGW, Teams team){
+    public BlackWins (Board2D board, boolean inAttackGW, Teams team){
         super (board, inAttackGW, team);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;

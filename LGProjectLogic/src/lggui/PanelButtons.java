@@ -22,14 +22,19 @@ import javax.swing.JRadioButton;
 import javax.swing.Timer;
 import javax.vecmath.Vector3d;
 import lglogicpackage.BWinWMixed;
+import lglogicpackage.BlackWins;
 import lglogicpackage.Board2D;
 import lglogicpackage.BomberLogic;
+import lglogicpackage.DrawIntercept;
+import lglogicpackage.DrawProtect;
 import lglogicpackage.FighterLogic;
+import lglogicpackage.MixedDraw;
 import lglogicpackage.PiecesLogic;
 import lglogicpackage.Strategies;
 import lglogicpackage.Strategies.MoveStruct;
 import lglogicpackage.Strategies.Teams;
 import lglogicpackage.TargetLogic;
+import lglogicpackage.WhiteWins;
 import supportpackage.Coordinates;
 import supportpackage.Moves;
 import supportpackage.Node;
@@ -52,7 +57,7 @@ public class PanelButtons extends JPanel implements ActionListener{
     private Board2D currentBoard;
     private Timer timer;
     private JButton next;
-    static Tree<Moves> currentTree = new Tree<>();
+    Tree<Moves> currentTree = new Tree<>();
     private Stack <Node<Strategies.MoveStruct>> steptoDraw; 
     private BoardScene scene;
     private Vector3d changeVector = new Vector3d ();
@@ -69,11 +74,7 @@ public class PanelButtons extends JPanel implements ActionListener{
         this.steptoDraw = new Stack<> ();
         this.pTree = new PanelTree ();
         
-        //for testing should be after pressing solution radiobutton
-                         this.currentTree = mixedDraw ();
-                 setBoardStartStack();
-                 this.pTree.setTreeStartStack(this.currentTree.getRoot());
-                 System.out.println("sol");
+
     }
     
     private Board2D setStartBoard(){
@@ -148,15 +149,14 @@ public class PanelButtons extends JPanel implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == this.next)
             try {
-                this.pTree.setNextPressed(true); 
-                //this.pTree.repaint();
-                NextButtonActionPerformed ();
+                    NextButtonActionPerformed ();
         } catch (IOException ex) {
             Logger.getLogger(PanelButtons.class.getName()).log(Level.SEVERE, null, ex);
         }
-        else 
+        else {
+
             RadioButtonActionPerformed(e);
-  
+        }    
     }
     
     private void NextButtonActionPerformed () throws IOException{
@@ -212,41 +212,77 @@ public class PanelButtons extends JPanel implements ActionListener{
     }
 
     private void RadioButtonActionPerformed(ActionEvent evt){
+
+      
+        if (evt.getActionCommand()== null)
+           return; 
+        pTree.setRadioPressed(true);
+        pTree.repaint();
         String choice = evt.getActionCommand();
         switch (choice){
             case WHITE:
-                System.out.println("white");
-                
+                this.currentTree = strategyTree ("White wins"); 
+                setPiecesToCurrent ();
             break;    
             case BLACK:
-                 System.out.println("black");
+                this.currentTree = strategyTree ("Black wins");
+                setPiecesToCurrent ();
             break;
             case DRAWI:
-                 System.out.println("drawi");
+                this.currentTree = strategyTree ("Draw Int");
+                setPiecesToCurrent ();
             break;   
             case DRAWP:
-                 System.out.println("drawP");
+                this.currentTree = strategyTree ("Draw Pro");
+                setPiecesToCurrent ();
             break; 
             case DRAWM:
-                 System.out.println("drawM");
+                this.currentTree = strategyTree ("Mixed Draw");
+                setPiecesToCurrent ();
             break;                 
             default:
-                /* this.currentTree = mixedDraw ();
-                 setBoardStartStack();
-                 this.pTree.setTreeStartStack(this.currentTree.getRoot());
-                 System.out.println("sol");*/
+                this.currentTree = strategyTree ("Solution");
+                setPiecesToCurrent ();
             break;    
         }
+        
+        setBoardStartStack();
+        this.pTree.setTreeStartStack(this.currentTree.getRoot());
     }
     
-    private Tree<Moves> mixedDraw (){
-        this.currentBoard = new Board2D (this.startBoard);
+    private Tree<Moves> strategyTree (String s){
+        this.currentBoard = new Board2D (setStartBoard());
         Strategies.restartSd ();
-        BWinWMixed bwTest = new BWinWMixed (this.startBoard, Teams.WHITE); 
-        bwTest.createTree();
-        System.out.println ("Strategy" );
-        bwTest.getTree().printTreeRelationsMoves();
-        return bwTest.getTree();
+        
+        switch (s){
+            case "Solution":
+                BWinWMixed strategy = new BWinWMixed (this.currentBoard, Teams.WHITE); 
+                strategy.createTree();
+                return strategy.getTree();
+            case "Black wins":
+                BlackWins bTest = new BlackWins(this.currentBoard);
+                bTest.evaluateBlackWins();
+                return bTest.getTree();
+            case "Draw Int":   
+                DrawIntercept dTest = new DrawIntercept (this.currentBoard, Teams.WHITE); 
+                dTest.evaluateDrawIntercept();
+                dTest.getTree().printTreeRelationsMoves();
+                return dTest.getTree();
+            case "Draw Prot":
+                DrawProtect pTest = new DrawProtect (this.currentBoard, Teams.WHITE); 
+                pTest.evaluateDrawProtect();
+                return pTest.getTree();         
+            case "Mixed Draw":
+                MixedDraw mTest = new MixedDraw (this.currentBoard, Teams.WHITE); 
+                mTest.evaluateMixedDraw();
+                mTest.getTree();
+            default:  
+            case "White wins": 
+                WhiteWins test = new WhiteWins (this.currentBoard);
+                test.evaluateWhiteWins();
+                return test.getTree();
+        }
+ 
     }
     
     private boolean stopCondition (Vector3d loc, Vector3d stop, int difx, int difz){
@@ -323,6 +359,7 @@ public class PanelButtons extends JPanel implements ActionListener{
     }
     
     private void setBoardStartStack (){
+        PanelTree.repaintCallsCounter = 0;
         this.steptoDraw = new Stack <> ();
         addChildrenToBoardStack (new Node (new MoveStruct (this.currentTree.getRoot(), this.startBoard)));
         

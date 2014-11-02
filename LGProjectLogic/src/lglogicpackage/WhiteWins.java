@@ -21,7 +21,7 @@ public class WhiteWins extends Strategies{
     ArrayList<Node<Moves>> nextSteps;
     private boolean whiteWinsChance;
     
-    WhiteWins (Board2D board){
+    public WhiteWins (Board2D board){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;

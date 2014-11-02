@@ -20,7 +20,7 @@ public class DrawIntercept extends Strategies {
     ArrayList<Node<Moves>> nextSteps;
     Teams teamName;
     
-    DrawIntercept (Board2D board, Teams teamName){
+    public DrawIntercept (Board2D board, Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.WTactic = null;

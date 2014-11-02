@@ -6,8 +6,11 @@
 
 package lggui;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -33,10 +36,11 @@ public class PanelTree extends JPanel {
     private Graphics2D g2d;
     private final int SQUARE;
     private final Dimension SIZE;
-    private final int NODE_SIZE; 
+    static final int NODE_SIZE=40; 
     Stack<TreeNode> treeStack = new Stack<>();
-    private boolean NextPressed = false;
+    private boolean RadioPressed = false;
     private TreeNode currentTreeNode = null;
+    static int repaintCallsCounter = 0;
 
     
     PanelTree (){
@@ -45,15 +49,16 @@ public class PanelTree extends JPanel {
         this.setPreferredSize(d);
         this.SIZE = this.getPreferredSize();
         this.SQUARE =  this.SIZE.width/14;
-        this.NODE_SIZE = 30;
+        repaintCallsCounter = 0;
     }
     
             
     void setTreeStartStack (Node<Moves> root){
+        PanelTree.repaintCallsCounter = 0;
         this.treeStack = new Stack <> ();     
     //treeNode (x, y, Line2D line1,Color color, String data)    
         int startAt = this.SIZE.width/2 - this.SQUARE/2;
-        addChildrenTreeStack(root, new TreeNode (startAt, 0,null,Color.BLACK, "77"));
+        addChildrenTreeStack(root, new TreeNode (startAt, -40,0,0, Color.BLACK, "77"));
     }
     
     
@@ -65,8 +70,8 @@ public class PanelTree extends JPanel {
         else
             color = Color.BLACK;
         
-        String label1, label2;
-        Coordinates c1, c2;
+        String label0, label1;
+        Coordinates c0, c1;
         
         int yCoor = tn.y + 2*(this.NODE_SIZE);
         if (children.isEmpty())
@@ -75,30 +80,45 @@ public class PanelTree extends JPanel {
         if (children.size()> 2)
             throw new IllegalArgumentException ("Tree is binary");
         
-        c1= children.get(0).getData().getStep();
-        label1 = "" + c1.x + c1.y;
+        c0= children.get(0).getData().getStep();
+        label0 = "" + c0.x + c0.y;
         if (children.get(0).getDepth() == 1 || children.get(0).getDepth()==2){
 
-            if (children.size() == 1)
-                this.treeStack.add (new TreeNode (tn.x, yCoor, null, color, label1));          
-             
+            if (children.size() == 1 && children.get(0).getDepth()==1){
+                this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label0));  
+                repaintCallsCounter--;
+            }
+            else
+             if (children.size() == 1 && children.get(0).getDepth()==2){
+                this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label0));  
+                repaintCallsCounter++;
+            }
             if (children.size () == 2){
-                c2= children.get(1).getData().getStep();
-                label2 = "" + c2.x + c2.y;
-                this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor, null, color, label2)); 
-                this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor, null, color, label1));  
+                c1= children.get(1).getData().getStep();
+                label1 = "" + c1.x + c1.y;
+                if (repaintCallsCounter == 0){
+                    this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor+40, tn.x, tn.y+40, color, label0)); 
+                    this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor+40, tn.x, tn.y+40, color, label1));  
+                }    
+                else{  
+                    this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label0)); 
+                    this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label1));
+                }  
+                repaintCallsCounter++;
             }
         }
         else{        
             if (children.size() == 2){
-                c2= children.get(1).getData().getStep();
-                label2 = "" + c2.x + c2.y;
+                c1= children.get(1).getData().getStep();
+                label1 = "" + c1.x + c1.y;
                 if (tn.x > this.SIZE.width/2)
-                    this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor, null, color, label2)); 
+                    this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label0)); 
                 else 
-                    this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor, null, color, label2)); 
+                    this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label0)); 
+                this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label1));
              }
-            this.treeStack.add (new TreeNode (tn.x, yCoor, null, color, label1));
+            else
+                this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label0));
         }
 
     }
@@ -110,38 +130,49 @@ public class PanelTree extends JPanel {
         
     }
     @Override
-        public void paintComponent(Graphics g) {
-
-           // super.paintComponent(g);
-           System.out.println ("repaint called");
-            //int startAt = this.SIZE.width/2 - this.SQUARE/2;
-           if (this.treeStack.isEmpty())
+    public void paintComponent(Graphics gComp) {
+        if (this.RadioPressed){
+            super.paintComponent(gComp);
+            setRadioPressed (false);
+        }
+        else{
+            Graphics2D g = (Graphics2D) gComp;
+            System.out.println ("repaint called");
+            if (this.treeStack.isEmpty())
                System.out.println ("stack is empty");
-            if (this.NextPressed && !this.treeStack.isEmpty ()){
-               System.out.println (this.currentTreeNode.data);
-                if (this.currentTreeNode.data.equals (String.valueOf(45)))
-                    g.setColor (Color.BLUE);
-                else
-                g.setColor (this.currentTreeNode.color);
-                
-                g.fill3DRect(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE, true);
-                
-                
-                /*   g.setColor (this.);             
-                g.fill3DRect(startAt, this.SQUARE, this.NODE_SIZE, this.NODE_SIZE , true);
-                
-                g.fill3DRect(startAt, 3*this.SQUARE, this.NODE_SIZE, this.NODE_SIZE, true);
-                
-                g.fill3DRect(startAt- 3* (this.SQUARE/2), 3*this.SQUARE, this.NODE_SIZE, this.NODE_SIZE, true);
-                g.fill3DRect(startAt+ 3*(this.SQUARE/2), 3*this.SQUARE, this.NODE_SIZE, this.NODE_SIZE, true);
-                */this.NextPressed =false;
-            }    
-            
 
+            if (this.currentTreeNode != null){    
+
+               repaintCallsCounter++;
+                //g.fill3DRect(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE, true);
+                g.setColor (this.currentTreeNode.color);
+                g.fillOval(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE);
+
+
+                g.setColor (Color.BLACK);
+
+                if (repaintCallsCounter> 1){
+                    Line2D line = this.currentTreeNode.line1;
+                    g.setStroke(new BasicStroke(2));
+                    g.draw (line);
+                } 
+
+                if (this.currentTreeNode.color.equals (Color.WHITE))
+                    g.setColor (Color.BLACK);
+                else
+                    g.setColor (Color.WHITE);
+                int fontSize = 18;
+                g.setFont (new Font ("TimesRoman", Font.BOLD, fontSize));
+                int xString = this.currentTreeNode.x + this.NODE_SIZE/2- fontSize/2-2; 
+                int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
+                g.drawString(this.currentTreeNode.data, xString , yString );
+
+            }    
+        }    
     }      
     
-    public void setNextPressed (boolean b){
-        this.NextPressed = b;
+    public void setRadioPressed (boolean b){
+        this.RadioPressed = b;
     }    
     class TreeNode {
         
@@ -149,10 +180,12 @@ public class PanelTree extends JPanel {
         Line2D line1;
         Color color;
         String data;
-        TreeNode (int x, int y, Line2D line1, Color color, String data){
+        
+        TreeNode (int x, int y, int xdad, int ydad, Color color, String data){
             this.x = x;
             this.y = y;
-            this.line1 = line1;
+            double halfNode = PanelTree.NODE_SIZE/2;
+            this.line1 = new Line2D.Double (xdad+ halfNode, ydad+ PanelTree.NODE_SIZE, x+halfNode, y);
             this.color = color;
             this.data = data;
         }

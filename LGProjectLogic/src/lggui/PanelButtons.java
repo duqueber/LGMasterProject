@@ -6,6 +6,7 @@
 
 package lggui;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,12 +18,15 @@ import java.util.List;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.j3d.Transform3D;
+import javax.media.j3d.TransformGroup;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import javax.vecmath.Color3f;
 import javax.vecmath.Vector3d;
 import lglogicpackage.BWinWMixed;
 import lglogicpackage.BlackWins;
@@ -31,6 +35,7 @@ import lglogicpackage.BomberLogic;
 import lglogicpackage.DrawIntercept;
 import lglogicpackage.DrawProtect;
 import lglogicpackage.FighterLogic;
+import lglogicpackage.Gateways;
 import lglogicpackage.MixedDraw;
 import lglogicpackage.PiecesLogic;
 import lglogicpackage.Strategies;
@@ -189,9 +194,19 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         }
         
         Moves doMove = doMoveNode.getData().getMove().getData();
+        String dadName = doMoveNode.getFather().getData().getMove().getData().getPiece().NAME;
+        String namePiece = doMove.getPiece().NAME;
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
             this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
             setPiecesToCurrent ("nothing");
+            
+            this.scene.calculateGateways (this.currentBoard);
+            if (dadName.equals ("B-Bomber") || namePiece.equals ("B-Fighter"))
+                SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
+            else 
+            if (dadName.equals ("B-Fighter") || namePiece.equals ("B-Bomber"))
+                SetGwInBoard (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
+            
             this.steptoDraw.add (doMoveNode);
             return;
         }
@@ -214,7 +229,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         int dify = doMove.getStep().y - piece.positionY ;
         
         Vector3d loc = new Vector3d();
-       
+        
         Vector3d stop = Coordinates.convertToGraph(new Vector3d (doMove.getStep().x, 0, 
                 doMove.getStep().y));
         
@@ -222,7 +237,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
         addChildrenToBoardStack (doMoveNode);
         
-        BoardObjects boardObj = selectBoardObj (doMove.getPiece().NAME);
+        BoardObjects boardObj = selectBoardObj (namePiece);
    
         boardObj.t3d.get(loc);        
         this.changeVector = new Vector3d (); 
@@ -232,15 +247,97 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
             boardObj.t3d.setTranslation(this.changeVector);
             boardObj.tg.setTransform(boardObj.t3d);
             boardObj.t3d.get(loc);  
-
+            
+            if (namePiece.equals ("B-Fighter")){
+                this.scene.calculateGateways (this.currentBoard);
+                TransformGw (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
+            }        
+            else
+            if (namePiece.equals ("B-Bomber")){
+                this.scene.calculateGateways (this.currentBoard);
+                TransformGw (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
+            }  
         } 
         
-        if (willDestroy){
+        if (willDestroy)
             setPiecesToCurrent (destroyedName); 
-        }
+       //else 
+         //   setPiecesToCurrent ("nothing");
            
     }
+   
+    private void SetGwInBoard (ArrayList<Coordinates> to, BoardObjects[] from, Gateways.Types type){
+        
+        Vector3d locGw = new Vector3d();
+        int index;
+        int [] track = new int[]{99,99,99,99};
 
+        for (Coordinates c: to){
+            if (Gateways.Types.PROTECT.equals(type)){
+                index = c.y;
+            }    
+            else{
+                index = c.x;
+            }    
+            if (from[index] != null ){
+                from[index].t3d.get(locGw);
+                from[index].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d (c.x, 0,c.y)));
+                from[index].tg.setTransform(from[index].t3d);
+                track[index-4] = 1;
+                
+            }               
+            else{
+                throw new IllegalArgumentException ("gateways need default");
+            }    
+        }
+        
+        for (int i = 0; i < track.length; i++)
+            if (track[i] == 99)
+               setGwToDefault (from[i+4]);
+    }
+    private void TransformGw (ArrayList<Coordinates> to, BoardObjects[] from, Gateways.Types type){
+        
+        Vector3d locGw = new Vector3d();
+        float changex, changez;
+        int index;
+        int [] track = new int[]{99,99,99,99};
+
+        for (Coordinates c: to){
+            if (Gateways.Types.PROTECT.equals(type)){
+                index = c.y;
+                changex= .1f;
+                changez = 0;
+            }    
+            else{
+                index = c.x;
+                changex= 0;
+                changez = -.1f;
+            }    
+            if (from[index] != null ){
+                from[index].t3d.get(locGw);
+                from[index].t3d.setTranslation(new Vector3d (locGw.x+changex,
+                        locGw.y, locGw.z+changez));
+                from[index].tg.setTransform(from[index].t3d);
+                track[index-4] = 1;
+                
+            }               
+            else{
+                throw new IllegalArgumentException ("gateways need default");
+            }    
+        }
+        
+        for (int i = 0; i < track.length; i++)
+            if (track[i] == 99)
+               setGwToDefault (from[i+4]);
+  
+    }
+    
+    private void setGwToDefault (BoardObjects piece){
+        piece.t3d.setTranslation(Coordinates.convertToGraph(BoardScene.defaultV));
+        piece.tg.setTransform(piece.t3d);
+    }
+    
+    
     private void RadioButtonActionPerformed(ActionEvent evt){
 
         if (evt.getActionCommand()== null)
@@ -380,13 +477,24 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
             piece = new BomberLogic (null, -1,8,0,0);
         setPiecesToCurrentHelper (this.scene.blackBomber, piece);
         
-        this.scene.calculateGateways(this.currentBoard);
-        for (Coordinates c: this.scene.gwInt)
+       /* this.scene.calculateGateways(this.currentBoard);
+        int [] track = new int[] {99,99,99,99};
+        for (Coordinates c: this.scene.gwInt){
             setPiecesToCurrentHelper (this.scene.gwPiecesInt[c.x], new TargetLogic (null,c.x, c.y, 0));
+            track [c.x-4] = 1;
+        }
+       // for (int i=0; i<track.length ; i++)
+        //    if (track[i]== 99)
+               // setGwToDefault (this.scene.gwPiecesInt[i+4]);
         
-        for (Coordinates c: this.scene.gwProt)
-            setPiecesToCurrentHelper (this.scene.gwPiecesInt[c.y], new TargetLogic (null,c.x, c.y, 0));  
-           
+        track = new int[] {99,99,99,99};
+        for (Coordinates c: this.scene.gwProt){
+            setPiecesToCurrentHelper (this.scene.gwPiecesPro[c.y], new TargetLogic (null,c.x, c.y, 0));  
+            track [c.y-4] = 1;
+        }    
+       //for (int i=0; i<track.length ; i++)
+         //   if (track[i]== 99)
+             //   setGwToDefault (this.scene.gwPiecesPro[i+4]);   */
     }
     
     private void setPiecesToCurrentHelper (BoardObjects boardObj, PiecesLogic piece){

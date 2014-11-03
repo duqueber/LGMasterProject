@@ -73,22 +73,22 @@ public class Gateways {
 
         ZoneTypes zt = new ZoneTypes(blackZoneType, whiteZoneType);
 
-        if (zt.isWhiteWin()) {
-            this.whiteIspaceDist = calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
-            this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
-        } else if (zt.isBlackWin()) {
+     //   if (zt.isWhiteWin()) {
+       //     this.whiteIspaceDist = calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
+         //   this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
+       // } else if (zt.isBlackWin()) {
              this.whitePspaceDist = calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
              if (team == null)
                 this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
              else
                  this.blackIspaceDist = -1;
-        } else if (zt.isBothIntercept()) {
-            this.whitePspaceDist= calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
-            this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
-        } else if (zt.isBothProtect()) {
-            this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
-            this.whiteIspaceDist= calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
-        }
+        //} else if (zt.isBothIntercept()) {
+          //  this.whitePspaceDist= calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
+           // this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
+        //} else if (zt.isBothProtect()) {
+          //  this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
+            //this.whiteIspaceDist= calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
+       // }
     }
 
     private int calculateGateways(PiecesLogic start, ArrayList<Node<Coordinates>> st,
@@ -100,8 +100,16 @@ public class Gateways {
         ShortestTrajectory stToMain;
         Coordinates c;
         int distTemp;
+        int starti = 99;
+        int counter = 0;
+        while (starti==99 && counter<= st.size()){
+            if (st.get(counter).hasChildren())
+                starti = counter;
+            counter++;
+        }
+        
         if (st.size() > 1){
-            for (int i=1; i < st.size(); i++){
+            for (int i=starti; i < st.size(); i++){
                 stToMain = new ShortestTrajectory(this.board, start,
                     st.get(i).getData());
                 stToMain.GenerateShortestTrajectory();

@@ -61,6 +61,8 @@ public class BoardScene extends JPanel{
     ArrayList <Coordinates> gwProt = new ArrayList<> ();
     private Zones mainBlack = null;
     private Zones mainWhite = null;
+    static final Vector3d defaultV = new Vector3d (10, 0, 10);
+    static final Color3f defaultColor = new Color3f (Color.GRAY);
    
     public BoardScene(Board2D board) throws IOException  {
     
@@ -158,6 +160,26 @@ public class BoardScene extends JPanel{
             this.gwPiecesPro[i.y] = blackGW;
             loadModel (blackGW);
         }
+        BoardObjects defaultGw = null; 
+        for (int i = 4; i < this.gwPiecesPro.length; i++){
+            if (this.gwPiecesPro[i] == null){
+                defaultGw = new BoardObjects ("chess/WhitePieces/Circle.obj", 
+                Coordinates.convertToGraph(defaultV),-Math.PI/2, 
+                0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), defaultColor, "obj");
+                this.gwPiecesPro[i] = defaultGw;
+                loadModel (defaultGw);
+            }   
+        }
+        
+        for (int i = 4; i < this.gwPiecesInt.length; i++){
+            if (this.gwPiecesInt[i] == null){
+                defaultGw = new BoardObjects ("chess/BlackPieces/Circle.obj", 
+                Coordinates.convertToGraph(defaultV),-Math.PI/2, 
+                0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), defaultColor, "obj");
+                this.gwPiecesInt[i] = defaultGw;
+                loadModel (defaultGw);
+            }   
+        }
     }
     
     public void showZones(Board2D board) {
@@ -251,7 +273,7 @@ public class BoardScene extends JPanel{
         else
             white=null;
         
-        Gateways g = new Gateways (this.board, black, white, null);
+        Gateways g = new Gateways (board, black, white, null);
       
         this.gwProt =g.getWhiteGatewaysProtect();
         this.gwInt = g.getBlackGatewaysIntercept();

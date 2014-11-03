@@ -94,5 +94,7 @@ public class Node<T> {
             return 0;
         return (getDepth (n.father)+ 1);
     }
-    
+    public Node<T> getFather (){
+        return this.father;
+    }
 }

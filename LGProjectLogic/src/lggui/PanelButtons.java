@@ -9,6 +9,8 @@ package lggui;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
@@ -44,7 +47,7 @@ import supportpackage.Tree;
  *
  * @author nati
  */
-public class PanelButtons extends JPanel implements ActionListener{
+public class PanelButtons extends JPanel implements ActionListener, ItemListener{
     
     private ButtonGroup checkBoxes; 
     private final String WHITE = "White Wins";
@@ -56,7 +59,8 @@ public class PanelButtons extends JPanel implements ActionListener{
     private final Board2D startBoard;
     private Board2D currentBoard;
     private Timer timer;
-    private JButton next;
+    private JButton next; 
+    private JCheckBox detailI, detailII;
     Tree<Moves> currentTree = new Tree<>();
     private Stack <Node<Strategies.MoveStruct>> steptoDraw; 
     private BoardScene scene;
@@ -110,13 +114,17 @@ public class PanelButtons extends JPanel implements ActionListener{
         JRadioButton drawProtect = new JRadioButton (DRAWP);
         this.add(drawProtect);
         
-        this.add (new JPanel());
+        this.detailI = new JCheckBox ("Show Zones");
+        this.add (this.detailI);
         
         JRadioButton mixedDraw = new JRadioButton (DRAWM);
         this.add(mixedDraw);
         
         JRadioButton solution = new JRadioButton (SOL);
         this.add(solution);
+        
+        this.detailII = new JCheckBox ("Show Gateways Zones");
+        this.add (this.detailII);
         
         whiteWins.addActionListener(this);
         blackWins.addActionListener(this);
@@ -125,6 +133,9 @@ public class PanelButtons extends JPanel implements ActionListener{
         mixedDraw.addActionListener(this);
         solution.addActionListener(this);
         this.next.addActionListener(this);
+        
+        this.detailI.addItemListener(this);
+      //  this.detailII.addItemListener(this);
         
         whiteWins.setActionCommand(WHITE);
         blackWins.setActionCommand(BLACK);
@@ -153,19 +164,22 @@ public class PanelButtons extends JPanel implements ActionListener{
         } catch (IOException ex) {
             Logger.getLogger(PanelButtons.class.getName()).log(Level.SEVERE, null, ex);
         }
+       /* else
+        if (e.getSource() == this.detailI)
+                DetailButtonActionPerformed ();*/
         else {
-
             RadioButtonActionPerformed(e);
         }    
     }
     
     private void NextButtonActionPerformed () throws IOException{
-    
+        
+        this.detailI.setSelected(false);
         if(!timer.isRunning()){
             timer.start();
             System.out.println ("start timer");
         }
-        
+        boolean willDestroy = false;
         Node<MoveStruct> doMoveNode = null;
         if (!this.steptoDraw.isEmpty())
             doMoveNode= this.steptoDraw.pop();
@@ -177,10 +191,22 @@ public class PanelButtons extends JPanel implements ActionListener{
         Moves doMove = doMoveNode.getData().getMove().getData();
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
             this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
-            setPiecesToCurrent ();
+            setPiecesToCurrent ("nothing");
             this.steptoDraw.add (doMoveNode);
             return;
         }
+        
+        BoardObjects destroyed = null;
+        String destroyedName = null;
+        willDestroy = this.currentBoard.hasPiece(doMove.getStep());
+        Vector3d locDestroyed = new Vector3d ();
+        
+        if (willDestroy){
+            destroyedName =this.currentBoard.getPiece(doMove.getStep()).NAME;
+            destroyed = selectBoardObj (destroyedName);
+            destroyed.t3d.get(locDestroyed);
+        }
+        
         this.pTree.callRepaint (doMoveNode.getData().getMove());
         PiecesLogic piece = this.currentBoard.getPieceFromName(doMove.getPiece().NAME);
         
@@ -188,17 +214,16 @@ public class PanelButtons extends JPanel implements ActionListener{
         int dify = doMove.getStep().y - piece.positionY ;
         
         Vector3d loc = new Vector3d();
+       
         Vector3d stop = Coordinates.convertToGraph(new Vector3d (doMove.getStep().x, 0, 
                 doMove.getStep().y));
         
         doMoveNode.getData().getBoard().makeMove(doMove);
         this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
         addChildrenToBoardStack (doMoveNode);
-
-        
         
         BoardObjects boardObj = selectBoardObj (doMove.getPiece().NAME);
-        
+   
         boardObj.t3d.get(loc);        
         this.changeVector = new Vector3d (); 
         
@@ -207,42 +232,47 @@ public class PanelButtons extends JPanel implements ActionListener{
             boardObj.t3d.setTranslation(this.changeVector);
             boardObj.tg.setTransform(boardObj.t3d);
             boardObj.t3d.get(loc);  
+
         } 
+        
+        if (willDestroy){
+            setPiecesToCurrent (destroyedName); 
+        }
            
     }
 
     private void RadioButtonActionPerformed(ActionEvent evt){
 
-      
         if (evt.getActionCommand()== null)
            return; 
+        this.detailI.setSelected(false);
         pTree.setRadioPressed(true);
         pTree.repaint();
         String choice = evt.getActionCommand();
         switch (choice){
             case WHITE:
                 this.currentTree = strategyTree ("White wins"); 
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break;    
             case BLACK:
                 this.currentTree = strategyTree ("Black wins");
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break;
             case DRAWI:
                 this.currentTree = strategyTree ("Draw Int");
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break;   
             case DRAWP:
                 this.currentTree = strategyTree ("Draw Pro");
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break; 
             case DRAWM:
                 this.currentTree = strategyTree ("Mixed Draw");
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break;                 
             default:
                 this.currentTree = strategyTree ("Solution");
-                setPiecesToCurrent ();
+                setPiecesToCurrent ("nothing");
             break;    
         }
         
@@ -322,25 +352,46 @@ public class PanelButtons extends JPanel implements ActionListener{
         throw new IllegalArgumentException ("case not considered in difference ");
     }
     
-    private void setPiecesToCurrent (){
+    private void setPiecesToCurrent (String doNotSet){
         Vector3d loc = new Vector3d();
         PiecesLogic piece;
-        piece = this.currentBoard.getPieceFromName("W-Fighter");        
-        setPiecesToCurrentHelper (this.scene.whiteFighter, piece);
         
-        piece = this.currentBoard.getPieceFromName("B-Fighter");        
+        if( !doNotSet.equals ("W-Fighter"))
+            piece = this.currentBoard.getPieceFromName("W-Fighter");     
+        else
+            piece = new BomberLogic (null, -1,8,0,0);
+        setPiecesToCurrentHelper (this.scene.whiteFighter, piece);
+
+        if( !doNotSet.equals ("B-Fighter"))
+            piece = this.currentBoard.getPieceFromName("B-Fighter");    
+        else
+            piece = new BomberLogic (null, -1,8,0,0);
         setPiecesToCurrentHelper (this.scene.blackFighter, piece);
         
-        piece = this.currentBoard.getPieceFromName("W-Bomber");        
+        if ( !doNotSet.equals ("W-Bomber"))
+            piece = this.currentBoard.getPieceFromName("W-Bomber");  
+        else
+            piece = new BomberLogic (null, -1,8,0,0);
         setPiecesToCurrentHelper (this.scene.whiteBomber, piece);
-        
-        piece = this.currentBoard.getPieceFromName("B-Bomber");        
+     
+        if (!doNotSet.equals ("B-Bomber"))
+            piece = this.currentBoard.getPieceFromName("B-Bomber");  
+        else    
+            piece = new BomberLogic (null, -1,8,0,0);
         setPiecesToCurrentHelper (this.scene.blackBomber, piece);
+        
+        this.scene.calculateGateways(this.currentBoard);
+        for (Coordinates c: this.scene.gwInt)
+            setPiecesToCurrentHelper (this.scene.gwPiecesInt[c.x], new TargetLogic (null,c.x, c.y, 0));
+        
+        for (Coordinates c: this.scene.gwProt)
+            setPiecesToCurrentHelper (this.scene.gwPiecesInt[c.y], new TargetLogic (null,c.x, c.y, 0));  
+           
     }
     
     private void setPiecesToCurrentHelper (BoardObjects boardObj, PiecesLogic piece){
             Vector3d loc = Coordinates.convertToGraph (new Vector3d (piece.positionX, 
-                    BoardScene.y,piece.positionY));
+                    boardObj.translateVec.y,piece.positionY));
             boardObj.t3d.setTranslation(loc);
             boardObj.tg.setTransform(boardObj.t3d);
     }
@@ -380,5 +431,18 @@ public class PanelButtons extends JPanel implements ActionListener{
         return this.pTree;
     }
 
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        Object source = e.getItemSelectable();
+        if (source == this.detailI)
+            DetailIStateChanged (e);
+    }
+
+    private void DetailIStateChanged (ItemEvent e){
+        if (e.getStateChange() == ItemEvent.SELECTED)
+            this.scene.showZones(this.currentBoard);
+        else 
+            this.scene.removeZones();
+    }
 
 }

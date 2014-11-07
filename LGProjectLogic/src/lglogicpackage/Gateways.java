@@ -5,6 +5,7 @@
  */
 package lglogicpackage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import lggrammars.ShortestTrajectory;
@@ -82,6 +83,8 @@ public class Gateways {
                 this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
              else
                  this.blackIspaceDist = -1;
+            this.whiteGatewaysP = removeRedundant (this.whiteGatewaysP, Types.PROTECT); 
+            this.blackGatewaysI = removeRedundant (this.blackGatewaysI, Types.INTERCEPT); 
         //} else if (zt.isBothIntercept()) {
           //  this.whitePspaceDist= calculateGateways(wFighter, stWhite, this.whiteGatewaysP, whitePDist);
            // this.blackPspaceDist = calculateGateways(bFighter, stBlack, this.blackGatewaysP, blackPDist);
@@ -89,6 +92,7 @@ public class Gateways {
           //  this.blackIspaceDist = calculateGateways(wFighter, stBlack, this.blackGatewaysI, 0);
             //this.whiteIspaceDist= calculateGateways(bFighter, stWhite, this.whiteGatewaysI, 0);
        // }
+             
     }
 
     private int calculateGateways(PiecesLogic start, ArrayList<Node<Coordinates>> st,
@@ -102,6 +106,7 @@ public class Gateways {
         int distTemp;
         int starti = 99;
         int counter = 0;
+        int index = 0;
         while (starti==99 && counter<= st.size()){
             if (st.get(counter).hasChildren())
                 starti = counter;
@@ -119,7 +124,8 @@ public class Gateways {
                 else 
                     distTemp = dist;
                 for (ArrayList<Node<Coordinates>> stFirstStep : stsFirstStep) {
-                    c= stFirstStep.get(stFirstStep.size() - 1 - distTemp).getData();
+                    index = stFirstStep.size() - 1 - distTemp;
+                    c= stFirstStep.get(index).getData();
                     if (!IsInArray ( array, c))
                         array.add(c);
                     if (i+1 >distTemp)
@@ -128,16 +134,18 @@ public class Gateways {
                     if (sd == 0 || sd> stFirstStep.size() - 1 - distTemp )
                         sd = stFirstStep.size() - 1 - distTemp;
                 }
-            }        
-        }
+
+            } 
+        }    
         return sd;
     }
+    
+    //public ArrayList<ArrayList <Node<Coordinates>>> generateGatewaysZones( Teams team,
+           // Types type)
     
     public ArrayList<ArrayList <Node<Coordinates>>> generateGatewaysZones( Teams team,
             Types type){
         
-        ArrayList <ArrayList<supportpackage.Node<Coordinates>>> gwShortestArray;
-        ShortestTrajectory gwShortestObj;
         ArrayList<Coordinates> useGW;
         ArrayList <Node<Coordinates>> goToPoints;
         int maxDist = 0;
@@ -249,5 +257,45 @@ public class Gateways {
         }
         return false;
     }
+    
+    // Takes care of redundant GW like 6,2 and 6,3. It is implemented for Black interception 
+    // but could be implemented for any type of Zone. We only need to calculate the relative
+    // position of a bomber respect to a fighter. In the case of Black interception, Bomber is SE
+    // of W-Fighter
+    private ArrayList<Coordinates> removeRedundant (ArrayList<Coordinates> array, Types type){
+        
+        if (type.equals(Types.PROTECT))
+           return array;
+           
+        ArrayList<Coordinates> arrayRemove =new ArrayList<> ();
+        ArrayList<Coordinates> arrayTemp =new ArrayList<> ();
+        boolean inLine = false;
+        //look for any gw south of other gw.
+        for (Coordinates c: array){
+            for (Coordinates d: array){
+                if (c.y >= d.y && !c.equals(d))
+                    inLine = true;
+            }    
+            if (inLine)
+                arrayTemp.add(c);
+            inLine = false;
+        }
+       return arrayTemp;
+    }
+    
+    public static void main(String args[]) throws IOException {
+        
+        ArrayList <PiecesLogic> pieces = new ArrayList<>();
 
+        pieces.add (new FighterLogic ("W-Fighter", 5, 5, 1));
+        pieces.add (new BomberLogic ("B-Bomber", 7, 3, 2, -1));
+        pieces.add( new TargetLogic ("W-Target", 7, 0, 1));        
+          
+        Board2D hi = new Board2D(8,8, pieces);
+        
+        Zones Zone = new Zones (hi, pieces.get(1), pieces.get(2));
+        Zone.GenerateZones();
+        Gateways gw = new Gateways(hi, Zone.getZonesTree().get(0), null, null);
+        gw.getBlackGatewaysIntercept();
+    }    
 }

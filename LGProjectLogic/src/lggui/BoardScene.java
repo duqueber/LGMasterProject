@@ -63,7 +63,10 @@ public class BoardScene extends JPanel{
     private Zones mainWhite = null;
     static final Vector3d defaultV = new Vector3d (10, 0, 10);
     static final Color3f defaultColor = new Color3f (Color.GRAY);
-   
+    private double gwScale = 0.0;
+    private  ArrayList<ArrayList<supportpackage.Node<Coordinates>>> GWZoneInt = new ArrayList<> ();
+    private  ArrayList<ArrayList<supportpackage.Node<Coordinates>>> GWZoneProt= new ArrayList<> ();
+    
     public BoardScene(Board2D board) throws IOException  {
     
         this.board = board;
@@ -180,6 +183,11 @@ public class BoardScene extends JPanel{
                 loadModel (defaultGw);
             }   
         }
+        this.gwScale = this.gwPiecesInt[4].t3d.getScale();
+    }
+    
+    public void showGwZones (){
+        
     }
     
     public void showZones(Board2D board) {
@@ -190,7 +198,13 @@ public class BoardScene extends JPanel{
         if (this.mainBlack != null)
             addZones (this.mainBlack);
         if (this.mainWhite != null)
-            addZones (this.mainWhite);        
+            addZones (this.mainWhite);    
+        
+        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneProt)
+                    drawShortestPath(trajToGW, WHITE);
+        
+        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneInt)
+                    drawShortestPath(trajToGW,BLACK);
         this.sceneBG.addChild(this.bg2);
         
         /*ArrayList <Tree <Zones.Trajectory>> w= mainWhite.getZonesTree();
@@ -277,6 +291,28 @@ public class BoardScene extends JPanel{
       
         this.gwProt =g.getWhiteGatewaysProtect();
         this.gwInt = g.getBlackGatewaysIntercept();
+        boolean isOverlap = false;
+        
+        for (Coordinates gP: gwProt){
+            for  (Coordinates gI: gwInt){
+                if (gP.equals(gI)){
+                        isOverlap = true;
+                        this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale/1.4);
+                        this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0.1, gP.y)));
+                        this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
+                }  
+                else
+                   if (this.gwPiecesPro[gP.y]!= null){
+                        this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale);
+                        this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0, gP.y)));
+                        this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
+                   }    
+            }
+        }
+        
+        this.GWZoneProt = g.generateGatewaysZones(Gateways.Teams.WHITE, Gateways.Types.PROTECT);
+        this.GWZoneInt = g.generateGatewaysZones(Gateways.Teams.BLACK, Gateways.Types.INTERCEPT);
+        
     }    
     public void removeZones (){
         this.sceneBG.removeChild (this.bg2);

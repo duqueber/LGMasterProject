@@ -24,6 +24,7 @@ import lggrammars.Zones;
 import lglogicpackage.Board2D;
 import lglogicpackage.Gateways;
 import lglogicpackage.PiecesLogic;
+import lglogicpackage.Strategies;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
 
@@ -164,7 +165,7 @@ public class BoardScene extends JPanel{
             loadModel (blackGW);
         }
         BoardObjects defaultGw = null; 
-        for (int i = 4; i < this.gwPiecesPro.length; i++){
+        for (int i = 3; i < this.gwPiecesPro.length; i++){
             if (this.gwPiecesPro[i] == null){
                 defaultGw = new BoardObjects ("chess/WhitePieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
@@ -174,7 +175,7 @@ public class BoardScene extends JPanel{
             }   
         }
         
-        for (int i = 4; i < this.gwPiecesInt.length; i++){
+        for (int i = 3; i < this.gwPiecesInt.length; i++){
             if (this.gwPiecesInt[i] == null){
                 defaultGw = new BoardObjects ("chess/BlackPieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
@@ -186,8 +187,17 @@ public class BoardScene extends JPanel{
         this.gwScale = this.gwPiecesInt[4].t3d.getScale();
     }
     
-    public void showGwZones (){
+    public void showSpaceChart (Board2D board, boolean fighterInProt){
         
+        calculateZones (board);
+        String blackType = null; 
+        String whiteType = null;
+       
+        if (this.mainBlack != null)
+            blackType = Zones.getZoneType(this.mainBlack.getZonesTree().get(0), null);
+        if (this.mainWhite != null)
+            whiteType = Zones.getZoneType(this.mainWhite.getZonesTree().get(0), null, fighterInProt); 
+        new SpaceChart (blackType, whiteType);
     }
     
     public void showZones(Board2D board) {

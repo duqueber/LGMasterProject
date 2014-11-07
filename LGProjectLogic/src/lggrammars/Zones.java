@@ -38,6 +38,7 @@ public class Zones  {
     private final PiecesLogic pieceTarget;
     private ArrayList <Tree <Zones.Trajectory>> zonesTrees; // Array of all zones
     private Tree <Zones.Trajectory> zonesTrajectories;// zone starting with each main trajectory
+    boolean fighterInProtGw = false;
 
     public Zones (Board2D board, PiecesLogic pieceBegin, PiecesLogic pieceTarget){
        
@@ -75,6 +76,15 @@ public class Zones  {
         
 
     }
+    public static String getZoneType (Tree <Zones.Trajectory> tree, Strategies.Teams team,
+            boolean fighterInGwProt){
+        
+        if (fighterInGwProt)
+            return "0_1_";
+        else
+        return getZoneType (tree,  team);
+
+    }
     
     public static String getZoneType (Tree <Zones.Trajectory> tree, Strategies.Teams team){
        
@@ -87,6 +97,7 @@ public class Zones  {
         String protect, intercept;
         protect="0";
         intercept="0";
+        int intTemp =0;
         
         if (!t.hasChildren())
             protect = "1";
@@ -96,16 +107,16 @@ public class Zones  {
                 if (child!=null){
                     if (!child.hasChildren()) 
                         if (team == null)
-                            intercept = "1";
+                            intercept = "1";   
                         else {
                             if (child.getData().getPieceName().equals("W-Fighter") && team.equals(Strategies.Teams.WHITE))
                                 intercept = "1";    
                             if (child.getData().getPieceName().equals("B-Fighter") && team.equals(Strategies.Teams.BLACK))
                                 intercept = "1" ;
-                        }    
-                }    
-            }
-        }     
+                        }
+                    }
+                }
+            }    
         
         if (intercept == "0")
             protect ="1";

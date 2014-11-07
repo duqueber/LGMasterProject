@@ -20,11 +20,14 @@ public class BWinWMixed extends Strategies{
         
     ArrayList<Node<Moves>> nextSteps;
     Strategies.Teams teamName;
+     
+
 
     public BWinWMixed (Board2D board, Strategies.Teams teamName){
         super (board);
         this.nextSteps = new ArrayList<>();
         this.teamName = teamName;
+       
     }
     public void createTree (){
         MoveStruct m = new MoveStruct (this.moves.getRoot(), this.board);
@@ -52,6 +55,7 @@ public class BWinWMixed extends Strategies{
         for (Node<Moves> step: this.nextSteps) { 
             MoveStruct s = new MoveStruct (step, this.board);
             arrayS.add(s);
+            
         }    
         
         for (MoveStruct mS : arrayS)
@@ -174,19 +178,24 @@ public class BWinWMixed extends Strategies{
         ArrayList<Coordinates> protect= new ArrayList<> ();
         Moves move = m.getData();
         if (move.getPiece().getTeam()== 2){
-            if (this.board.hasPiece(move.getStep()))
+            if (this.board.hasPiece(move.getStep())){
+                this.cutReason.put(move.getStep(), "Enemy destroyed");
                 return true;
+            }    
         }
         else{
             intercept = this.startGw.getBlackGatewaysIntercept();
             for (Coordinates i : intercept)
-                if (i.equals(move.getPiece().getCoordinates()))
+                if (i.equals(move.getPiece().getCoordinates())){
+                    this.cutReason.put (move.getPiece().getCoordinates(), "On Intercept GW (+1)");
                     return true;
-            
+                }    
             protect = this.startGw.getWhiteGatewaysProtect();
             for (Coordinates i : protect){
-                if (i.equals(move.getStep()))
-                    return true;                    
+                if (i.equals(move.getStep())){
+                    this.cutReason.put (move.getStep(), "Arrived Protect GW");
+                    return true;
+                }    
             }
         }    
        return false; 

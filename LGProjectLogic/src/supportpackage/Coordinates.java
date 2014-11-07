@@ -40,6 +40,16 @@ public class Coordinates {
         return new Coordinates (value%rows,value/rows ) ;
     }
     
+    public static Coordinates parseString (String string){
+        if (string == null)
+            return null;
+        
+        if (string.length()!= 2)
+            return null;
+        int number =Integer.parseInt(string);
+        return new Coordinates (number/10, number%10);
+        
+    }
     public static Vector3d convertToGraph (Vector3d f){
 
         return new Vector3d(7.5-f.x, f.y, f.z+0.5);

@@ -14,7 +14,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,12 +67,15 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     private Board2D currentBoard;
     private Timer timer;
     private JButton next; 
+    private JButton chart; 
     private JCheckBox detailI;
     Tree<Moves> currentTree = new Tree<>();
     private Stack <Node<Strategies.MoveStruct>> steptoDraw; 
     private BoardScene scene;
     private Vector3d changeVector = new Vector3d ();
     private PanelTree pTree;
+    private String choice = null;
+    private Map<Coordinates, String> currentCut = new HashMap <>();
     
     PanelButtons (BoardScene scene){
         super();
@@ -128,6 +133,9 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         JRadioButton solution = new JRadioButton (SOL);
         this.add(solution);
         
+        this.chart = new JButton ("Show Space Chart");
+        this.add(this.chart);
+        
         whiteWins.addActionListener(this);
         blackWins.addActionListener(this);
         drawIntercept.addActionListener(this);
@@ -135,6 +143,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         mixedDraw.addActionListener(this);
         solution.addActionListener(this);
         this.next.addActionListener(this);
+        this.chart.addActionListener(this);
         
         this.detailI.addItemListener(this);
         
@@ -165,12 +174,13 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         } catch (IOException ex) {
             Logger.getLogger(PanelButtons.class.getName()).log(Level.SEVERE, null, ex);
         }
-       /* else
-        if (e.getSource() == this.detailI)
-                DetailButtonActionPerformed ();*/
-        else {
+        else
+        if (e.getSource() == this.chart){
+                this.scene.showSpaceChart(this.currentBoard, 
+                        isOnGw(this.currentBoard.getPieceFromName("W-Fighter").getCoordinates(), Gateways.Types.PROTECT));
+        }        
+        else 
             RadioButtonActionPerformed(e);
-        }    
     }
     
     private void NextButtonActionPerformed () throws IOException{
@@ -197,7 +207,8 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         PiecesLogic newBFighter = this.currentBoard.getPieceFromName("B-Fighter");                 
     
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
-
+            
+            new DisplayBranchMsg (this.choice, doMoveNode.getData().getBoard());
             this.scene.calculateGateways (doMoveNode.getData().getBoard());
             if (!oldBBomber.getCoordinates().equals(newBBomber.getCoordinates()))
                 SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
@@ -208,9 +219,9 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
             this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
             setPiecesToCurrent ("nothing");
             this.steptoDraw.add (doMoveNode);
+           
             return;
         }
-        
         BoardObjects destroyed = null;
         String destroyedName = null;
         willDestroy = this.currentBoard.hasPiece(doMove.getStep());
@@ -390,8 +401,8 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.detailI.setSelected(false);
         pTree.setRadioPressed(true);
         pTree.repaint();
-        String choice = evt.getActionCommand();
-        switch (choice){
+        this.choice = evt.getActionCommand();
+        switch (this.choice){
             case WHITE:
                 this.currentTree = strategyTree ("White wins"); 
                 setPiecesToCurrent ("nothing");
@@ -417,9 +428,9 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
                 setPiecesToCurrent ("nothing");
             break;    
         }
-        
+        this.choice = null;
         setBoardStartStack();
-        this.pTree.setTreeStartStack(this.currentTree.getRoot());
+        this.pTree.setTreeStartStack(this.currentTree.getRoot(), this.currentCut);
         this.scene.calculateGateways (this.currentBoard);
         SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
         SetGwInBoard (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
@@ -433,28 +444,34 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
             case "Solution":
                 BWinWMixed strategy = new BWinWMixed (this.currentBoard, Teams.WHITE); 
                 strategy.createTree();
+                this.currentCut = strategy.getCutReasons();
                 return strategy.getTree();
             case "Black wins":
                 BlackWins bTest = new BlackWins(this.currentBoard);
                 bTest.evaluateBlackWins();
+                this.currentCut = bTest.getCutReasons();
                 return bTest.getTree();
             case "Draw Int":   
                 DrawIntercept dTest = new DrawIntercept (this.currentBoard, Teams.WHITE); 
                 dTest.evaluateDrawIntercept();
+                this.currentCut = dTest.getCutReasons();
                 dTest.getTree().printTreeRelationsMoves();
                 return dTest.getTree();
-            case "Draw Prot":
+            case "Draw Pro":
                 DrawProtect pTest = new DrawProtect (this.currentBoard, Teams.WHITE); 
                 pTest.evaluateDrawProtect();
+                this.currentCut = pTest.getCutReasons();
                 return pTest.getTree();         
             case "Mixed Draw":
                 MixedDraw mTest = new MixedDraw (this.currentBoard, Teams.WHITE); 
                 mTest.evaluateMixedDraw();
+                this.currentCut = mTest.getCutReasons();
                 mTest.getTree();
             default:  
             case "White wins": 
                 WhiteWins test = new WhiteWins (this.currentBoard);
                 test.evaluateWhiteWins();
+                this.currentCut = test.getCutReasons();
                 return test.getTree();
         }
  

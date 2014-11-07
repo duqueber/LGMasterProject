@@ -19,7 +19,9 @@ import java.awt.TexturePaint;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import javax.swing.JPanel;
 import supportpackage.Coordinates;
@@ -41,7 +43,7 @@ public class PanelTree extends JPanel {
     private boolean RadioPressed = false;
     private TreeNode currentTreeNode = null;
     static int repaintCallsCounter = 0;
-
+    private Map<Coordinates, String> cutReasons = new HashMap<>(); 
     
     PanelTree (){
         super ();
@@ -53,12 +55,13 @@ public class PanelTree extends JPanel {
     }
     
             
-    void setTreeStartStack (Node<Moves> root){
+    void setTreeStartStack (Node<Moves> root, Map<Coordinates, String> cutReasons){
         PanelTree.repaintCallsCounter = 0;
         this.treeStack = new Stack <> ();     
     //treeNode (x, y, Line2D line1,Color color, String data)    
         int startAt = this.SIZE.width/2 - this.SQUARE/2;
         addChildrenTreeStack(root, new TreeNode (startAt, -40,0,0, Color.BLACK, "77"));
+        this.cutReasons = cutReasons;
     }
     
     
@@ -129,6 +132,7 @@ public class PanelTree extends JPanel {
         addChildrenTreeStack(m, this.currentTreeNode);
         
     }
+    
     @Override
     public void paintComponent(Graphics gComp) {
         if (this.RadioPressed){
@@ -144,7 +148,7 @@ public class PanelTree extends JPanel {
             if (this.currentTreeNode != null){    
 
                repaintCallsCounter++;
-                //g.fill3DRect(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE, true);
+            
                 g.setColor (this.currentTreeNode.color);
                 g.fillOval(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE);
 
@@ -166,7 +170,12 @@ public class PanelTree extends JPanel {
                 int xString = this.currentTreeNode.x + this.NODE_SIZE/2- fontSize/2-2; 
                 int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
                 g.drawString(this.currentTreeNode.data, xString , yString );
-
+                
+                Coordinates c= Coordinates.parseString(this.currentTreeNode.data);
+                for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
+                    if (e.getKey ().equals(c))
+                    System.out.println("String: " + e.getValue());
+                }  
             }    
         }    
     }      

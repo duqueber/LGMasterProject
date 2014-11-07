@@ -34,6 +34,7 @@ public abstract class Strategies {
     public static ArrayList<Integer>  sdBlackPro = new ArrayList<>();
     public boolean inAttackGW = false;
     public Teams team = null;
+    public Map<Coordinates, String> cutReason = new HashMap<>();
     
     public enum Teams {WHITE, BLACK};
     public enum Types {PROTECT, INTERCEPT};
@@ -119,6 +120,17 @@ public abstract class Strategies {
         sdBlackInt = new ArrayList<>();
         sdWhitePro = new ArrayList<>();
         sdBlackPro = new ArrayList<>();
+    }
+    
+    public final Map<Coordinates, String> getCutReasons (){
+        return this.cutReason;
+    }
+    public void printMap (){
+        System.out.println ("Map reasons");
+        for (Map.Entry<Coordinates, String> e : this.cutReason.entrySet()){
+            e.getKey().PrintCoor();
+            System.out.println("String: " + e.getValue());
+        }    
     }
     
     public static class MoveStruct {

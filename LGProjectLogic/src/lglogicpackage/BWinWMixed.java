@@ -179,7 +179,7 @@ public class BWinWMixed extends Strategies{
         Moves move = m.getData();
         if (move.getPiece().getTeam()== 2){
             if (this.board.hasPiece(move.getStep())){
-                this.cutReason.put(move.getStep(), "Enemy destroyed");
+                addToCutReason(move.getStep(), "Enemy destroyed");
                 return true;
             }    
         }
@@ -187,13 +187,13 @@ public class BWinWMixed extends Strategies{
             intercept = this.startGw.getBlackGatewaysIntercept();
             for (Coordinates i : intercept)
                 if (i.equals(move.getPiece().getCoordinates())){
-                    this.cutReason.put (move.getPiece().getCoordinates(), "On Intercept GW (+1)");
+                    addToCutReason(move.getPiece().getCoordinates(), "On Intercept GW (+1)");
                     return true;
                 }    
             protect = this.startGw.getWhiteGatewaysProtect();
             for (Coordinates i : protect){
                 if (i.equals(move.getStep())){
-                    this.cutReason.put (move.getStep(), "Arrived Protect GW");
+                    addToCutReason(move.getStep(), "Arrived Protect GW");
                     return true;
                 }    
             }

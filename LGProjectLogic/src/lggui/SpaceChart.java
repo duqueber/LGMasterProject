@@ -127,45 +127,7 @@ public class SpaceChart extends JPanel{
             g.fillOval(SIZE/4, SIZE- SIZE/4, 20,20);
     }
 
-/*           if (this.RadioPressed){
-            super.paintComponent(gComp);
-            setRadioPressed (false);
-        }
-        else{
-            
-            System.out.println ("repaint called");
-            if (this.treeStack.isEmpty())
-               System.out.println ("stack is empty");
 
-            if (this.currentTreeNode != null){    
-
-               repaintCallsCounter++;
-            
-                g.setColor (this.currentTreeNode.color);
-                g.fillOval(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE);
-
-
-                g.setColor (Color.BLACK);
-
-                if (repaintCallsCounter> 1){
-                    Line2D line = this.currentTreeNode.line1;
-                    g.setStroke(new BasicStroke(2));
-                    g.draw (line);
-                } 
-
-                if (this.currentTreeNode.color.equals (Color.WHITE))
-                    g.setColor (Color.BLACK);
-                else
-                    g.setColor (Color.WHITE);
-                int fontSize = 18;
-                g.setFont (new Font ("TimesRoman", Font.BOLD, fontSize));
-                int xString = this.currentTreeNode.x + this.NODE_SIZE/2- fontSize/2-2; 
-                int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
-                g.drawString(this.currentTreeNode.data, xString , yString );
-
-            }    
-        }    
-*/
     public static void main(String[] args) { 
         new SpaceChart (" ", " "); 
     }

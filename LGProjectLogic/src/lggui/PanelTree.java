@@ -14,6 +14,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.geom.Line2D;
@@ -171,10 +172,13 @@ public class PanelTree extends JPanel {
                 int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
                 g.drawString(this.currentTreeNode.data, xString , yString );
                 
+                int nodeMidX = this.getLocationOnScreen().x +this.currentTreeNode.x + this.NODE_SIZE/2;
+                int nodeY = this.getLocationOnScreen().y +this.currentTreeNode.y +this.NODE_SIZE;
+                
                 Coordinates c= Coordinates.parseString(this.currentTreeNode.data);
                 for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
                     if (e.getKey ().equals(c))
-                    System.out.println("String: " + e.getValue());
+                    new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
                 }  
             }    
         }    

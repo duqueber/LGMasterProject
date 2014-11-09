@@ -122,6 +122,16 @@ public abstract class Strategies {
         sdBlackPro = new ArrayList<>();
     }
     
+    public void addToCutReason (Coordinates c, String reason){
+        
+        boolean duplicate = false;
+        for (Map.Entry<Coordinates, String> e : this.cutReason.entrySet())
+            if (e.getKey ().equals(c))
+                duplicate = true;
+        if (!duplicate)
+            this.cutReason.put(c, reason);
+    }
+    
     public final Map<Coordinates, String> getCutReasons (){
         return this.cutReason;
     }

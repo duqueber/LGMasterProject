@@ -36,7 +36,7 @@ public class WhiteWins extends Strategies{
     public void evaluateWhiteWins (Node<Moves> m ){
         
         if (necessaryConditionNotMet()){
-           // m.delete();
+            addToCutReason (m.getData().getStep(), "No Common Location");
             return;
         }
         if (!m.isRoot())
@@ -44,10 +44,15 @@ public class WhiteWins extends Strategies{
             
         this.nextSteps = generateNextSteps (m);    
 
-        if (!this.nextSteps.isEmpty())
+        if (!this.nextSteps.isEmpty()){
             if (!necessaryConditionNotMet()||
                  this.WTactic instanceof KeepBothStates)
-                m.setChildren(this.nextSteps);                    
+                m.setChildren(this.nextSteps);   
+            else
+                if (necessaryConditionNotMet())
+                    addToCutReason (m.getData().getStep(), "No Common Location");
+         }        
+                
 
         for (Node<Moves> step: this.nextSteps)       
             evaluateWhiteWins(step);

@@ -65,8 +65,8 @@ public class BWinWMixed extends Strategies{
     private ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){
   
         
-        MixedDraw WTactic;
-        BlackWins BTactic;
+        MixedDraw WStrategy;
+        BlackWins BStrategy;
         ArrayList<Coordinates> intercept= new ArrayList<>();
         ArrayList<Coordinates> protect= new ArrayList<> ();
         ArrayList<Node<Moves>> temp;
@@ -97,9 +97,9 @@ public class BWinWMixed extends Strategies{
                 return stepsGW(inAttackGW, inProtectGW, Strategies.Teams.BLACK);
         */
         if (m.getData().getPiece().getTeam() == 2 || m.isRoot() ){
-            WTactic = new MixedDraw (this.board, Teams.WHITE);// choose intercept or protect.
+            WStrategy = new MixedDraw (this.board, Teams.WHITE);// choose intercept or protect.
             //both will return a mixed strategy if it exists.
-            temp =WTactic.generateNextSteps(m);
+            temp =WStrategy.generateNextSteps(m);
             if (!temp.isEmpty()) // a mixed strategy does not exist.
                 return temp;
             else
@@ -107,8 +107,8 @@ public class BWinWMixed extends Strategies{
         }
         
         else {
-            BTactic = new BlackWins (this.board, inAttackGW, Teams.BLACK);            
-            temp = BTactic.generateNextSteps(m);
+            BStrategy = new BlackWins (this.board, inAttackGW, Teams.BLACK);            
+            temp = BStrategy.generateNextSteps(m);
             if (!temp.isEmpty())
                 return temp;
             else

@@ -40,7 +40,7 @@ public class GUIFrame extends JFrame {
         panelRight.setLayout(new BorderLayout());
         
         PanelButtons panelButtons = new PanelButtons (bs);
-        panelRight.add (panelButtons.getPanelButtons(), BorderLayout.SOUTH);
+        panelRight.add (panelButtons.getPanelButtons(), BorderLayout.CENTER);
         
         JPanel panelTree = panelButtons.getPanelTree();
         panelRight.add (panelTree, BorderLayout.NORTH);
@@ -48,6 +48,8 @@ public class GUIFrame extends JFrame {
       
 
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        this.setState(this.ICONIFIED);
+        this.setExtendedState(MAXIMIZED_BOTH);
         pack();
         setResizable(false); 
         setVisible(true);

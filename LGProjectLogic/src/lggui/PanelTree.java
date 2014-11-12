@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.vecmath.Color3f;
 import supportpackage.Coordinates;
 import supportpackage.Moves;
 import supportpackage.Node;
@@ -45,13 +47,18 @@ public class PanelTree extends JPanel {
     private TreeNode currentTreeNode = null;
     static int repaintCallsCounter = 0;
     private Map<Coordinates, String> cutReasons = new HashMap<>(); 
+    public static CutReason currentReason;
+    private boolean changingBranch;
     
     PanelTree (){
         super ();
-        Dimension d = new Dimension (GUIFrame.PWIDTH- GUIFrame.BHEIGHT, 3*(GUIFrame.PHEIGHT/4));
+        Dimension d = new Dimension (GUIFrame.PWIDTH- GUIFrame.BHEIGHT, (GUIFrame.PHEIGHT-120));
         this.setPreferredSize(d);
         this.SIZE = this.getPreferredSize();
         this.SQUARE =  this.SIZE.width/14;
+        setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10,
+                BoardScene.backgroundColor));
+        this.changingBranch = false;
         repaintCallsCounter = 0;
     }
     
@@ -127,6 +134,13 @@ public class PanelTree extends JPanel {
 
     }
 
+    public void changeBranch (){
+        this.changingBranch = true;
+        this.currentTreeNode =  this.treeStack.pop();
+        repaint();
+        this.treeStack.add (this.currentTreeNode);
+        
+    }
     public void callRepaint (Node<Moves> m){
         this.currentTreeNode = this.treeStack.pop();
         repaint();     
@@ -136,52 +150,68 @@ public class PanelTree extends JPanel {
     
     @Override
     public void paintComponent(Graphics gComp) {
+      
+        Graphics2D g = (Graphics2D) gComp;
         if (this.RadioPressed){
-            super.paintComponent(gComp);
-            setRadioPressed (false);
+                super.paintComponent(gComp);
+                setRadioPressed (false);
         }
         else{
-            Graphics2D g = (Graphics2D) gComp;
-            System.out.println ("repaint called");
-            if (this.treeStack.isEmpty())
-               System.out.println ("stack is empty");
+            if (!this.changingBranch){  
 
-            if (this.currentTreeNode != null){    
+                System.out.println ("repaint called");
+                if (this.treeStack.isEmpty())
+                   System.out.println ("stack is empty");
 
-               repaintCallsCounter++;
-            
-                g.setColor (this.currentTreeNode.color);
-                g.fillOval(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE);
+                if (this.currentTreeNode != null){    
 
+                   repaintCallsCounter++;
 
-                g.setColor (Color.BLACK);
+                    g.setColor (this.currentTreeNode.color);
+                    g.fillOval(this.currentTreeNode.x, this.currentTreeNode.y, this.NODE_SIZE, this.NODE_SIZE);
 
-                if (repaintCallsCounter> 1){
-                    Line2D line = this.currentTreeNode.line1;
-                    g.setStroke(new BasicStroke(2));
-                    g.draw (line);
-                } 
-
-                if (this.currentTreeNode.color.equals (Color.WHITE))
                     g.setColor (Color.BLACK);
-                else
-                    g.setColor (Color.WHITE);
-                int fontSize = 18;
-                g.setFont (new Font ("TimesRoman", Font.BOLD, fontSize));
-                int xString = this.currentTreeNode.x + this.NODE_SIZE/2- fontSize/2-2; 
-                int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
-                g.drawString(this.currentTreeNode.data, xString , yString );
-                
-                int nodeMidX = this.getLocationOnScreen().x +this.currentTreeNode.x + this.NODE_SIZE/2;
-                int nodeY = this.getLocationOnScreen().y +this.currentTreeNode.y +this.NODE_SIZE;
-                
-                Coordinates c= Coordinates.parseString(this.currentTreeNode.data);
-                for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
-                    if (e.getKey ().equals(c))
-                    new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
-                }  
-            }    
+
+                    if (repaintCallsCounter> 1){
+                        Line2D line = this.currentTreeNode.line1;
+                        g.setStroke(new BasicStroke(2));
+                        g.draw (line);
+                    } 
+
+                    if (this.currentTreeNode.color.equals (Color.WHITE))
+                        g.setColor (Color.BLACK);
+                    else
+                        g.setColor (Color.WHITE);
+                    int fontSize = 18;
+                    g.setFont (new Font ("TimesRoman", Font.BOLD, fontSize));
+                    int xString = this.currentTreeNode.x + this.NODE_SIZE/2- fontSize/2-2; 
+                    int yString = this.currentTreeNode.y+this.NODE_SIZE/2+ fontSize/2;
+
+                    Coordinates c = Coordinates.parseString(this.currentTreeNode.data);
+
+                    g.drawString(Coordinates.convertToChess(this.currentTreeNode.data), xString , yString );
+
+                    int nodeMidX = this.getLocationOnScreen().x +this.currentTreeNode.x + this.NODE_SIZE/2;
+                    int nodeY = this.getLocationOnScreen().y +this.currentTreeNode.y +this.NODE_SIZE;
+
+                    if (!this.cutReasons.isEmpty()){
+                        for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
+                            if (e.getKey ().equals(c))
+                            currentReason = new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
+                        }  
+                    }    
+                }    
+            }   
+            else {
+                System.out.println (this.changingBranch);
+                g.setColor (Color.ORANGE);
+                g.setStroke(new BasicStroke(5));
+                g.drawOval(this.currentTreeNode.xdad-3, this.currentTreeNode.ydad-3, 
+                this.NODE_SIZE+6, this.NODE_SIZE+6); 
+                this.changingBranch = false;                        
+            }
         }    
+              
     }      
     
     public void setRadioPressed (boolean b){
@@ -189,63 +219,23 @@ public class PanelTree extends JPanel {
     }    
     class TreeNode {
         
-        int x, y;
+        int x, y, xdad, ydad;
         Line2D line1;
         Color color;
         String data;
         
         TreeNode (int x, int y, int xdad, int ydad, Color color, String data){
+            this.xdad = xdad;
+            this.ydad = ydad;
             this.x = x;
             this.y = y;
             double halfNode = PanelTree.NODE_SIZE/2;
             this.line1 = new Line2D.Double (xdad+ halfNode, ydad+ PanelTree.NODE_SIZE, x+halfNode, y);
             this.color = color;
             this.data = data;
+
         }
         
     }    
-    /*public void doDrawing() {
-
-        g2d.setPaint (new Paint ())
-        g2d.fillOval (this.SIZE.width/2, this.SQUARE, 1, 1 );
-        loadImages(); 
-        image = new BufferedImage(size+40,size+40, BufferedImage.TYPE_INT_ARGB);
-        g2d = (Graphics2D)image.getGraphics();
-        darktp = new TexturePaint(dark, new Rectangle(0, 0, squaresize, squaresize));
-        lighttp = new TexturePaint(light, new Rectangle(0, 0, squaresize, squaresize));
-
-        for (int y = 0; y< squaresheight; y++)        
-        {
-            for (int x = y%2; x< squareswidth ; x+=2) {
-                if (y%2==0){
-                    g2d.setPaint(darktp);
-                    g2d.fillRect(squaresize*x+borderGap, 
-                            squaresize*y+borderGap, squaresize, squaresize);  
-                }
-                else{
-                    g2d.setPaint(darktp);
-                    g2d.fillRect((squaresize*x+borderGap),
-                            squaresize*y+borderGap, squaresize, squaresize);                    
-                } 
-            }    
-        }  
-
-        for (int y = 0; y< squaresheight; y++)        
-        {
-            for (int x = (y+1)%2; x< squareswidth ; x+=2) {
-                if (y%2==1){
-                    g2d.setPaint(lighttp);
-                    g2d.fillRect(squaresize*x+borderGap, 
-                            squaresize*y+borderGap, squaresize, squaresize);  
-                }          
-                else{
-                    g2d.setPaint(lighttp);
-                    g2d.fillRect((squaresize*x)+borderGap,
-                             squaresize*y+borderGap, squaresize, squaresize);                     
-                } 
-            }    
-        }  
-
-    }//End of doDrawing()*/
     
 }

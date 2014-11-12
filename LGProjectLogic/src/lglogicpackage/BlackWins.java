@@ -40,8 +40,10 @@ public class BlackWins extends Strategies {
     
     private void evaluateBlackWins (Node<Moves> m ){
         
-        if (necessaryConditionMet () || necessaryConditionNotMet())
+        if (necessaryConditionMet () || necessaryConditionNotMet()){
+            addToCutReason (m.getData().getStep(), "Zone shrinks");
             return;
+        }    
         
         if (!m.isRoot())
             makeStrategyMove (m.getData());

@@ -48,10 +48,10 @@ public class CheckerFloor
           createCoords(x, z, greenCoords);
         isBlue = !isBlue;
       }
-    
+    //darkWood4.jpglightWood3.JPG"
     }
-    floorBG.addChild( new ColouredTiles(blueCoords, "chess/darkWood4.jpg") );
-    floorBG.addChild( new ColouredTiles(greenCoords, "chess/lightWood3.JPG") );
+    floorBG.addChild( new ColouredTiles(blueCoords, "cementdark3.jpeg") );
+    floorBG.addChild( new ColouredTiles(greenCoords, "cementlight3.jpeg") );
 
     //addOriginMarker();
     labelAxes();

@@ -128,7 +128,9 @@ public class Gateways {
                     c= stFirstStep.get(index).getData();
                     if (!IsInArray ( array, c))
                         array.add(c);
-                    if (i+1 >distTemp)
+                    if (i+1 >distTemp)// for protect gateways the preferred GWs
+                        //can reach a point in the main trajectory in less than
+                        //the time allowed to reach it. 
                             if (!IsInArray (this.preferredGateways, c))
                                 this.preferredGateways.add(c);
                     if (sd == 0 || sd> stFirstStep.size() - 1 - distTemp )

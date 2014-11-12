@@ -252,6 +252,8 @@ public class Board2D {
         bTest.evaluateBlackWins();
         System.out.println ("Black wins");
         bTest.getTree().printTreeRelationsMoves();
+        
+        
         /*
         Strategies.restartSd ();
         DrawIntercept dTest = new DrawIntercept (start, Teams.WHITE); 

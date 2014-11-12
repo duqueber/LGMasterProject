@@ -22,12 +22,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 import javax.vecmath.Color3f;
 import javax.vecmath.Vector3d;
 import lglogicpackage.BWinWMixed;
@@ -76,6 +78,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     private PanelTree pTree;
     private String choice = null;
     private Map<Coordinates, String> currentCut = new HashMap <>();
+    private JRadioButton blackWins = new JRadioButton();
     
     PanelButtons (BoardScene scene){
         super();
@@ -87,6 +90,10 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.currentBoard = new Board2D (this.startBoard);
         this.steptoDraw = new Stack<> ();
         this.pTree = new PanelTree ();
+        Border empty = BorderFactory.createEmptyBorder(8, 8, 8, 8);
+        Border line = BorderFactory.createMatteBorder(0, 10, 10, 10,
+                BoardScene.backgroundColor);
+        this.setBorder(BorderFactory.createCompoundBorder(line, empty));
         
 
     }
@@ -107,34 +114,36 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     void createPanelButtons (){
         
         GridLayout layout = new GridLayout(0, 3, 2, 2);
+        layout.setHgap(5);
+        layout.setVgap(5);
         this.setLayout(layout);
         
         JRadioButton whiteWins = new JRadioButton(WHITE);
         this.add(whiteWins);
         
-        JRadioButton blackWins = new JRadioButton (BLACK);
+        this.blackWins = new JRadioButton (BLACK);
         this.add(blackWins);
-        
-        this.next = new JButton("Next");
-        this.add(this.next);
+
+        this.detailI = new JCheckBox ("Show Zones");
+        this.add (this.detailI);
         
         JRadioButton drawIntercept = new JRadioButton(DRAWI);
         this.add(drawIntercept);
         
         JRadioButton drawProtect = new JRadioButton (DRAWP);
         this.add(drawProtect);
-        
-        this.detailI = new JCheckBox ("Show Zones");
-        this.add (this.detailI);
-        
+
+        this.chart = new JButton ("Space Chart");
+        this.add(this.chart);
+              
         JRadioButton mixedDraw = new JRadioButton (DRAWM);
         this.add(mixedDraw);
         
         JRadioButton solution = new JRadioButton (SOL);
         this.add(solution);
-        
-        this.chart = new JButton ("Show Space Chart");
-        this.add(this.chart);
+                   
+        this.next = new JButton("Next");
+        this.add(this.next);
         
         whiteWins.addActionListener(this);
         blackWins.addActionListener(this);
@@ -168,8 +177,10 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
         if(e.getSource() == this.next)
             try {
+                    
                     NextButtonActionPerformed ();
         } catch (IOException ex) {
             Logger.getLogger(PanelButtons.class.getName()).log(Level.SEVERE, null, ex);
@@ -185,6 +196,8 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     
     private void NextButtonActionPerformed () throws IOException{
         
+        if (PanelTree.currentReason != null)
+            CutReason.closeCurrentReason ();
         this.detailI.setSelected(false);
         if(!timer.isRunning()){
             timer.start();
@@ -208,18 +221,18 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
             
-            new DisplayBranchMsg (this.choice, doMoveNode.getData().getBoard());
-            this.scene.calculateGateways (doMoveNode.getData().getBoard());
+            this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
+            this.scene.calculateGateways (this.currentBoard);
             if (!oldBBomber.getCoordinates().equals(newBBomber.getCoordinates()))
                 SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
              
             if (!oldBFighter.getCoordinates().equals(newBFighter.getCoordinates()))
                 SetGwInBoard (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
-            
-            this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
+     
             setPiecesToCurrent ("nothing");
             this.steptoDraw.add (doMoveNode);
-           
+            if (!this.blackWins.isSelected())
+                this.pTree.changeBranch();
             return;
         }
         BoardObjects destroyed = null;
@@ -269,13 +282,11 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
    
         } 
 
-        if ((namePiece.equals ("W-Fighter") && !isOnGw (doMove.getStep(), 
-                Gateways.Types.INTERCEPT))|| namePiece.equals ("B-Bomber")){
+        if (namePiece.equals ("W-Fighter") || namePiece.equals ("B-Bomber")){
             this.scene.calculateGateways(this.currentBoard);
             SetGwInBoard(this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);      
         }
-         if ((namePiece.equals ("W-Fighter") && !isOnGw (doMove.getStep(), 
-                Gateways.Types.PROTECT))||  (namePiece.equals ("B-Fighter"))) {
+         if (namePiece.equals ("W-Fighter") || namePiece.equals ("B-Fighter")) {
             //this.scene.calculateGateways(this.currentBoard); 
             SetGwInBoard(this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT); 
             //removeAddNoTransformsGwPositions(this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
@@ -304,10 +315,22 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     }
     
     private void SetGwInBoard (ArrayList<Coordinates> to, BoardObjects[] from, Gateways.Types type){
+       
+        Coordinates fCoor = this.currentBoard.getPieceFromName("W-Fighter").getCoordinates();
+        if (Gateways.Types.PROTECT.equals(type) && isOnGw(fCoor, Gateways.Types.PROTECT)){
+            to= new ArrayList <>();
+            to.add (fCoor);
+        }    
+        else{
+            if (Gateways.Types.INTERCEPT.equals(type) && isOnGw(fCoor, Gateways.Types.INTERCEPT)){
+            to= new ArrayList <>();
+            to.add (fCoor);
+            }
+        }          
         
         Vector3d locGw = new Vector3d();
         int index;
-        int [] track = new int[]{99,99,99,99};
+        int [] track = new int[]{99,99,99,99,99};
 
         for (Coordinates c: to){
             if (Gateways.Types.PROTECT.equals(type)){
@@ -320,7 +343,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
                 from[index].t3d.get(locGw);
                 from[index].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d (c.x, locGw.y,c.y)));
                 from[index].tg.setTransform(from[index].t3d);
-                track[index-4] = 1;
+                track[index-3] = 1;
                 
             }               
             else{
@@ -330,13 +353,13 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         
         for (int i = 0; i < track.length; i++)
             if (track[i] == 99)
-               setGwToDefault (from[i+4]);
+               setGwToDefault (from[i+3]);
     }
     
     private void removeAddNoTransformsGwPositions (ArrayList<Coordinates> to, BoardObjects[] check, Gateways.Types type){
         
         int coor;
-        for (int i=4; i< check.length; i++){
+        for (int i=3; i< check.length; i++){
             for (Coordinates c: to){
                 if (Gateways.Types.PROTECT.equals(type))
                     coor = c.y; 
@@ -356,7 +379,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         Vector3d locGw = new Vector3d();
         float changex, changez;
         int index;
-        int [] track = new int[]{99,99,99,99};
+        int [] track = new int[]{99,99,99,99,99};
 
         for (Coordinates c: to){
             if (Gateways.Types.PROTECT.equals(type)){
@@ -374,7 +397,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
                 from[index].t3d.setTranslation(new Vector3d (locGw.x+changex,
                         locGw.y, locGw.z+changez));
                 from[index].tg.setTransform(from[index].t3d);
-                track[index-4] = 1;
+                track[index-3] = 1;
                 
             }               
             else{
@@ -384,7 +407,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         
         for (int i = 0; i < track.length; i++)
             if (track[i] == 99)
-               setGwToDefault (from[i+4]);
+               setGwToDefault (from[i+3]);
   
     }
     

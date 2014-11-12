@@ -34,7 +34,7 @@ public class MixedDraw extends Strategies {
     public void evaluateMixedDraw(Node<Moves> m ){
         
         if (necessaryConditionMet () || necessaryConditionNotMet()){
-           // m.delete();
+            addToCutReason (m.getData().getStep(), "Sum sd decreased, no common");
             return;
         }
         if (!m.isRoot())
@@ -42,10 +42,14 @@ public class MixedDraw extends Strategies {
             
         this.nextSteps = generateNextSteps (m);    
 
-        if (!this.nextSteps.isEmpty())
+        if (!this.nextSteps.isEmpty()){
             if (!necessaryConditionMet () && !necessaryConditionNotMet()||
                  this.WTactic instanceof KeepBothStates)
-                m.setChildren(this.nextSteps);                    
+                m.setChildren(this.nextSteps);   
+            else 
+                if (necessaryConditionMet () || necessaryConditionNotMet())
+                    addToCutReason (m.getData().getStep(), "Sum sd decreased, no common");
+        }    
 
         for (Node<Moves> step: this.nextSteps)       
             evaluateMixedDraw(step);

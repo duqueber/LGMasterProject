@@ -16,8 +16,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import supportpackage.Coordinates;
 
 /**
@@ -27,25 +29,46 @@ import supportpackage.Coordinates;
 public class CutReason extends JPanel{
     
     private final int HEIGHTREC = 30;
-    private final int WIDTHREC = 200;
+    private int WIDTHREC;
     private String reason;
+    private JFrame chart;
+    private Font font;
     
     public CutReason (String reason, Point point){
         
         super ();
+
         this.reason = reason;
-        JFrame chart = new JFrame ("END OF BRANCH");        
+        this.chart = new JFrame ();        
         Container c = chart.getContentPane();
         c.setLayout( new BorderLayout() );
-        chart.add(this, BorderLayout.CENTER);
-        setPreferredSize (new Dimension (WIDTHREC,HEIGHTREC));
+        this.chart.add(this, BorderLayout.CENTER);
+        
+        int fontSize = 14;
+        this.font = new Font ("TimesRoman", Font.BOLD, fontSize);
+        
+        this.WIDTHREC = (this.reason.toCharArray().length+5)*9; 
+
+        setPreferredSize (new Dimension (this.WIDTHREC, this.HEIGHTREC));
+        
         this.setBackground(Color.WHITE);
-        chart.setDefaultCloseOperation( JFrame.HIDE_ON_CLOSE );
-        chart.pack();
-        chart.setLocation(new Point (point.x-WIDTHREC/2, point.y ) ); 
-        chart.setResizable(false); 
-        chart.setVisible(true);
+        this.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4,
+                BoardScene.backgroundColor));
+        this.chart.setUndecorated(true);
+        this.chart.pack();
+        this.chart.setLocation(new Point (point.x-WIDTHREC/2, point.y ) ); 
+        this.chart.setResizable(false); 
+        this.chart.setVisible(true);
+        
     }    
+    
+    public static void closeCurrentReason (){
+        JFrame j= new JFrame ();
+        if (PanelTree.currentReason.isDisplayable()){
+            j =(JFrame) SwingUtilities.getWindowAncestor(PanelTree.currentReason);
+            j.setVisible(false);
+        }            
+    }
     
     @Override
     public void paintComponent(Graphics gComp) {
@@ -55,14 +78,10 @@ public class CutReason extends JPanel{
         
         g.setColor (Color.BLACK);
         
-        int fontSize = 12;
-        Font font = new Font ("TimesRoman", Font.BOLD, fontSize);
-        g.setFont (font);
-        FontMetrics myFontMetrics = g.getFontMetrics();
-        
-        int reasonL = myFontMetrics.stringWidth(this.reason); 
-        int startX = (this.WIDTHREC - reasonL)/2;
-        int startY = (this.HEIGHTREC )/2;
+        g.setFont (this.font);
+        FontMetrics fm = g.getFontMetrics();
+        int startX = (this.WIDTHREC - fm.stringWidth(this.reason))/2 ;
+        int startY = (this.HEIGHTREC )/2+5;
         g.drawString(this.reason,startX , startY );
         
     }    

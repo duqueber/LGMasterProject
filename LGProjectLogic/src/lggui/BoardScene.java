@@ -6,6 +6,7 @@ import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
 import com.sun.j3d.utils.behaviors.vp.*;
 import com.sun.j3d.utils.geometry.ColorCube;
+import com.sun.j3d.utils.geometry.Cone;
 import com.sun.j3d.utils.image.TextureLoader;
 import com.sun.j3d.utils.universe.*;
 import java.awt.*;
@@ -27,6 +28,7 @@ import lglogicpackage.PiecesLogic;
 import lglogicpackage.Strategies;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
+import supportpackage.Triangle3D;
 
 
 public class BoardScene extends JPanel{
@@ -62,19 +64,22 @@ public class BoardScene extends JPanel{
     ArrayList <Coordinates> gwProt = new ArrayList<> ();
     private Zones mainBlack = null;
     private Zones mainWhite = null;
-    static final Vector3d defaultV = new Vector3d (10, 0, 10);
+    static final Vector3d defaultV = new Vector3d (20, 0, 20);
     static final Color3f defaultColor = new Color3f (Color.GRAY);
+   
+    private String [] coorXText, coorYText;
     private double gwScale = 0.0;
     private  ArrayList<ArrayList<supportpackage.Node<Coordinates>>> GWZoneInt = new ArrayList<> ();
     private  ArrayList<ArrayList<supportpackage.Node<Coordinates>>> GWZoneProt= new ArrayList<> ();
+    static Color3f backgroundColor3f = new Color3f(0.0f, 0.136f, 0.153f);
+    static Color backgroundColor = new Color(0.0f, 0.136f, 0.153f);
+    private boolean isRoot;
     
     public BoardScene(Board2D board) throws IOException  {
     
         this.board = board;
-       // timer = new Timer(100, this);
         setLayout( new BorderLayout() );
         setOpaque( false );
-        //setPreferredSize( new Dimension(PWIDTH, PHEIGHT));
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         Canvas3D canvas3D = new Canvas3D(config);
@@ -92,7 +97,7 @@ public class BoardScene extends JPanel{
         this.sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
         this.sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
         this.sceneBG.setCapability(BranchGroup.ALLOW_DETACH);
-        
+        this.isRoot = false;
         createSceneGraph();
         initUserPosition();        // set user's viewpoint
         orbitControls(canvas3D);   // controls for moving the viewpoint
@@ -106,10 +111,42 @@ public class BoardScene extends JPanel{
         bounds = new BoundingSphere(new Point3d(0,0,0), BOUNDSIZE);
         lightScene();         // add the lights
         addBackground();      // add the sky
-        sceneBG.addChild( new CheckerFloor().getBG() );   
+    
+        addLabels();
+        this.sceneBG.addChild( new CheckerFloor().getBG() );   
         prepareModels (this.board);
     } // end of createSceneGraph()
 
+    void addCone (Vector3d point, Color3f color){
+        
+        Appearance ap = new Appearance();
+        Material ma = new Material();
+        double rot =0.0;
+        if (color.equals(new Color3f (Color.WHITE))){  
+            ma.setDiffuseColor(1.0f, 1.0f, 1.0f);
+            rot= Math.PI/2;
+        }    
+        else {
+            ma.setDiffuseColor(0.0f, 0.0f, 0.0f);
+            rot= -Math.PI/2;
+        }    
+        ap.setMaterial(ma);
+
+        Cone cone = new Cone( 0.12f, 0.25f, Cone.GENERATE_NORMALS, 50, 1, ap);
+        Transform3D t3d = new Transform3D();
+        t3d.setTranslation(new Vector3d (point.x, 0.2, point.z));
+
+        Transform3D t3dx = new Transform3D();
+        t3dx.rotX(rot);
+
+        t3d.mul(t3dx);
+
+        TransformGroup objTrans = new TransformGroup(t3d);
+        this.bg2.addChild(objTrans);
+
+        objTrans.addChild(cone);
+
+    }
     public void prepareModels (Board2D board){
         
         Coordinates wf = board.getPieceFromName("W-Fighter").getCoordinates();
@@ -143,6 +180,18 @@ public class BoardScene extends JPanel{
                 BLACK, "obj");
         loadModel (blackBomber);
         
+        this.blackTarget = new BoardObjects ("chess/BlackPieces/Tower Low.obj" , 
+                Coordinates.convertToGraph(new Vector3d(bt.x, this.y,bt.y )),
+                0.0, Math.PI/4, 0.0, 4.0, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (this.blackTarget);   
+        
+        this.whiteTarget = new BoardObjects ("chess/WhitePieces/Tower Low.obj" , 
+                Coordinates.convertToGraph(new Vector3d(wt.x, this.y,wt.y )),
+                0.0, Math.PI/4, 0.0, 4.0, new Transform3D (), new TransformGroup(), 
+                BLACK, "obj");
+        loadModel (this.whiteTarget);            
+        
         calculateGateways(board);
         loadGateways ();
 
@@ -165,7 +214,7 @@ public class BoardScene extends JPanel{
             loadModel (blackGW);
         }
         BoardObjects defaultGw = null; 
-        for (int i = 3; i < this.gwPiecesPro.length; i++){
+        for (int i = 3; i < this.gwPiecesPro.length-3; i++){
             if (this.gwPiecesPro[i] == null){
                 defaultGw = new BoardObjects ("chess/WhitePieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
@@ -175,7 +224,7 @@ public class BoardScene extends JPanel{
             }   
         }
         
-        for (int i = 3; i < this.gwPiecesInt.length; i++){
+        for (int i = 3; i < this.gwPiecesInt.length-3; i++){
             if (this.gwPiecesInt[i] == null){
                 defaultGw = new BoardObjects ("chess/BlackPieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
@@ -210,60 +259,31 @@ public class BoardScene extends JPanel{
         if (this.mainWhite != null)
             addZones (this.mainWhite);    
         
-        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneProt)
-                    drawShortestPath(trajToGW, WHITE);
+        Coordinates coor = board.getPieceFromName("W-Fighter").getCoordinates();
+        Coordinates inProtGw = null;
+        Coordinates inIntGw = null;
+        for (Coordinates c: this.gwProt){
+            if (coor.equals(c))
+                inProtGw= coor;
+        }
+        for (Coordinates c: this.gwInt){
+            if (coor.equals(c))
+                inIntGw= coor;
+        }
         
+        if (inProtGw == null){
+            for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneProt)
+                for (Coordinates c: this.gwProt)
+                    drawShortestPath(trajToGW, WHITE);
+        }            
+        
+        if (inIntGw == null){
         for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneInt)
-                    drawShortestPath(trajToGW,BLACK);
+            for (Coordinates c: this.gwInt)
+                        drawShortestPath(trajToGW,BLACK);
+        }
         this.sceneBG.addChild(this.bg2);
-        
-        /*ArrayList <Tree <Zones.Trajectory>> w= mainWhite.getZonesTree();
-        ArrayList <Tree <Zones.Trajectory>> b= mainBlack.getZonesTree();
-        
-        
-        Gateways g = new Gateways (this.board, b.get(0), w.get(0), null);
-      
-        ArrayList <Coordinates> bGatewaysP =g.getBlackGatewaysProtect();
-        ArrayList <Coordinates> wGatewaysP =g.getWhiteGatewaysProtect();
-        ArrayList <Coordinates> bGatewaysI =g.getBlackGatewaysIntercept();
-        ArrayList <Coordinates> wGatewaysI =g.getWhiteGatewaysIntercept();
-        
-        System.out.println("black coordinates P");
-        for (Coordinates bG : bGatewaysP){
-            bG.PrintCoor();
-        }
-        
-        System.out.println("white coordinates P");
-           for (Coordinates wG : wGatewaysP){
-            wG.PrintCoor();
-        }
-           
-        System.out.println("black coordinates I");
-            for (Coordinates bG : bGatewaysI){
-            bG.PrintCoor();
-        }
-        
-        System.out.println("white coordinates I");
-           for (Coordinates wG : wGatewaysI){
-            wG.PrintCoor();
-        }
-        
 
-        ArrayList<ArrayList<supportpackage.Node<Coordinates>>> pathsToGW;
-        pathsToGW = g.generateGatewaysZones(Gateways.Teams.WHITE, Gateways.Types.PROTECT);
-
-        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: pathsToGW){
-                    drawShortestPath(trajToGW, WHITE);
-        }
-        
-        
-        ArrayList<ArrayList<supportpackage.Node<Coordinates>>> pathsToGWII;
-        pathsToGW = g.generateGatewaysZones(Gateways.Teams.BLACK, Gateways.Types.INTERCEPT);
-
-        for (ArrayList<supportpackage.Node<Coordinates>> trajToGWII: pathsToGW){
-                    drawShortestPath(trajToGWII, WHITE);
-        }
-        */
      }//end of testfunction
     
     public void calculateZones (Board2D board){
@@ -378,7 +398,7 @@ public class BoardScene extends JPanel{
           // A blue sky
         Background back = new Background();
         back.setApplicationBounds( bounds );
-        back.setColor(0.119f, 0.136f, 0.153f); //(119,136,153)   // sky colour
+        back.setColor(this.backgroundColor3f); //(119,136,153)   // sky colour
         sceneBG.addChild( back );
     }  // end of addBackground()
 
@@ -527,8 +547,12 @@ public class BoardScene extends JPanel{
             ArrayList<supportpackage.Node<Zones.Trajectory>> t;
             t = zone.getNodes();
             
-            for (supportpackage.Node<Zones.Trajectory> node : t)
+            for (supportpackage.Node<Zones.Trajectory> node : t){
+                if (node.isRoot())
+                    this.isRoot = true;
                 drawTrajectory (node.getData());
+                this.isRoot = false;
+            }    
         }        
     }
     
@@ -558,26 +582,29 @@ public class BoardScene extends JPanel{
     
     private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
     
+        if (c.equals(Color.BLACK))
+            c= new Color3f(Color.LIGHT_GRAY);
+        
         Vector3d vecA =Coordinates.convertToGraph(new Vector3d (pointa.x, 1, pointa.y));
         Vector3d vecB =Coordinates.convertToGraph(new Vector3d (pointb.x, 1, pointb.y));
         Point3f[] pts = new Point3f [2];
         pts[0] = new Point3f ((float)vecA.x, (float)vecA.y/5, (float)vecA.z);
         pts[1]=new Point3f ((float)vecB.x, (float)vecB.y/5, (float)vecB.z);
      
-        
+        if (this.isRoot)
+            addCone (vecB, c);
+
         PointArray pointArray = new PointArray(pts.length, GeometryArray.COORDINATES );
         pointArray.setCoordinates (0, pts);
         Appearance pointAp = new Appearance ();
         PointAttributes pointAt = new PointAttributes (8, true);
         pointAp.setPointAttributes(pointAt);
-        pointAp.setColoringAttributes (new ColoringAttributes (new Color3f(Color.BLACK), ColoringAttributes.NICEST));
-        
+        pointAp.setColoringAttributes (new ColoringAttributes (c, ColoringAttributes.SHADE_FLAT));        
         Shape3D dot = new Shape3D (pointArray, pointAp);
         this.bg2.addChild (dot);
-        
-        Appearance app = new Appearance();
-        ColoringAttributes ca = new ColoringAttributes(c,ColoringAttributes.NICEST);
-        app.setColoringAttributes(ca);
+
+
+        ColoringAttributes ca = new ColoringAttributes(c,ColoringAttributes.SHADE_FLAT);
 
         LineArray lineArr=new LineArray(2,LineArray.COORDINATES);
 
@@ -585,53 +612,60 @@ public class BoardScene extends JPanel{
 
         LineAttributes lineAt =new LineAttributes();
         lineAt.setLineWidth(3.0f);
-        //lineAt.setLinePattern(LineAttributes.ALLOW_PATTERN_WRITE | LineAttributes.PATTERN_SOLID);
+       //lineAt.setLinePattern(LineAttributes.ALLOW_PATTERN_WRITE | LineAttributes.PATTERN_SOLID);
         Appearance dotApp = new Appearance();
         dotApp.setLineAttributes(lineAt);
         dotApp.setColoringAttributes(ca);
+        
         Shape3D dotShape = new Shape3D(lineArr, dotApp);
         this.bg2.addChild(dotShape);
 
         
     }
-/*
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == button)
-        {
-            if(!timer.isRunning())
-            {
-                timer.start();
-                System.out.println ("hello");
-        }      
-        //if the action event's source is not from the button press,
-        //it is a timer tick
-        else
-        {
-           /* Transform3D t3dstep = new Transform3D();
-            Matrix4d matrix = new Matrix4d();
-            t3dstep.rotZ(-Math.PI / 256);
-            whiteTarget.tg.getTransform(whiteTarget.t3d);
-            whiteTarget.t3d.get(matrix);
-            whiteTarget.t3d.setTranslation(new Vector3d(0.0, 0.0, 0.0));
-            whiteTarget.t3d.mul(t3dstep);
-            whiteTarget.t3d.setTranslation(new Vector3d(matrix.m03, matrix.m13, matrix.m23));
-            whiteTarget.tg.setTransform(whiteTarget.t3d);
-            
-            Vector3d loc = new Vector3d();
-            whiteFighter.t3d.get(loc);
-
-            Vector3d newLoc = new Vector3d (loc.x+.1f, loc.y , loc.z-.1f );
-            Vector3d stop = Coordinates.convertToGraph(new Vector3d (6, 0, 6));
-            
-            if (loc.x< stop.x && loc.z>stop.z){  
-                whiteFighter.t3d.setTranslation(newLoc);
-                whiteFighter.tg.setTransform(whiteFighter.t3d);
-            } 
-
-           
+    
+    private void addLabels (){
+        this.coorXText = new String [] {"a","b","c","d","e","f","g","h"};
+        
+        for (int i = 0; i<this.coorXText.length; i++){
+            addLabelsHelper (new Vector3f (0.2f+i,0.0f,-0.455f), coorXText[i]);
         }
+        this.coorYText = new String []{ "1", "2", "3","4","5","6","7","8"};  
+        
+        for (int i = 0; i<this.coorYText.length; i++)
+            addLabelsHelper (new Vector3f (-0.5f,0.0f,-0.455f+i), coorYText[i]);
     }
-*/
+    
+    private void addLabelsHelper(Vector3f point, String t) {
+        
+        Font3D f3d = new Font3D(new Font("TimesRoman", Font.BOLD, 1), new FontExtrusion());
+        Text3D text = new Text3D(f3d, new String(t), new Point3f(0.0f,0.0f, 0.0f));
+
+       // text.setString("Java3D.org");
+        Color3f black = new Color3f(Color.BLACK);
+        Appearance a = new Appearance();
+        Material m = new Material(this.backgroundColor3f, black, black, black, 80.0f);
+        m.setLightingEnable(true);
+        a.setMaterial(m);
+
+        Shape3D sh = new Shape3D();
+        sh.setGeometry(text);
+        sh.setAppearance(a);
+        TransformGroup tg = new TransformGroup();
+        Transform3D t3d = new Transform3D();
+        Transform3D tDown = new Transform3D();
+        Transform3D rot = new Transform3D();
+        Vector3f v3f = Coordinates.convertToGraph(point);
+        t3d.setTranslation(v3f);
+        rot.rotY(Math.PI);
+        t3d.mul(rot);
+        rot.rotX(-Math.PI/2);
+        t3d.mul (rot);
+        tDown.setScale(0.4);
+        t3d.mul(tDown);
+        tg.setTransform(t3d);
+        tg.addChild(sh);
+        this.sceneBG.addChild(tg);
+
+}
 
 } 

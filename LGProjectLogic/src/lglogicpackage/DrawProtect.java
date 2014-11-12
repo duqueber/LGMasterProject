@@ -35,7 +35,7 @@ public class DrawProtect extends Strategies{
     public void evaluateDrawProtect (Node<Moves> m ){
         
         if (necessaryConditionMet () || necessaryConditionNotMet()){
-           // m.delete();
+            addToCutReason (m.getData().getStep(), "Sd Maintained");
             return;
         }
         if (!m.isRoot())
@@ -43,10 +43,14 @@ public class DrawProtect extends Strategies{
             
         this.nextSteps = generateNextSteps (m);    
 
-        if (!this.nextSteps.isEmpty())
+        if (!this.nextSteps.isEmpty()){
             if (!necessaryConditionMet () && !necessaryConditionNotMet()||
                  this.WTactic instanceof KeepBothStates)
-                m.setChildren(this.nextSteps);                    
+                m.setChildren(this.nextSteps);    
+             else 
+                if (necessaryConditionMet () || necessaryConditionNotMet())
+                    addToCutReason (m.getData().getStep(), "Sd Maintained");   
+        }    
 
         for (Node<Moves> step: this.nextSteps)       
             evaluateDrawProtect(step);

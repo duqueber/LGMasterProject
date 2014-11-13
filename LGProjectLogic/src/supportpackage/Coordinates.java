@@ -60,6 +60,11 @@ public class Coordinates {
 
         return new Vector3f((float)7.5-f.x, (float)f.y, (float)(f.z+0.5));
     }
+    
+    public static Vector3d convertToCoorSys (Vector3d f){
+
+        return new Vector3d((float)7.5-f.x, (float)f.y, (float)(f.z-0.5));
+    }
             
     public static String convertToChess (String s){
         Coordinates c = parseString (s);

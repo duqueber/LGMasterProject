@@ -21,6 +21,7 @@ import javax.media.j3d.*;
 import static javax.media.j3d.Background.SCALE_FIT_MAX;
 import javax.swing.*;
 import javax.vecmath.*;
+import lggrammars.ShortestTrajectory;
 import lggrammars.Zones;
 import lglogicpackage.Board2D;
 import lglogicpackage.Gateways;
@@ -28,7 +29,7 @@ import lglogicpackage.PiecesLogic;
 import lglogicpackage.Strategies;
 import supportpackage.Coordinates;
 import supportpackage.Tree;
-import supportpackage.Triangle3D;
+
 
 
 public class BoardScene extends JPanel{
@@ -84,8 +85,7 @@ public class BoardScene extends JPanel{
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
-        
-        
+
         canvas3D.setPreferredSize(new Dimension(GUIFrame.BHEIGHT, GUIFrame.PHEIGHT));
         
         canvas3D.setFocusable(true);     // give focus to the canvas 
@@ -201,7 +201,7 @@ public class BoardScene extends JPanel{
         for (Coordinates i: this.gwInt){
             BoardObjects blackGW = new BoardObjects ("chess/BlackPieces/Circle.obj" , 
             Coordinates.convertToGraph(new Vector3d(i.x, 0, i.y)),-Math.PI/2, 
-            0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), BLACK, "obj");
+            0.0, 0.0, 1.15, new Transform3D (), new TransformGroup(), BLACK, "obj");
             this.gwPiecesInt[i.x] = blackGW;
             loadModel (blackGW);
         }
@@ -209,7 +209,7 @@ public class BoardScene extends JPanel{
          for (Coordinates i: this.gwProt){
             BoardObjects blackGW = new BoardObjects ("chess/WhitePieces/Circle.obj" , 
             Coordinates.convertToGraph(new Vector3d(i.x, 0, i.y)),-Math.PI/2, 
-            0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), BLACK, "obj");
+            0.0, 0.0, 1.15, new Transform3D (), new TransformGroup(), BLACK, "obj");
             this.gwPiecesPro[i.y] = blackGW;
             loadModel (blackGW);
         }
@@ -218,7 +218,7 @@ public class BoardScene extends JPanel{
             if (this.gwPiecesPro[i] == null){
                 defaultGw = new BoardObjects ("chess/WhitePieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
-                0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), defaultColor, "obj");
+                0.0, 0.0, 1.15, new Transform3D (), new TransformGroup(), defaultColor, "obj");
                 this.gwPiecesPro[i] = defaultGw;
                 loadModel (defaultGw);
             }   
@@ -228,7 +228,7 @@ public class BoardScene extends JPanel{
             if (this.gwPiecesInt[i] == null){
                 defaultGw = new BoardObjects ("chess/BlackPieces/Circle.obj", 
                 Coordinates.convertToGraph(defaultV),-Math.PI/2, 
-                0.0, 0.0, 1.0, new Transform3D (), new TransformGroup(), defaultColor, "obj");
+                0.0, 0.0, 1.15, new Transform3D (), new TransformGroup(), defaultColor, "obj");
                 this.gwPiecesInt[i] = defaultGw;
                 loadModel (defaultGw);
             }   
@@ -271,18 +271,22 @@ public class BoardScene extends JPanel{
                 inIntGw= coor;
         }
         
-        if (inProtGw == null){
-            for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneProt)
-                for (Coordinates c: this.gwProt)
-                    drawShortestPath(trajToGW, WHITE);
-        }            
+        for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneProt)
+            if (inProtGw == null)
+                drawShortestPath(trajToGW, WHITE);
+            else
+            if (trajToGW.get(0).getData().equals(inProtGw))
+                 drawShortestPath(trajToGW, WHITE);
+
         
         if (inIntGw == null){
         for (ArrayList<supportpackage.Node<Coordinates>> trajToGW: this.GWZoneInt)
-            for (Coordinates c: this.gwInt)
-                        drawShortestPath(trajToGW,BLACK);
+                    drawShortestPath(trajToGW,BLACK);
         }
+        addSd(coor, this.gwInt, board);
+        addSd(coor, this.gwProt, board);
         this.sceneBG.addChild(this.bg2);
+        
 
      }//end of testfunction
     
@@ -326,24 +330,23 @@ public class BoardScene extends JPanel{
         for (Coordinates gP: gwProt){
             for  (Coordinates gI: gwInt){
                 if (gP.equals(gI)){
-                        isOverlap = true;
-                        this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale/1.4);
-                        this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0.1, gP.y)));
-                        this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
+                    isOverlap = true;
+                    this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale/1.4);
+                    this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0.1, gP.y)));
+                    this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
                 }  
                 else
-                   if (this.gwPiecesPro[gP.y]!= null){
-                        this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale);
-                        this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0, gP.y)));
-                        this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
-                   }    
+                if (this.gwPiecesPro[gP.y]!= null){
+                    this.gwPiecesPro[gP.y].t3d.setScale(this.gwScale);
+                    this.gwPiecesPro[gP.y].t3d.setTranslation(Coordinates.convertToGraph(new Vector3d(gP.x, 0, gP.y)));
+                    this.gwPiecesPro[gP.y].tg.setTransform(this.gwPiecesPro[gP.y].t3d);
+                }    
             }
-        }
-        
+        } 
         this.GWZoneProt = g.generateGatewaysZones(Gateways.Teams.WHITE, Gateways.Types.PROTECT);
-        this.GWZoneInt = g.generateGatewaysZones(Gateways.Teams.BLACK, Gateways.Types.INTERCEPT);
-        
+        this.GWZoneInt = g.generateGatewaysZones(Gateways.Teams.BLACK, Gateways.Types.INTERCEPT);    
     }    
+    
     public void removeZones (){
         this.sceneBG.removeChild (this.bg2);
     }
@@ -419,11 +422,8 @@ public class BoardScene extends JPanel{
         Transform3D td = new Transform3D();
         steerTG.getTransform(td);
 
-        // args are: viewer posn, where looking, up direction
         td.lookAt( USERPOSN, new Point3d(4.0,0.0,4.0), new Vector3d(0,1,0));
         td.invert();
-//new Point3d(4.0,0.0,4.0)
-        //Point3d(8,6,8)
         steerTG.setTransform(td);
     }  // end of initUserPosition()
 
@@ -446,8 +446,6 @@ public class BoardScene extends JPanel{
     
             if(loadedScene != null ) {
                 loadedBG = loadedScene.getSceneGroup();    
-
-               // listSceneNamedObjects(loadedScene, bo.color);
 
                 bo.t3d.rotX( bo.rotx );  
                 Vector3d scaleVec = calcScaleFactor(loadedBG, bo.scale); 
@@ -578,8 +576,7 @@ public class BoardScene extends JPanel{
             addLine (itFirst.next().getData(), itSecond.next().getData(), color);
         }       
     }
-    
-    
+      
     private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
     
         if (c.equals(Color.BLACK))
@@ -619,31 +616,42 @@ public class BoardScene extends JPanel{
         
         Shape3D dotShape = new Shape3D(lineArr, dotApp);
         this.bg2.addChild(dotShape);
-
-        
+    }
+    
+    private void addSd (Coordinates fighter, ArrayList<Coordinates> arrayGw, Board2D board){
+         
+        ShortestTrajectory st;  
+        if (!PanelButtons.isOnGw(fighter, arrayGw)){   
+            for (Coordinates c : arrayGw){
+                st = new ShortestTrajectory (board, board.getPiece(fighter), c);
+                    addLabelsHelper (new Vector3f ((float)(c.x-0.15), 0.2f,(float)(c.y-0.15)), 
+                        Integer.toString(st.Map()), new Color3f (Color.ORANGE), this.bg2);
+            }
+        }    
     }
     
     private void addLabels (){
         this.coorXText = new String [] {"a","b","c","d","e","f","g","h"};
         
         for (int i = 0; i<this.coorXText.length; i++){
-            addLabelsHelper (new Vector3f (0.2f+i,0.0f,-0.455f), coorXText[i]);
+            addLabelsHelper (new Vector3f (0.2f+i,0.0f,-0.455f), coorXText[i],
+                    backgroundColor3f, this.sceneBG);
         }
         this.coorYText = new String []{ "1", "2", "3","4","5","6","7","8"};  
         
         for (int i = 0; i<this.coorYText.length; i++)
-            addLabelsHelper (new Vector3f (-0.5f,0.0f,-0.455f+i), coorYText[i]);
+            addLabelsHelper (new Vector3f (-0.5f,0.0f,-0.455f+i), coorYText[i], 
+                    backgroundColor3f, this.sceneBG);
     }
     
-    private void addLabelsHelper(Vector3f point, String t) {
+    private void addLabelsHelper(Vector3f point, String t, Color3f color, BranchGroup bg) {
         
         Font3D f3d = new Font3D(new Font("TimesRoman", Font.BOLD, 1), new FontExtrusion());
         Text3D text = new Text3D(f3d, new String(t), new Point3f(0.0f,0.0f, 0.0f));
 
-       // text.setString("Java3D.org");
         Color3f black = new Color3f(Color.BLACK);
         Appearance a = new Appearance();
-        Material m = new Material(this.backgroundColor3f, black, black, black, 80.0f);
+        Material m = new Material(color, black, black, black, 80.0f);
         m.setLightingEnable(true);
         a.setMaterial(m);
 
@@ -664,8 +672,7 @@ public class BoardScene extends JPanel{
         t3d.mul(tDown);
         tg.setTransform(t3d);
         tg.addChild(sh);
-        this.sceneBG.addChild(tg);
+        bg.addChild(tg);
 
-}
-
+    }
 } 

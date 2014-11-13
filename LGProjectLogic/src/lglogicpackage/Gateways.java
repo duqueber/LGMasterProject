@@ -126,12 +126,12 @@ public class Gateways {
                 for (ArrayList<Node<Coordinates>> stFirstStep : stsFirstStep) {
                     index = stFirstStep.size() - 1 - distTemp;
                     c= stFirstStep.get(index).getData();
-                    if (!IsInArray ( array, c))
+                    if (!IsInArray ( array, c) && !isInSt (st, c))
                         array.add(c);
                     if (i+1 >distTemp)// for protect gateways the preferred GWs
                         //can reach a point in the main trajectory in less than
                         //the time allowed to reach it. 
-                            if (!IsInArray (this.preferredGateways, c))
+                        if (!IsInArray (this.preferredGateways, c))
                                 this.preferredGateways.add(c);
                     if (sd == 0 || sd> stFirstStep.size() - 1 - distTemp )
                         sd = stFirstStep.size() - 1 - distTemp;
@@ -249,6 +249,13 @@ public class Gateways {
                 return true;
         return false;
     }
+    public boolean isInSt (ArrayList<Node<Coordinates>>st, Coordinates c){
+        for (Node<Coordinates> coor: st )
+            if (c.equals(coor.getData()))
+                return true;
+        return false;
+    }
+    
     
     public static boolean inArrayNoFirst (ArrayList<Node<Coordinates>> a, Coordinates c){
         

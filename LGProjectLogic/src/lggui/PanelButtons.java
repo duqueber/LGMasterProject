@@ -188,7 +188,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         else
         if (e.getSource() == this.chart){
                 this.scene.showSpaceChart(this.currentBoard, 
-                        isOnGw(this.currentBoard.getPieceFromName("W-Fighter").getCoordinates(), Gateways.Types.PROTECT));
+                        isOnGw(this.currentBoard.getPieceFromName("W-Fighter").getCoordinates(), this.scene.gwProt));
         }        
         else 
             RadioButtonActionPerformed(e);
@@ -214,20 +214,14 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         
         Moves doMove = doMoveNode.getData().getMove().getData();
         String namePiece = doMove.getPiece().NAME;
-        PiecesLogic oldBBomber = doMoveNode.getData().getBoard().getPieceFromName("B-Bomber");
-        PiecesLogic newBBomber =  this.currentBoard.getPieceFromName("B-Bomber");
-        PiecesLogic oldBFighter =doMoveNode.getData().getBoard().getPieceFromName("B-Fighter");
-        PiecesLogic newBFighter = this.currentBoard.getPieceFromName("B-Fighter");                 
     
         if (!this.currentBoard.equals(doMoveNode.getData().getBoard())){
             
             this.currentBoard = new Board2D (doMoveNode.getData().getBoard());
             this.scene.calculateGateways (this.currentBoard);
-            if (!oldBBomber.getCoordinates().equals(newBBomber.getCoordinates()))
-                SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
-             
-            if (!oldBFighter.getCoordinates().equals(newBFighter.getCoordinates()))
-                SetGwInBoard (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
+
+            SetGwInBoard (this.scene.gwInt, this.scene.gwPiecesInt, Gateways.Types.INTERCEPT);
+            SetGwInBoard (this.scene.gwProt, this.scene.gwPiecesPro, Gateways.Types.PROTECT);
      
             setPiecesToCurrent ("nothing");
             this.steptoDraw.add (doMoveNode);
@@ -298,13 +292,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
            
     }
    
-    private boolean isOnGw (Coordinates fighter, Gateways.Types type){
-        
-        ArrayList <Coordinates> gw ;
-        if (type.equals(Gateways.Types.PROTECT))
-            gw = this.scene.gwProt;
-        else
-            gw = this.scene.gwInt;
+    public static boolean isOnGw (Coordinates fighter, ArrayList <Coordinates> gw){
         
         for (Coordinates c: gw)
             if (c.equals(fighter))
@@ -317,12 +305,12 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     private void SetGwInBoard (ArrayList<Coordinates> to, BoardObjects[] from, Gateways.Types type){
        
         Coordinates fCoor = this.currentBoard.getPieceFromName("W-Fighter").getCoordinates();
-        if (Gateways.Types.PROTECT.equals(type) && isOnGw(fCoor, Gateways.Types.PROTECT)){
+        if (Gateways.Types.PROTECT.equals(type) && isOnGw(fCoor, this.scene.gwProt)){
             to= new ArrayList <>();
             to.add (fCoor);
         }    
         else{
-            if (Gateways.Types.INTERCEPT.equals(type) && isOnGw(fCoor, Gateways.Types.INTERCEPT)){
+            if (Gateways.Types.INTERCEPT.equals(type) && isOnGw(fCoor, this.scene.gwInt)){
             to= new ArrayList <>();
             to.add (fCoor);
             }

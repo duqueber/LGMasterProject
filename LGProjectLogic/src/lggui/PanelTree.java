@@ -196,8 +196,13 @@ public class PanelTree extends JPanel {
 
                     if (!this.cutReasons.isEmpty()){
                         for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
-                            if (e.getKey ().equals(c))
-                            currentReason = new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
+                            if (e.getKey ().equals(c)){
+                                currentReason = new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
+                                g.setStroke(new BasicStroke(7));
+                                g.setColor (BoardScene.backgroundColor);
+                                g.drawOval(this.currentTreeNode.x-3, this.currentTreeNode.y-3, 
+                                        this.NODE_SIZE+6, this.NODE_SIZE+6);
+                            }    
                         }  
                     }    
                 }    
@@ -205,7 +210,7 @@ public class PanelTree extends JPanel {
             else {
                 System.out.println (this.changingBranch);
                 g.setColor (Color.ORANGE);
-                g.setStroke(new BasicStroke(5));
+                g.setStroke(new BasicStroke(6));
                 g.drawOval(this.currentTreeNode.xdad-3, this.currentTreeNode.ydad-3, 
                 this.NODE_SIZE+6, this.NODE_SIZE+6); 
                 this.changingBranch = false;                        

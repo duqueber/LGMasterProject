@@ -49,13 +49,14 @@ public class PanelTree extends JPanel {
     private Map<Coordinates, String> cutReasons = new HashMap<>(); 
     public static CutReason currentReason;
     private boolean changingBranch;
+    private int startAt = 200;
     
     PanelTree (){
         super ();
         Dimension d = new Dimension (GUIFrame.PWIDTH- GUIFrame.BHEIGHT, (GUIFrame.PHEIGHT-120));
         this.setPreferredSize(d);
         this.SIZE = this.getPreferredSize();
-        this.SQUARE =  this.SIZE.width/14;
+        this.SQUARE =  22;
         setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10,
                 BoardScene.backgroundColor));
         this.changingBranch = false;
@@ -67,8 +68,9 @@ public class PanelTree extends JPanel {
         PanelTree.repaintCallsCounter = 0;
         this.treeStack = new Stack <> ();     
     //treeNode (x, y, Line2D line1,Color color, String data)    
-        int startAt = this.SIZE.width/2 - this.SQUARE/2;
-        addChildrenTreeStack(root, new TreeNode (startAt, -40,0,0, Color.BLACK, "77"));
+        
+                //this.getPreferredSize().width/2 - this.SQUARE/2;
+        addChildrenTreeStack(root, new TreeNode (startAt, -40,startAt,0, Color.BLACK, "77"));
         this.cutReasons = cutReasons;
     }
     
@@ -122,7 +124,7 @@ public class PanelTree extends JPanel {
             if (children.size() == 2){
                 c1= children.get(1).getData().getStep();
                 label1 = "" + c1.x + c1.y;
-                if (tn.x > this.SIZE.width/2)
+                if (tn.x > startAt)
                     this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label0)); 
                 else 
                     this.treeStack.add (new TreeNode (tn.x- 3* (this.NODE_SIZE/2), yCoor, tn.x, tn.y, color, label0)); 
@@ -209,7 +211,7 @@ public class PanelTree extends JPanel {
             }   
             else {
                 System.out.println (this.changingBranch);
-                g.setColor (Color.ORANGE);
+                g.setColor (new Color(1.0f, 0.271f, 0.0f));
                 g.setStroke(new BasicStroke(6));
                 g.drawOval(this.currentTreeNode.xdad-3, this.currentTreeNode.ydad-3, 
                 this.NODE_SIZE+6, this.NODE_SIZE+6); 

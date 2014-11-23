@@ -34,7 +34,7 @@ public class MixedDraw extends Strategies {
     public void evaluateMixedDraw(Node<Moves> m ){
         
         if (necessaryConditionMet () || necessaryConditionNotMet()){
-            addToCutReason (m.getData().getStep(), "Sum sd decreased, no common");
+            addToCutReason (m.getData().getStep(), "Sum Board Distance decreased");
             return;
         }
         if (!m.isRoot())
@@ -48,7 +48,7 @@ public class MixedDraw extends Strategies {
                 m.setChildren(this.nextSteps);   
             else 
                 if (necessaryConditionMet () || necessaryConditionNotMet())
-                    addToCutReason (m.getData().getStep(), "Sum sd decreased, no common");
+                    addToCutReason (m.getData().getStep(), "Sum Board Distance decreased");
         }    
 
         for (Node<Moves> step: this.nextSteps)       

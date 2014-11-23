@@ -7,6 +7,7 @@
 package lglogicpackage;
 
 import java.util.ArrayList;
+import java.util.List;
 import supportpackage.Moves;
 import supportpackage.Node;
 import supportpackage.Tree;
@@ -20,6 +21,7 @@ public class WhiteWins extends Strategies{
     private Tactics WTactic, BTactic;
     ArrayList<Node<Moves>> nextSteps;
     private boolean whiteWinsChance;
+    private boolean end = false;
     
     public WhiteWins (Board2D board){
         super (board);
@@ -46,16 +48,25 @@ public class WhiteWins extends Strategies{
 
         if (!this.nextSteps.isEmpty()){
             if (!necessaryConditionNotMet()||
-                 this.WTactic instanceof KeepBothStates)
-                m.setChildren(this.nextSteps);   
+                 this.WTactic instanceof KeepBothStates){
+                m.setChildren(this.nextSteps);  
+            }    
             else
-                if (necessaryConditionNotMet())
+                if (necessaryConditionNotMet()){
                     addToCutReason (m.getData().getStep(), "No Common Location");
+                    this.end = true;
+                }    
          }        
-                
-
-        for (Node<Moves> step: this.nextSteps)       
-            evaluateWhiteWins(step);
+        
+        List <Node<Moves>> children = new ArrayList ();
+        if (m.hasChildren()){
+            children = m.getChildren();
+            for (int i = children.size()-1; i>=0; i--)  
+                if (!this.end)
+                    evaluateWhiteWins(children.get(i));
+                else 
+                    m.deleteChild(children.get(i));
+        }    
     }
     //WhiteIntercept, BlackIntercept, WhiteProtect, Black Protect
     ArrayList<Node<Moves>> generateNextSteps (Node<Moves> m){

@@ -47,6 +47,13 @@ public class Node<T> {
             child.setFather(this);
     }
     
+    public void deleteChild (Node<T> child){
+        for (Node<T> oldChild : this.children){
+            if (oldChild.data.equals(child.data))
+                this.children.remove(oldChild);
+        }
+    }
+    
     public void setFather (Node<T> dad){
         this.father = dad;
     }

@@ -6,7 +6,9 @@
 
 package lggui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,6 +28,8 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
@@ -79,6 +83,10 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     private String choice = null;
     private Map<Coordinates, String> currentCut = new HashMap <>();
     private JRadioButton blackWins = new JRadioButton();
+    private JRadioButton drawIntercept = new JRadioButton();
+    private JRadioButton drawProtect = new JRadioButton();
+    private JRadioButton mixedDraw = new JRadioButton();
+    private String finalMsg = new String ();
     
     PanelButtons (BoardScene scene){
         super();
@@ -127,16 +135,16 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.detailI = new JCheckBox ("Show Zones");
         this.add (this.detailI);
         
-        JRadioButton drawIntercept = new JRadioButton(DRAWI);
+        this.drawIntercept = new JRadioButton(DRAWI);
         this.add(drawIntercept);
         
-        JRadioButton drawProtect = new JRadioButton (DRAWP);
+        this.drawProtect = new JRadioButton (DRAWP);
         this.add(drawProtect);
 
         this.chart = new JButton ("Space Chart");
         this.add(this.chart);
               
-        JRadioButton mixedDraw = new JRadioButton (DRAWM);
+        this.mixedDraw = new JRadioButton (DRAWM);
         this.add(mixedDraw);
         
         JRadioButton solution = new JRadioButton (SOL);
@@ -146,9 +154,9 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.add(this.next);
         
         whiteWins.addActionListener(this);
-        blackWins.addActionListener(this);
-        drawIntercept.addActionListener(this);
-        drawProtect.addActionListener(this);
+        this.blackWins.addActionListener(this);
+        this.drawIntercept.addActionListener(this);
+        this.drawProtect.addActionListener(this);
         mixedDraw.addActionListener(this);
         solution.addActionListener(this);
         this.next.addActionListener(this);
@@ -157,10 +165,10 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.detailI.addItemListener(this);
         
         whiteWins.setActionCommand(WHITE);
-        blackWins.setActionCommand(BLACK);
-        drawIntercept.setActionCommand(DRAWI);
-        drawProtect.setActionCommand(DRAWP);
-        mixedDraw.setActionCommand(DRAWM);
+        this.blackWins.setActionCommand(BLACK);
+        this.drawIntercept.setActionCommand(DRAWI);
+        this.drawProtect.setActionCommand(DRAWP);
+        this.mixedDraw.setActionCommand(DRAWM);
         solution.setActionCommand (SOL);
               
         this.checkBoxes.add(whiteWins);
@@ -209,6 +217,8 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
             doMoveNode= this.steptoDraw.pop();
         else{
             System.out.println ("No more moves available");
+            JOptionPane.showMessageDialog(new JFrame(), this.finalMsg, "No More Moves",
+                     JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -456,33 +466,39 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
                 BWinWMixed strategy = new BWinWMixed (this.currentBoard, Teams.WHITE); 
                 strategy.createTree();
                 this.currentCut = strategy.getCutReasons();
+                this.finalMsg = new String ("Terminal State of All Branches: DRAW");
                 return strategy.getTree();
             case "Black wins":
                 BlackWins bTest = new BlackWins(this.currentBoard);
                 bTest.evaluateBlackWins();
                 this.currentCut = bTest.getCutReasons();
+                this.finalMsg = new String ("B-Win CANNOT be eliminated.");
                 return bTest.getTree();
             case "Draw Int":   
                 DrawIntercept dTest = new DrawIntercept (this.currentBoard, Teams.WHITE); 
                 dTest.evaluateDrawIntercept();
                 this.currentCut = dTest.getCutReasons();
                 dTest.getTree().printTreeRelationsMoves();
+                this.finalMsg = new String ("Eliminate Pure Draw Intercept");
                 return dTest.getTree();
             case "Draw Pro":
                 DrawProtect pTest = new DrawProtect (this.currentBoard, Teams.WHITE); 
                 pTest.evaluateDrawProtect();
                 this.currentCut = pTest.getCutReasons();
+                this.finalMsg = new String ("Eliminate Pure Draw Protect");
                 return pTest.getTree();         
             case "Mixed Draw":
                 MixedDraw mTest = new MixedDraw (this.currentBoard, Teams.WHITE); 
                 mTest.evaluateMixedDraw();
                 this.currentCut = mTest.getCutReasons();
-                mTest.getTree();
+                this.finalMsg = new String ("Mixed Draw CANNOT be eliminated");
+                return mTest.getTree();
             default:  
             case "White wins": 
                 WhiteWins test = new WhiteWins (this.currentBoard);
                 test.evaluateWhiteWins();
                 this.currentCut = test.getCutReasons();
+                this.finalMsg = new String ("Eliminate W-Win");
                 return test.getTree();
         }
  
@@ -605,10 +621,16 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     }
 
     private void DetailIStateChanged (ItemEvent e){
-        if (e.getStateChange() == ItemEvent.SELECTED)
-            this.scene.showZones(this.currentBoard);
+        if (e.getStateChange() == ItemEvent.SELECTED){
+            if (this.drawIntercept.isSelected() ||this.drawProtect.isSelected()
+                    || this.mixedDraw.isSelected())
+                this.scene.showSdTrajectories(this.currentBoard);
+            else 
+                this.scene.showZones(this.currentBoard);
+        }    
         else 
             this.scene.removeZones();
     }    
 
+    
 }

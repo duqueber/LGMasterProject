@@ -37,7 +37,7 @@ public class BoardScene extends JPanel{
     
 
     private final int BOUNDSIZE = 100; 
-    private final Point3d USERPOSN = new Point3d(4.0,10.5,-1.0);
+    private final Point3d USERPOSN = new Point3d(4.0,11,-1.0);
            // new Point3d(4.0,17.0,1.0);
     private final Color3f WHITE = new Color3f(Color.WHITE);
     private final Color3f BLACK = new Color3f (Color.BLACK);
@@ -86,7 +86,7 @@ public class BoardScene extends JPanel{
         Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
 
-        canvas3D.setPreferredSize(new Dimension(GUIFrame.BHEIGHT, GUIFrame.PHEIGHT));
+        canvas3D.setPreferredSize(new Dimension(540, GUIFrame.PHEIGHT));
         
         canvas3D.setFocusable(true);     // give focus to the canvas 
         canvas3D.requestFocus();
@@ -289,6 +289,32 @@ public class BoardScene extends JPanel{
         
 
      }//end of testfunction
+    
+    public void showSdTrajectories ( Board2D board){
+        this.bg2.removeAllChildren();
+        
+        PiecesLogic fighter = board.getPieceFromName("W-Fighter");
+        showSdTrajectoriesHelper(board, this.gwProt, Color.LIGHT_GRAY);
+        showSdTrajectoriesHelper(board, this.gwInt ,Color.LIGHT_GRAY);
+        
+        
+        addSd(fighter.getCoordinates(), this.gwInt, board );
+        addSd(fighter.getCoordinates(), this.gwProt, board);
+        this.sceneBG.addChild(this.bg2);
+    }
+    
+    private void showSdTrajectoriesHelper (Board2D board, ArrayList <Coordinates> gw, 
+            Color color){
+       PiecesLogic fighter = board.getPieceFromName("W-Fighter");
+        for (Coordinates c: gw){
+            ShortestTrajectory st = new ShortestTrajectory (board, fighter,c );
+            st.GenerateShortestTrajectory();
+            ArrayList<ArrayList<supportpackage.Node<Coordinates>>> stSet;
+            stSet = st.getShortestTrajectories();
+            for (ArrayList<supportpackage.Node<Coordinates>> s: stSet)
+                drawShortestPath (s, new Color3f (color));
+        }
+    }
     
     public void calculateZones (Board2D board){
         
@@ -579,8 +605,15 @@ public class BoardScene extends JPanel{
       
     private void addLine(Coordinates pointa, Coordinates pointb, Color3f c){
     
-        if (c.equals(Color.BLACK))
-            c= new Color3f(Color.LIGHT_GRAY);
+        //Color3f cII = c;
+        if (c.equals(new Color3f (Color.BLACK)))
+            c= new Color3f(Color.DARK_GRAY);
+       /* else if (c.equals(new Color3f (Color.LIGHT_GRAY)))
+            cII = new Color3f (Color.WHITE);
+        else if (c.equals (new Color3f (Color.DARK_GRAY))){
+            c=new Color3f (Color.LIGHT_GRAY);
+            cII = new Color3f (Color.BLACK);
+        }*/
         
         Vector3d vecA =Coordinates.convertToGraph(new Vector3d (pointa.x, 1, pointa.y));
         Vector3d vecB =Coordinates.convertToGraph(new Vector3d (pointb.x, 1, pointb.y));
@@ -608,7 +641,7 @@ public class BoardScene extends JPanel{
         lineArr.setCoordinates(0, pts);
 
         LineAttributes lineAt =new LineAttributes();
-        lineAt.setLineWidth(3.0f);
+        lineAt.setLineWidth(2.0f);
        //lineAt.setLinePattern(LineAttributes.ALLOW_PATTERN_WRITE | LineAttributes.PATTERN_SOLID);
         Appearance dotApp = new Appearance();
         dotApp.setLineAttributes(lineAt);
@@ -624,8 +657,8 @@ public class BoardScene extends JPanel{
         if (!PanelButtons.isOnGw(fighter, arrayGw)){   
             for (Coordinates c : arrayGw){
                 st = new ShortestTrajectory (board, board.getPiece(fighter), c);
-                    addLabelsHelper (new Vector3f ((float)(c.x-0.15), 0.2f,(float)(c.y-0.15)), 
-                        Integer.toString(st.Map()), new Color3f (Color.ORANGE), this.bg2);
+                    addLabelsHelper (new Vector3f ((float)(c.x-0.15), 0.3f,(float)(c.y-0.15)), 
+                        Integer.toString(st.Map()), new Color3f (1.0f, 0.271f, 0.0f), this.bg2);
             }
         }    
     }

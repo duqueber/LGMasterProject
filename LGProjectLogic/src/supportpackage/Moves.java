@@ -55,4 +55,18 @@ public class Moves {
         step.PrintCoor();
     }
     
+    @Override
+    public boolean equals (Object c){
+        if (c == null)
+            return false;
+   
+        if (this.getClass() != c.getClass())
+            return false;
+        
+        if (this.step.equals(((Moves)c).step) && this.piece.equals(((Moves)c).piece))
+            return true;
+        else 
+            return false;
+    }
+    
 }

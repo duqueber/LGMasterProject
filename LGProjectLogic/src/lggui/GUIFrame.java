@@ -20,9 +20,9 @@ public class GUIFrame extends JFrame {
 
     Board2D board;
     static Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize(); 
-    static final int PWIDTH = screenDim.width-60;   
+    static final int PWIDTH = screenDim.width-80;   
     static final int PHEIGHT = screenDim.height-50; 
-    static final int BHEIGHT = PHEIGHT+20;
+    static final int BHEIGHT = PHEIGHT-50;
     
     
     public GUIFrame(Board2D board) throws IOException {
@@ -36,7 +36,8 @@ public class GUIFrame extends JFrame {
         JPanel panelRight = new JPanel();        
         c.add (panelRight, BorderLayout.CENTER);
     
-        panelRight.setPreferredSize (new Dimension (this.PWIDTH-this.BHEIGHT,this.PHEIGHT));
+       // panelRight.setPreferredSize (new Dimension (this.PWIDTH-this.BHEIGHT,this.PHEIGHT));
+        
         panelRight.setLayout(new BorderLayout());
         
         PanelButtons panelButtons = new PanelButtons (bs);

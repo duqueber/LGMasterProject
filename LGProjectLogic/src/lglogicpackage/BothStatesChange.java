@@ -37,6 +37,7 @@ public class BothStatesChange  implements Tactics  {
         this.reachedGW = false;
         this.gwPointPro = new ArrayList<>();
         this.gwPointInt = new ArrayList<>();
+        shared.add (true);
     }
 
     @Override

@@ -78,7 +78,12 @@ public class PanelTree extends JPanel {
     void addChildrenTreeStack(Node<Moves> n, TreeNode tn){
         List <Node <Moves>>  children = n.getChildren();
         Color color;
-        if (tn.color == null || tn.color.equals(Color.BLACK) )
+        if (!children.isEmpty() && (children.get(0).getData().getStep().equals(new Coordinates (1,5))||
+                children.get(0).getData().getStep().equals(new Coordinates (7,3))))
+            color= Color.BLACK;
+        else 
+        
+            if (tn.color == null || tn.color.equals(Color.BLACK) )
             color= Color.WHITE;
         else
             color = Color.BLACK;
@@ -98,8 +103,14 @@ public class PanelTree extends JPanel {
         if (children.get(0).getDepth() == 1 || children.get(0).getDepth()==2){
 
             if (children.size() == 1 && children.get(0).getDepth()==1){
-                this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label0));  
-                repaintCallsCounter--;
+                if (color.equals (Color.BLACK)){
+                    this.treeStack.add (new TreeNode (tn.x, yCoor+40, tn.x, tn.y+40, color, label0));  
+                    repaintCallsCounter++;
+                }    
+                else{
+                    this.treeStack.add (new TreeNode (tn.x, yCoor, tn.x, tn.y, color, label0));  
+                    repaintCallsCounter--;
+                }
             }
             else
              if (children.size() == 1 && children.get(0).getDepth()==2){
@@ -107,7 +118,7 @@ public class PanelTree extends JPanel {
                 repaintCallsCounter++;
             }
             if (children.size () == 2){
-                c1= children.get(1).getData().getStep();
+                c1= children.get(1).getData().getStep();//
                 label1 = "" + c1.x + c1.y;
                 if (repaintCallsCounter == 0){
                     this.treeStack.add (new TreeNode (tn.x+ 3* (this.NODE_SIZE/2), yCoor+40, tn.x, tn.y+40, color, label0)); 

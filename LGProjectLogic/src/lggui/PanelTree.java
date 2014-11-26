@@ -27,6 +27,7 @@ import java.util.Stack;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.vecmath.Color3f;
+import static lggui.PanelButtons.endOfBranch;
 import supportpackage.Coordinates;
 import supportpackage.Moves;
 import supportpackage.Node;
@@ -53,7 +54,7 @@ public class PanelTree extends JPanel {
     
     PanelTree (){
         super ();
-        Dimension d = new Dimension (GUIFrame.PWIDTH- GUIFrame.BHEIGHT, (GUIFrame.PHEIGHT-120));
+        Dimension d = new Dimension (935- GUIFrame.BHEIGHT, (GUIFrame.PHEIGHT-120));
         this.setPreferredSize(d);
         this.SIZE = this.getPreferredSize();
         this.SQUARE =  22;
@@ -211,6 +212,7 @@ public class PanelTree extends JPanel {
                         for (Map.Entry<Coordinates, String> e : this.cutReasons.entrySet()){
                             if (e.getKey ().equals(c)){
                                 currentReason = new CutReason (e.getValue(), new Point (nodeMidX, nodeY));
+                                PanelButtons.endOfBranch = true;
                                 g.setStroke(new BasicStroke(7));
                                 g.setColor (BoardScene.backgroundColor);
                                 g.drawOval(this.currentTreeNode.x-3, this.currentTreeNode.y-3, 

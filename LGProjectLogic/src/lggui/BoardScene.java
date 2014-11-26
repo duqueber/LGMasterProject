@@ -236,7 +236,7 @@ public class BoardScene extends JPanel{
         this.gwScale = this.gwPiecesInt[4].t3d.getScale();
     }
     
-    public void showSpaceChart (Board2D board, boolean fighterInProt){
+    public void showSpaceChart (Board2D board, PanelButtons pb, boolean fighterInProt){
         
         calculateZones (board);
         String blackType = null; 
@@ -246,7 +246,7 @@ public class BoardScene extends JPanel{
             blackType = Zones.getZoneType(this.mainBlack.getZonesTree().get(0), null);
         if (this.mainWhite != null)
             whiteType = Zones.getZoneType(this.mainWhite.getZonesTree().get(0), null, fighterInProt); 
-        new SpaceChart (blackType, whiteType);
+        new SpaceChart (blackType, whiteType, pb);
     }
     
     public void showZones(Board2D board) {

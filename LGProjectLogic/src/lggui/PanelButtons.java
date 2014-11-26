@@ -82,15 +82,20 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     private PanelTree pTree;
     private String choice = null;
     private Map<Coordinates, String> currentCut = new HashMap <>();
-    private JRadioButton blackWins = new JRadioButton();
-    private JRadioButton drawIntercept = new JRadioButton();
-    private JRadioButton drawProtect = new JRadioButton();
-    private JRadioButton mixedDraw = new JRadioButton();
+    public JRadioButton blackWins = new JRadioButton();
+    public JRadioButton drawIntercept = new JRadioButton();
+    public JRadioButton drawProtect = new JRadioButton();
+    public JRadioButton mixedDraw = new JRadioButton();
+    public JRadioButton whiteWins = new JRadioButton();
+    public JRadioButton solution = new JRadioButton();
     private String finalMsg = new String ();
+    private GUIFrame frame;
+    public static boolean endOfBranch = false;
     
-    PanelButtons (BoardScene scene){
+    PanelButtons (BoardScene scene, GUIFrame frame){
         super();
         this.scene = scene;
+        this.frame = frame;
         this.checkBoxes = new ButtonGroup ();
         createPanelButtons ();
         this.timer = new Timer(100, this);
@@ -126,8 +131,8 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         layout.setVgap(5);
         this.setLayout(layout);
         
-        JRadioButton whiteWins = new JRadioButton(WHITE);
-        this.add(whiteWins);
+        this.whiteWins = new JRadioButton(WHITE);
+        this.add(this.whiteWins);
         
         this.blackWins = new JRadioButton (BLACK);
         this.add(blackWins);
@@ -147,18 +152,18 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         this.mixedDraw = new JRadioButton (DRAWM);
         this.add(mixedDraw);
         
-        JRadioButton solution = new JRadioButton (SOL);
-        this.add(solution);
+        this.solution = new JRadioButton (SOL);
+        this.add(this.solution);
                    
         this.next = new JButton("Next");
         this.add(this.next);
         
-        whiteWins.addActionListener(this);
+        this.whiteWins.addActionListener(this);
         this.blackWins.addActionListener(this);
         this.drawIntercept.addActionListener(this);
         this.drawProtect.addActionListener(this);
-        mixedDraw.addActionListener(this);
-        solution.addActionListener(this);
+        this.mixedDraw.addActionListener(this);
+        this.solution.addActionListener(this);
         this.next.addActionListener(this);
         this.chart.addActionListener(this);
         
@@ -195,7 +200,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         }
         else
         if (e.getSource() == this.chart){
-                this.scene.showSpaceChart(this.currentBoard, 
+                this.scene.showSpaceChart(this.currentBoard, this,
                         isOnGw(this.currentBoard.getPieceFromName("W-Fighter").getCoordinates(), this.scene.gwProt));
         }        
         else 
@@ -204,6 +209,7 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
     
     private void NextButtonActionPerformed () throws IOException{
         
+        endOfBranch = false;
         if (PanelTree.currentReason != null)
             CutReason.closeCurrentReason ();
         this.detailI.setSelected(false);
@@ -213,12 +219,15 @@ public class PanelButtons extends JPanel implements ActionListener, ItemListener
         }
         boolean willDestroy = false;
         Node<MoveStruct> doMoveNode = null;
+        JFrame j = new JFrame();
         if (!this.steptoDraw.isEmpty())
             doMoveNode= this.steptoDraw.pop();
         else{
+            endOfBranch = true;
             System.out.println ("No more moves available");
-            JOptionPane.showMessageDialog(new JFrame(), this.finalMsg, "No More Moves",
+            JOptionPane.showMessageDialog(this.frame, this.finalMsg, "No More Moves",
                      JOptionPane.WARNING_MESSAGE);
+            
             return;
         }
         

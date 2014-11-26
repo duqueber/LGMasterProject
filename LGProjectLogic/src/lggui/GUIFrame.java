@@ -9,6 +9,9 @@ package lggui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.io.IOException;
 import javax.swing.JFrame;
@@ -40,7 +43,7 @@ public class GUIFrame extends JFrame {
         
         panelRight.setLayout(new BorderLayout());
         
-        PanelButtons panelButtons = new PanelButtons (bs);
+        PanelButtons panelButtons = new PanelButtons (bs, this);
         panelRight.add (panelButtons.getPanelButtons(), BorderLayout.CENTER);
         
         JPanel panelTree = panelButtons.getPanelTree();
@@ -51,10 +54,30 @@ public class GUIFrame extends JFrame {
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         this.setState(this.ICONIFIED);
         this.setExtendedState(MAXIMIZED_BOTH);
-        pack();
+        showOnScreen (1, this, false);
         setResizable(false); 
+        pack();
         setVisible(true);
-    } 
+    }
+    
+    public static void showOnScreen( int screen, JFrame frame , boolean mid) {
+        int x;
+        
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gd = ge.getScreenDevices();
+        if( screen > -1 && screen < gd.length ) {
+            Rectangle r = gd[screen].getDefaultConfiguration().getBounds();
+            if (mid)
+               frame.setLocation(r.x + r.width/2, frame.getY());
+            else
+                frame.setLocation(r.x + r.width/2, frame.getY());
+            
+        } else if( gd.length > 0 ) {
+            frame.setLocation(gd[0].getDefaultConfiguration().getBounds().x, frame.getY());
+        } else {
+            throw new RuntimeException( "No Screens Found" );
+    }
+   }
 
     public static void main(String[] args) throws IOException{ 
         //new GUIFrame(); 
